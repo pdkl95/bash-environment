@@ -1,3 +1,4 @@
+#! /bin/bash
 # -*- mode: sh -*-
 
 ###############################
@@ -132,9 +133,65 @@ function dircmp {
            print $0;
          }'
 }
+function byteMe() {
+    # Divides by 2^10 until < 1024 and then append metric suffix
 
+    # Array of suffixes
+    declare -a METRIC=(' Bytes' 'KB' 'MB' 'GB' 'TB' 'XB' 'PB')
 
+    # magnitude of 2^10
+    MAGNITUDE=0
 
+    # change this numeric value to inrease decimal precision
+    PRECISION="scale=1"
+    # numeric arg val (in bytes) to be converted
+    UNITS=`echo $1 | tr -d ‘,’`
 
+    # compares integers (b/c no floats in bash)
+    while [ ${UNITS/.*} -ge 1024 ]
+    do
+        # floating point math via `bc`
+        UNITS=`echo "$PRECISION; $UNITS/1024" | bc`
 
+        # increments counter for array pointer
+        ((MAGNITUDE++))
+    done
+    echo "$UNITS${METRIC[$MAGNITUDE]}"
+}
 
+function fix_dir_tree_fmt {
+    local -a a
+    local h
+    while read line ; do
+        a=(`echo ${line/ / }`)
+        h=$(byteMe $a)
+        unset a[0]
+        echo $h ${a[*]}
+    done
+}
+
+function fmt_dir_tree {
+    cut -f2- -d' ' | fix_dir_tree_fmt | tr ' ' "\t" | column -t
+}
+
+function find_sorted_dir_tree {
+    local PFX SRT
+    PFX="$1"
+    SRT="$2"
+    shift 2
+    [[ -n "$PFX" ]] && PFX="$PFX "
+    find "$@" -type f -printf "${PFX}%s %M %u %Tb-%Td,%TH:%TM %p\n" | sort $SRT | fmt_dir_tree
+}
+
+function list_dir_tree_mtime_asc {
+    find_sorted_dir_tree '%T@' '-n'    "$@"
+}
+function list_dir_tree_mtime_desc {
+    find_sorted_dir_tree '%T@' '-n -r' "$@"
+}
+function list_dir_tree_size_asc {
+    find_sorted_dir_tree ''    '-n'    "$@"
+}
+function list_dir_tree_size_desc {
+    find_sorted_dir_tree ''    '-n -r' "$@"
+}
