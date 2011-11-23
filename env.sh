@@ -20,8 +20,8 @@ export LC_ALL="en_US.UTF-8"
 export LC_COLLATE="C"
 export LC_CTYPE="C"
 
-export EDITOR="emacsclient -nw -c"
-export VISUAL="emacsclient -nw -c"
+export EDITOR="vim"
+export VISUAL="${EDITOR}"
 export ALTERNATE_EDITOR=""
 
 export PAGER=/usr/bin/less
@@ -49,14 +49,13 @@ export RUBYOPT=""
 #export GOBIN="$HOME/bin"
 
 
-#MPLAYEROPT="-vo vdpau -vc ffh264vdpau,ffmpeg12vdpau,ffvc1vdpau,ffwmv3vdpau, -fs -idx -stop-xscreensaver"
-#MPLAYEROPT="-vo gl -vc ffh264vdpau,ffmpeg12vdpau,ffvc1vdpau,ffwmv3vdpau, -fs -idx -stop-xscreensaver"
-MPLAYEROPT="-profile m.vdpau.mild"
-
-
 
 ##################################################
-# option defaults
+# set some defaults
+
+if [ -z "${MPLAYEROPT}" ] ; then
+    export MPLAYEROPT="-profile m.vdpau.mild"
+fi
 
 if [ ${USE_ANSI_COLOR:-1} -eq 1 ] ; then
     export USE_ANSI_COLOR=1
@@ -76,7 +75,7 @@ fi
 
 PCMD_BASIC='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/$HOME/~}\033\\"'
 PCMD_COLOR='echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/$HOME/~}\007"'
-if type -t custom_prompt_command ; then
+if type -t custom_prompt_command > /dev/null ; then
     PCMD_FANCY='custom_prompt_command'
 else
     PCMD_FANCY="${PCMD_COLOR}"

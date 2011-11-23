@@ -13,7 +13,7 @@ function parse_git_branch {
 }
 
 function e {
-    export GDK_NATIVE_WINDOWS=1
+    #export GDK_NATIVE_WINDOWS=1
     emacsclient --create-frame --no-wait --alternate-editor="/usr/bin/emacs" "$@" >& /dev/null & disown
 #    /usr/bin/emacsclient -c "$@" >& /dev/null & disown
 }
@@ -90,10 +90,15 @@ function extract {      # Handy Extract Program.
 }
 
 function my_ps {
-    ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ;
+    ps --deselect --ppid 2 "$@" -o pid,user,%cpu,%mem,nlwp,stat,bsdstart,vsz,rss,cmd --sort=bsdstart ;
 }
-function pp {
-    my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ;
+
+function my_ps_tree {
+    ps_custom f "$@"
+}
+
+function my_ps_tree_wide {
+    my_ps_tree ww
 }
 
 # Repeat n times command.

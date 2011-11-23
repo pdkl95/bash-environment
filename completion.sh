@@ -6,3 +6,4 @@ fi
 [ -n "${rvm_path}" ] && safe_load "${rvm_path}/scripts/completion"
 
 
+safe_load "${PDKL_BASHDIR}/completion.d/ruby-gems.sh"

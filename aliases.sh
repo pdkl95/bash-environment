@@ -13,6 +13,7 @@ alias lt='ls -ltr'         # sort by date, most recent last
 alias lm='ls -al |more'    # pipe through 'more'
 alias lr='ls -lR'          # recursive ls
 alias tree='tree -CAh'     # nice alternative to 'recursive ls'
+alias ln="ln -v"
 
 alias top='xtitle Processes on $HOST && top'
 alias make='xtitle Making $(basename $PWD) ; make'
@@ -49,3 +50,14 @@ alias yt="youtube-dl -t -c --coonsole-title"
 alias pwgen="pwgen -v -n"
 alias fixmouse=~/.mouse_speed
 
+alias pp="my_ps_tree"
+alias ppw="my_ps_tree_wide"
+
+alias g="git"
+alias gg="git status"
+alias be="bundle exec"
+alias bake="bundle exec rake"
+alias rc="bake rails c"
+alias rg="bake rails g"
+alias rdb="bake rails db"
+alias glog="git --no-pager log --oneline --graph -n 18 --decorate"
