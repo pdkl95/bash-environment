@@ -1,5 +1,16 @@
-if type -p gem 2>/dev/null ; then
-    # based heavily on "git-completion.bash"
+# bash completion for the rubygems "gem" program
+#
+# Copyright C 2011 Brent Sanders <git@thoughtnoise.net>
+#  -> Derived losely from "git-completion.sh" in the git-sh
+#     package, copyright C 2006,2007 Shawn O. Pearce <spearce@spearce.org>
+#      -> Conceptually based on gitcompletion (http://gitweb.hawaga.org.uk/).
+#         Distributed under the GNU General Public License, version 2.0.
+#
+# This was designed around rubygems 1.8.10 and the options may not exactly
+# match other versions.
+
+
+if type -p gem >/dev/null ; then
     function __gemcomp {
         local all c s=$'\n' IFS=' '$'\t'$'\n'
         local cur="${COMP_WORDS[COMP_CWORD]}"
@@ -22,6 +33,10 @@ if type -p gem 2>/dev/null ; then
         COMPREPLY=()
     }
 
+    function __gem_complete_file_gem {
+        __gem_complete_file
+    }
+
     function __gem_complete_file_gemspec {
         __gem_complete_file
     }
@@ -35,14 +50,9 @@ if type -p gem 2>/dev/null ; then
     }
 
     function __gem_commands {
-        if [ -n "${__gem_commandlist}" ]; then
-            echo "${__gem_commandlist}"
-            return
-        fi
-        gem help commands | sed -e '/^  /! d; s/^ *//; s/ .*$//'
+        #gem help commands | sed -e '/^  /! d; s/^ *//; s/ .*$//'
+        echo "build cert check cleanup contents dependency environment fetch generate_index help install list lock outdated owner pristine push query rdoc search server sources specification stale uninstall unpack update which"
     }
-    __gem_commandlist=
-    __gem_commandlist="$(__gem_commands 2>/dev/null)"
 
     function __gem_stdopt_short {
         echo "-h -V -q"
@@ -70,6 +80,7 @@ if type -p gem 2>/dev/null ; then
 
     function __gem_localremote_options {
         local short="$1" long="$2"
+        shift 2
         __gem_options "-l -r -b -B -p ${short}" "\
             --local
             --remote
@@ -80,24 +91,60 @@ if type -p gem 2>/dev/null ; then
             ${long}"
     }
 
+    function __gem_installupdate_options {
+        local short="$1" long="$2"
+        shift 2
+        __gem_localremote_options "-i -n -d -E -f -w -P -W ${short}" "\
+            --install-dir=
+            --bindir=
+            --rdoc --no-rdoc
+            --ri --no-ri
+            --env-shebang --no-env-shebang
+            --force --no-force
+            --wrappers --no-wrappers
+            --trust-policy=
+            --ignore-dependencies
+            --include-dependencies
+            --format-executable --no-format-executable
+            --user-install --no-user-install
+            --development
+            --conservative
+            ${long}"
+    }
+
     function __gem_gemnames_or_options {
         case "${COMP_WORDS[COMP_CWORD]}" in
-            -*) __gem_options "$1" "$2" ;;
+            -*) __gem_options "$@" ;;
             *)  __gem_complete_gemname ;;
         esac
     }
 
     function __gem_gemnames_or_localremote_options {
         case "${COMP_WORDS[COMP_CWORD]}" in
-            -*) __gem_localremote_options "$1" "$2" ;;
+            -*) __gem_localremote_options "$@" ;;
             *)  __gem_complete_gemname ;;
+        esac
+    }
+
+
+    function __gem_gemnames_or_installupdate_options {
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_installupdate_options "$@" ;;
+            *)  __gem_complete_gemname ;;
+        esac
+    }
+
+    function __gem_files_or_options {
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_options "$@" ;;
+            *)  __gem_complete_file ;;
         esac
     }
 
 
     function _gem_build {
         case "${COMP_WORDS[COMP_CWORD]}" in
-            -*) __gem_options ;;
+            -*) __gem_options "$@" ;;
             *)  __gem_complete_file_gemspec ;;
         esac
     }
@@ -173,12 +220,15 @@ if type -p gem 2>/dev/null ; then
     function _gem_help {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options ;;
-            *)  __gemcomp "commands examples ${__gem_commandlist}"
+            *)  __gemcomp "commands examples ${__gem_commandlist}" ;;
         esac
     }
 
     function _gem_install {
-        __gem_options '' ''
+        __gem_gemnames_or_installupdate_options '-v' '\
+            --platform=
+            --version=
+            --prerelease --no-prerelease'
     }
 
     function _gem_list {
@@ -210,11 +260,17 @@ if type -p gem 2>/dev/null ; then
     }
 
     function _gem_pristine {
-        __gem_options '' ''
+        __gem_gemnames_or_options '-v' '\
+            --all
+            --extensions --no-extensions
+            --version='
     }
 
     function _gem_push {
-        __gem_options '' ''
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_options '-k -p' '--key= --host= --http-proxy --no-http-proxy' ;;
+            *)  __gem_complete_file_gem ;;
+        esac
     }
 
     function _gem_query {
@@ -229,11 +285,26 @@ if type -p gem 2>/dev/null ; then
     }
 
     function _gem_rdoc {
-        __gem_options '' ''
+        __gem_gemnames_or_options '-v' '\
+            --all
+            --rdoc --no-rdoc
+            --ri --no-ri
+            --overwrite --no-overwrite
+            --version='
     }
 
     function _gem_search {
-        __gem_options '' ''
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_localremote_options '-i -v -d -a' '\
+                    --installed --no-installed
+                    --version=
+                    --details --no-details
+                    --versions --no-versions
+                    --all
+                    --prerelease --no-prerelease'
+                ;;
+            *) COMPREPLY=() ;;
+        esac
     }
 
     function _gem_server {
@@ -255,8 +326,49 @@ if type -p gem 2>/dev/null ; then
             --http-proxy --no-http-proxy'
     }
 
-    function _gem_speciication {
-        __gem_options '' ''
+    function _gem_specification {
+        case ${COMP_CWORD} in
+            2) __gem_complete_gemname ;;
+            3) __gemcomp "\
+                   name
+                   version
+                   platform
+                   authors
+                   autorequire
+                   bindir
+                   cert_chain
+                   date
+                   dependencies
+                   description
+                   email
+                   executables
+                   extensions
+                   extra_rdoc_files
+                   files
+                   homepage
+                   licenses
+                   post_install_message
+                   rdoc_options
+                   require_paths
+                   required_ruby_version
+                   required_rubygems_version
+                   requirements
+                   rubyforge_project
+                   rubygems_version
+                   signing_key
+                   specification_version
+                   summary
+                   test_files"
+                ;;
+            *) __gem_localremote_options '-v' '\
+                   --version=
+                   --platform=
+                   --all
+                   --ruby
+                   --yaml
+                   --marshal'
+                ;;
+        esac
     }
 
     function _gem_stale {
@@ -264,7 +376,16 @@ if type -p gem 2>/dev/null ; then
     }
 
     function _gem_uninstall {
-        __gem_options '' ''
+        __gem_gemnames_or_options '-a -I -x -i -n -v' '\
+            --all --no-all
+            --ignore-dependencies --no-ignore-dependencies
+            --executables --no-executables
+            --install-dir=
+            --bindir=
+            --user-instal --no-user-install
+            --format-executable --no-format-executable
+            --version=
+            --platform='
     }
 
     function _gem_unpack {
@@ -272,11 +393,16 @@ if type -p gem 2>/dev/null ; then
     }
 
     function _gem_update {
-        __gem_options '' ''
+        __gem_gemnames_or_installupdate_options '' '\
+            --system
+            --platform=
+            --prerelease --no-prerelease'
     }
 
     function _gem_which {
-        __gem_options '' ''
+        __gem_files_or_options '-a -g' '\
+            --all --no-all
+            --gems-first --no-gems-first'
     }
 
     function __gem {
@@ -299,6 +425,7 @@ if type -p gem 2>/dev/null ; then
             check)          _gem_check ;;
             cleanup)        _gem_cleanup ;;
             contents)       _gem_contents ;;
+            dependency)     _gem_dependency ;;
             environment)    _gem_environment ;;
             fetch)          _gem_fetch ;;
             generate_index) _gem_generate_index ;;
@@ -311,6 +438,7 @@ if type -p gem 2>/dev/null ; then
             pristine)       _gem_pristine ;;
             push)           _gem_push ;;
             query)          _gem_query ;;
+            rdoc)           _gem_rdoc ;;
             search)         _gem_search ;;
             server)         _gem_server ;;
             sources)        _gem_sources ;;
