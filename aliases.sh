@@ -22,7 +22,7 @@ alias more="less"
 alias j="jobs -l"
 alias which="type -a"
 alias ..="cd .."
-alias path="echo -e ${PATH//:/\\n}"
+alias ...="cd .."
 alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias du="du -kh"
 alias df="df -kTh"
@@ -45,7 +45,7 @@ alias laughingman="~/bin/git-sh-env.sh ~/src/fanime/laughingman"
 alias mpc="mpc -h 10.0.0.200"
 alias mmm="mplayer -aspect 1.666 -x 1920 -y 1080 -fs"
 alias fn="fixnames -fvv"
-alias yt="youtube-dl -t -c --coonsole-title"
+alias yt="youtube-dl -t -c --console-title"
 
 alias pwgen="pwgen -v -n"
 alias fixmouse=~/.mouse_speed

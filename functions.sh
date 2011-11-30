@@ -5,6 +5,10 @@
 ###  general utils/helpers  ###
 ###############################
 
+function path {
+    echo -e "${PATH//:/\n}"
+}
+
 function parse_git_dirty {
     [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo "*"
 }
@@ -48,12 +52,17 @@ function xpdf {
     command xpdf "$@" & disown
 }
 
-# Find a file with a pattern in name:
-function ff { find . -type f -iname '*'$*'*' -ls ; }
-
 # Find a file with pattern $1 in name and Execute $2 on it:
-function fe { find . -type f -iname '*'${1:-}'*' -exec ${2:-file} {} \;  ; }
+#function fe { find . -type f -iname '*'${1:-}'*' -exec ${2:-file} {} \;  ; }
 
+# scan the entire directory tree for symlinks that do
+# not point to anything valid
+function bad_symlinks {
+    ARG="$@"
+    [[ -n $ARG ]] || ARG="$PWD"
+
+    find -L "$ARG" -type l
+}
 
 # Swap 2 filenames around, if they exist
 function swap {
@@ -137,7 +146,7 @@ function byteMe() {
     # Divides by 2^10 until < 1024 and then append metric suffix
 
     # Array of suffixes
-    declare -a METRIC=(' Bytes' 'KB' 'MB' 'GB' 'TB' 'XB' 'PB')
+    declare -a METRIC=('B' 'KB' 'MB' 'GB' 'TB' 'XB' 'PB')
 
     # magnitude of 2^10
     MAGNITUDE=0
@@ -159,39 +168,59 @@ function byteMe() {
     echo "$UNITS${METRIC[$MAGNITUDE]}"
 }
 
-function fix_dir_tree_fmt {
-    local -a a
-    local h
+function fix_tree_fmt {
     while read line ; do
-        a=(`echo ${line/ / }`)
-        h=$(byteMe $a)
+        local -a a=(`echo ${line/ / }`)
+        local    h=$(byteMe "$a")
         unset a[0]
+
+        while [ $#h -lt 7 ] ; do
+            h=" ${a}"
+        done
         echo $h ${a[*]}
     done
 }
 
-function fmt_dir_tree {
-    cut -f2- -d' ' | fix_dir_tree_fmt | tr ' ' "\t" | column -t
+function fmt_tree {
+    fix_tree_fmt | tr ' ' "\t" | column -t
 }
 
-function find_sorted_dir_tree {
-    local PFX SRT
-    PFX="$1"
-    SRT="$2"
+function reorder_tree {
+    sort "$@"
+}
+
+declare LTREE_FINDOPTS LTREE_TIMEFMT
+LTREE_TIMEFMT="%Tb-%Td,%TH:%TM"
+function list_tree_data {
+    local COL1="$1"
+    shift
+    [[ -n "${LTREE_FINDOPTS}" ]] || LTREE_FIND_OPTS="-type f"
+
+    find "$@" "${LTREE_FINDOPTS}" -printf "${COL1} %s %M %u ${LTREE_TIMEFMT} %p\n"
+}
+
+function list_sorted_tree {
+    local COL1="$1" SORTOPT="$2"
     shift 2
-    [[ -n "$PFX" ]] && PFX="$PFX "
-    find "$@" -type f -printf "${PFX}%s %M %u %Tb-%Td,%TH:%TM %p\n" | sort $SRT | fmt_dir_tree
+    list_tree_data "$COL1" "$@" | reorder_tree "${SORTOPT}" | fmt_tree
 }
 
-function list_dir_tree_mtime_asc {
-    find_sorted_dir_tree '%T@' '-n'    "$@"
+function list_globbed_tree {
+    local PREVOPT="${LTREE_FINDOPT}" GLOB="$1"
+    shift
+    LTREE_FINDOPTS="${PREVOPT} -iname ${GLOB}"
+    list_sorted_tree "%P"  '-i'    "$@"
+    LTREE_FINDOPTS="${PREVOPT}"
 }
-function list_dir_tree_mtime_desc {
-    find_sorted_dir_tree '%T@' '-n -r' "$@"
+function list_tree_mtime_asc {
+    list_sorted_tree '%T@' '-n'    "$@"
 }
-function list_dir_tree_size_asc {
-    find_sorted_dir_tree ''    '-n'    "$@"
+function list_tree_mtime_desc {
+    list_sorted_tree '%T@' '-n -r' "$@"
 }
-function list_dir_tree_size_desc {
-    find_sorted_dir_tree ''    '-n -r' "$@"
+function list_tree_size_asc {
+    list_sorted_tree '%s'  '-n'    "$@"
+}
+function list_tree_size_desc {
+    list_sorted_tree '%s'  '-n -r' "$@"
 }
