@@ -1,286 +1,328 @@
 if type -p gem 2>/dev/null ; then
-
-    function _gem_all_names {
-        #echo "NAME"
-        return 0;
+    # based heavily on "git-completion.bash"
+    function __gemcomp {
+        local all c s=$'\n' IFS=' '$'\t'$'\n'
+        local cur="${COMP_WORDS[COMP_CWORD]}"
+        if [ $# -gt 2 ]; then
+            cur="$3"
+        fi
+        for c in $1; do
+            case "$c$4" in
+                --*=*) all="$all$c$4$s" ;;
+                *.)    all="$all$c$4$s" ;;
+                *)     all="$all$c$4 $s" ;;
+            esac
+        done
+        IFS=$s
+        COMPREPLY=($(compgen -P "$2" -W "$all" -- "$cur"))
+        return
     }
 
-    function _gem_installed_names {
-        echo "NAME"
+    function __gem_complete_file {
+        COMPREPLY=()
     }
 
-    function _gem_all_name_versions {
-        echo "NAME"
+    function __gem_complete_file_gemspec {
+        __gem_complete_file
+    }
+
+    function __gem_complete_gemname {
+        __gemcomp "$(gem list --no-details --no-versions)"
+    }
+
+    function __gem_complete_gemnameversion {
+        __gem_complete_gemname
+    }
+
+    function __gem_commands {
+        if [ -n "${__gem_commandlist}" ]; then
+            echo "${__gem_commandlist}"
+            return
+        fi
+        gem help commands | sed -e '/^  /! d; s/^ *//; s/ .*$//'
+    }
+    __gem_commandlist=
+    __gem_commandlist="$(__gem_commands 2>/dev/null)"
+
+    function __gem_stdopt_short {
+        echo "-h -V -q"
+    }
+
+    function __gem_stdopt_long {
+        echo "--help --verbose --no-verbose --quiet --config-file= --backtrace --debug"
+    }
+
+    function __gem_options {
+        local cur="${COMP_WORDS[COMP_CWORD]}" short="$1" long="$2"
+        shift 2
+        case "$cur" in
+            --*)
+                __gemcomp "$(__gem_stdopt_long) ${long}"
+                return
+                ;;
+            -*)
+                __gemcomp "$(__gem_stdopt_short) ${short}"
+                return
+                ;;
+        esac
+        COMPREPLY=()
+    }
+
+    function __gem_localremote_options {
+        local short="$1" long="$2"
+        __gem_options "-l -r -b -B -p ${short}" "\
+            --local
+            --remote
+            --both
+            --bulk-threshold=
+            --clear-sources
+            --source=
+            ${long}"
+    }
+
+    function __gem_gemnames_or_options {
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_options "$1" "$2" ;;
+            *)  __gem_complete_gemname ;;
+        esac
+    }
+
+    function __gem_gemnames_or_localremote_options {
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_localremote_options "$1" "$2" ;;
+            *)  __gem_complete_gemname ;;
+        esac
+    }
+
+
+    function _gem_build {
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_options ;;
+            *)  __gem_complete_file_gemspec ;;
+        esac
+    }
+
+    function _gem_cert {
+        __gem_options '-a -l -r -b -C -K -s' '\
+            --add=
+            --list
+            --remove=
+            --build=
+            --certificate=
+            --private-key=
+            --sign='
+    }
+
+    function _gem_check {
+        __gem_options '-a -v' '\
+            --verify=
+            --alien
+            --version='
+    }
+
+    function _gem_cleanup {
+        __gem_gemnames_or_options '-d' '--dryrun'
+    }
+
+    function _gem_contents {
+        __gem_gemnames_or_options '-v -s -l' '\
+            --version=
+            --all
+            --spec-dir=
+            --lib-only --no-lib-only
+            --prefix --no-prefix'
+    }
+
+    function _gem_dependency {
+        __gem_gemnames_or_localremote_options '-v -R' '\
+            --version=
+            --platform=
+            --prerelease --no-prerelease
+            --reverse-dependencies --no-reverse-dependencies
+            --pipe'
+    }
+
+    function _gem_environment {
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_options ;;
+            *)  __gemcomp "packageversion gemdir gempath version remotsources platform" ;;
+        esac
+    }
+
+    function _gem_fetch {
+        __gem_gemnames_or_options '-v -B -p', '\
+            --version=
+            --platform=
+            --prerelease --no-prerelease
+            --bulk-threshold=
+            --http-proxy --no-http-proxy
+            --source='
+    }
+
+    function _gem_generate_index {
+        __gem_options '-d' '\
+            --directory=
+            --legacy --no-legacy
+            --modern --no-modern
+            --update
+            --rss-gems-host=
+            --rss-host=
+            --rss-title='
+    }
+
+    function _gem_help {
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_options ;;
+            *)  __gemcomp "commands examples ${__gem_commandlist}"
+        esac
+    }
+
+    function _gem_install {
+        __gem_options '' ''
+    }
+
+    function _gem_list {
+        __gem_options "-i -v -d -a" "\
+            --installed --no-installed
+            --version
+            --details --no-details
+            --versions --no-versions
+            --all"
+    }
+
+    function _gem_lock {
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            -*) __gem_options '-s' '--strict --no-strict' ;;
+            *)  __gem_complete_gemnameversion ;;
+        esac
+    }
+
+    function _gem_outdated {
+        __gem_localremote_options '' '--platform='
+    }
+
+    function _gem_owner {
+        __gem_options '-k -a -r -p' '\
+            --key=
+            --add=
+            --remote=
+            --http-proxy --no-http-proxy'
+    }
+
+    function _gem_pristine {
+        __gem_options '' ''
+    }
+
+    function _gem_push {
+        __gem_options '' ''
+    }
+
+    function _gem_query {
+        __gem_localremote_options '-i -v -n -d -a' '\
+          --installed --no-installed
+          --version=
+          --name-matches=
+          --details --no-details
+          --versions --no-versions
+          --all
+          --prerelease --no-prerelease'
+    }
+
+    function _gem_rdoc {
+        __gem_options '' ''
+    }
+
+    function _gem_search {
+        __gem_options '' ''
+    }
+
+    function _gem_server {
+        __gem_options '-p -d -b -l' '\
+            --port=
+            --dir=
+            --daemon --no-daemon
+            --bind=
+            --launch'
+    }
+
+    function _gem_sources {
+        __gem_options '-a -l -r -c -u -p' '\
+            --add=
+            --list
+            --remove=
+            --clear-all
+            --update
+            --http-proxy --no-http-proxy'
+    }
+
+    function _gem_speciication {
+        __gem_options '' ''
+    }
+
+    function _gem_stale {
+        __gem_options
+    }
+
+    function _gem_uninstall {
+        __gem_options '' ''
+    }
+
+    function _gem_unpack {
+        __gem_gemnames_or_options '-v' '--target= --spec --version='
+    }
+
+    function _gem_update {
+        __gem_options '' ''
+    }
+
+    function _gem_which {
+        __gem_options '' ''
+    }
+
+    function __gem {
+        case "${COMP_WORDS[COMP_CWORD]}" in
+            --*=*) COMPREPLY=() ;;
+            --*)   __gemcomp "--help --version" ;;
+            -*)    __gemcomp "-h -v" ;;
+            *)     __gemcomp "$(__gem_commands)" ;;
+        esac
     }
 
     function _gem {
-        local cur subcommand completions
-        COMPREPLY=()
-        cur="${COMP_WORDS[COMP_CWORD]}"
+        local command
+        [ $COMP_CWORD -gt 1 ] && command="${COMP_WORDS[1]}"
+        [ $COMP_CWORD -eq 1 ] && [ -z "$command" ] && __gem && return
 
-        subcommand=''
-        if [[ "${COMP_CWORD}" -gt 1 ]] ; then
-            subcommand="${COMP_WORDS[1]}"
-            echo "<<<$subcommand>>>"
-        fi
-
-        COMMANDS='build cert check cleanup contents dependency environment fetch generate_index help install list lock mirror outdated owner pristine pushh query rdoc search server sources speciication stale uninstall unpack update which'
-
-        GEM_OPTIONS='\
-        -h --help\
-        -v --version'
-
-        COMMON_OPTIONS='\
-        -h --help\
-        -V --verbose --no-verbose\
-        -q --quiet\
-        --config-file\
-        --backtrace\
-        --debug'
-
-        LOCAL_REMOTE_OPTIONS='\
-        -l --local\
-        -r --remote\
-        -b --both\
-        -B --bulk-threshold\
-        --source\
-        -p --http-proxy --no-http-proxy\
-        -u --update-sources --no-update-sources'
-
-        INSTALL_UPDATE_OPTIONS='\
-        -i --install-dir\
-        -n --bindir\
-        -d --rdoc --no-rdoc\
-           --ri --no-ri\
-        -E --env-shebang --no-env-shebang\
-        -f --force --no-force\
-        -t --test --no-test\
-        -w --wrappers --no-wrappers\
-        -P --trust-policy\
-           --ignore-dependencies\
-        -y --include-dependencies\
-           --format-executable --no-format-executable'
-
-        CERT_OPTIONS='\
-        -a -add\
-        -l --list\
-        -r --remove\
-        -b --build\
-        -C --certificate\
-        -K --private-key\
-        -s --sign'
-
-        CHECK_OPTIONS='\
-        --verify\
-        -a --alien\
-        -t --test\
-        -v --version'
-
-        CLEANUP_OPTIONS='\
-        -d --dry-run'
-
-        CONTENTS_OPTIONS='\
-        -v --version\
-        -s --spec-dir\
-        -l --lib-only --no-lib-only'
-
-        DEPENDENCY_OPTIONS='\
-        -v --version\
-        --platform\
-        -R --reverse-dependencies --no-reverse-dependencies\
-        -p --pipe'
-
-        ENVIRONMENT_OPTIONS='\
-        packageversion\
-        gemdir\
-        gempath\
-        version\
-        remotesources'
-
-        FETCH_OPTIONS='\
-        -v --version\
-        --platform\
-        -B --bulk-threshold\
-        -p --http-proxy --no-http-proxy\
-        --source'
-
-        GENERATE_INDEX_OPTIONS='\
-        -d --directory'
-
-        HELP_OPTIONS="commands examples platforms $COMMANDS"
-
-        INSTALL_OPTIONS='\
-        --platform\
-        -v --version'
-
-        LIST_OPTIONS='\
-        -i --installed --no-installed\
-        -v --version\
-        -d --details --no-details\
-        --versions --no-versions\
-        -a --all'
-
-        LOCK_OPTIONS='\
-        -s --strict --no-strict'
-
-        MIRROR_OPTIONS=''
-
-        OUTDATED_OPTIONS='\
-        --platform'
-
-        PRISTINE_OPTIONS='\
-        --all\
-        -v --version'
-
-        QUERY_OPTIONS='\
-        -i --installed --no-installed\
-        -v --version\
-        -n --name-matches\
-        -d --details --no-details\
-        --versions --no-versions\
-        -a --all'
-
-        RDOC_OPTIONS='\
-        --all\
-        --rdoc --no-rdoc\
-        --ri --no-ri\
-        -v --version'
-
-        SEARCH_OPTIONS='\
-        -i --installed --no-installed\
-        -v --version\
-        -d --details --no-details\
-        --versions --no-versions\
-        -a --all'
-
-        SERVER_OPTIONS='\
-        -p --port\
-        -d --dir\
-        --daemon --no-daemon'
-
-        SOURCES_OPTIONS='\
-        -a --add\
-        -l --list\
-        -r --remove\
-        -u --update\
-        -c --clear-all'
-
-        SPECIFICATION_OPTIONS='\
-        -v --version\
-        --platform\
-        --all'
-
-        UNINSTALL_OPTIONS='\
-        -a --all --no-all\
-        -i --ignore-dependencies --no-ignore-dependencies\
-        -x --executables --no-executables\
-        -i --install-dir\
-        -n --bindir\
-        -v --version\
-        --platform'
-
-        UNPACK_OPTIONS='\
-        --target\
-        -v --version'
-
-        UPDATE_OPTIONS='\
-        --system\
-        --platform'
-
-        WHICH_OPTIONS='\
-        -a --all --no-all\
-        -g --gems-first --no-gems-first'
-
-        case "${subcommand}" in
-            build)
-                completions="$COMMON_OPTIONS"
-                ;;
-            cert)
-                completions="$COMMON_OPTIONS $CERT_OPTIONS"
-                ;;
-            check)
-                completions="$COMMON_OPTIONS $CHECK_OPTIONS"
-                ;;
-            cleanup)
-                completions="$COMMON_OPTIONS $CLEANUP_OPTIONS `_gem_installed_names`"
-                ;;
-            contents)
-                completions="$COMMON_OPTIONS $CONTENTS_OPTIONS `_gem_installed_names`"
-                ;;
-            dependency)
-                completions="$COMMON_OPTIONS $LOCAL_REMOTE_OPTIONS $DEPENDENCY_OPTIONS `_gem_all_names`"
-                ;;
-            environment)
-                completions="$COMMON_OPTIONS $ENVIRONMENT_OPTIONS"
-                ;;
-            fetch)
-                completions="$COMMON_OPTIONS $FETCH_OPTIONS `_gem_all_names`"
-                ;;
-            generate_index)
-                completions="$COMMON_OPTIONS $GENERATE_INDEX_OPTIONS"
-                ;;
-            help)
-                completions="$COMMON_OPTIONS $HELP_OPTIONS"
-                ;;
-            install)
-                completions="$COMMON_OPTIONS $INSTALL_UPDATE_OPTIONS $LOCAL_REMOTE_OPTIONS $INSTALL_OPTIONS `_gem_all_names`"
-                ;;
-            list)
-                completions="$COMMON_OPTIONS $LOCAL_REMOTE_OPTIONS $LIST_OPTIONS"
-                ;;
-            lock)
-                completions="$COMMON_OPTIONS $LOCK_OPTIONS `_gem_all_name_versions`"
-                ;;
-            mirror)
-                completions="$COMMON_OPTIONS $MIRROR_OPTIONS"
-                ;;
-            outdated)
-                completions="$COMMON_OPTIONS $LOCAL_REMOTE_OPTIONS $OUTDATED_OPTIONS"
-                ;;
-            pristine)
-                completions="$COMMON_OPTIONS $PRISTINE_OPTIONS `_gem_installed_names`"
-                ;;
-            query)
-                completions="$COMMON_OPTIONS $LOCAL_REMOTE_OPTIONS $QUERY_OPTIONS"
-                ;;
-            rdoc)
-                completions="$COMMON_OPTIONS $RDOC_OPTIONS `_gem_installed_names`"
-                ;;
-            search)
-                completions="$COMMON_OPTIONS $LOCAL_REMOTE_OPTIONS $SEARCH_OPTIONS"
-                ;;
-            server)
-                completions="$COMMON_OPTIONS $SERVER_OPTIONS"
-                ;;
-            sources)
-                completions="$COMMON_OPTIONS $SOURCES_OPTIONS"
-                ;;
-            specification)
-                completions="$COMMON_OPTIONS $LOCAL_REMOTE_OPTIONS $SPECIFICATION_OPTIONS `_gem_all_names`"
-                ;;
-            stale)
-                completions="$COMMON_OPTIONS"
-                ;;
-            uninstall)
-                completions="$COMMON_OPTIONS $UNINSTALL_OPTIONS `_gem_installed_names`"
-                ;;
-            unpack)
-                completions="$COMMON_OPTIONS $UNPACK_OPTIONS `_gem_installed_names`"
-                ;;
-            update)
-                completions="$COMMON_OPTIONS $LOCAL_REMOTE_OPTIONS $INSTALL_UPDATE_OPTIONS $UPDATE_OPTIONS `_gem_installed_names`"
-                ;;
-            which)
-                completions="$COMMON_OPTIONS $WHICH_OPTIONS"
-                ;;
-            *)
-                completions="$COMMANDS $GEM_OPTIONS"
-                ;;
+        case "$command" in
+            build)          _gem_build ;;
+            cert)           _gem_cert ;;
+            check)          _gem_check ;;
+            cleanup)        _gem_cleanup ;;
+            contents)       _gem_contents ;;
+            environment)    _gem_environment ;;
+            fetch)          _gem_fetch ;;
+            generate_index) _gem_generate_index ;;
+            help)           _gem_help ;;
+            install)        _gem_install ;;
+            list)           _gem_list ;;
+            lock)           _gem_lock ;;
+            outdated)       _gem_outdated ;;
+            owner)          _gem_owner ;;
+            pristine)       _gem_pristine ;;
+            push)           _gem_push ;;
+            query)          _gem_query ;;
+            search)         _gem_search ;;
+            server)         _gem_server ;;
+            sources)        _gem_sources ;;
+            specification)  _gem_specification ;;
+            stale)          _gem_stale ;;
+            uninstall)      _gem_uninstall ;;
+            unpack)         _gem_unpack ;;
+            update)         _gem_update ;;
+            which)          _gem_which ;;
+            *)           COMPREPLY=() ;;
         esac
-
-        COMPREPLY=($(compgen -W "${completions}" -- "${cur}"))
-        return 0
     }
-    complete -o default -F _gem gem
 
+    complete -o default -o nospace -F _gem gem
 fi
