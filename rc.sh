@@ -9,8 +9,9 @@
 ######################
 
 # sandbox all the various bash stuff
-export PDKL_BASHDIR="${HOME}/.bash"
-#export PDKL_ENV="${PDKL_ENV} rc"
+export PDKL_HOME="/home/endymion"
+export PDKL_BASHDIR="${PDKL_HOME}/.bash"
+
 function safe_load {
   [ -f "$1" ] && source "$1"
 }
@@ -23,6 +24,12 @@ function add_path_prefix {
     [[ "$PATH" =~ "$1" ]] || PATH="$1:$PATH"
 }
 
+function add_project_root {
+    add_path_prefix "$1/bin"
+}
+
+add_project_root "${PDKL_HOME}"
+
 # all real work is done elsewhere
 load_sh "options"
 load_sh "env"
@@ -34,4 +41,4 @@ load_sh "prompt"
 load_sh "aliases"
 load_sh "completion"
 
-unset safe_load load_sh
+unset safe_load load_sh add_path_prefix add_project_root

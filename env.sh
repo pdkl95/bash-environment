@@ -1,21 +1,24 @@
-#! /bin/bash
+# various project-wide directory roots
+export PDKL_SCRIPT_ROOT="${PDKL_HOME}/src/scripts"
+export MINECRAFT_ROOT="${PDKL_HOME}/games/minecraft"
+
+add_project_root "${PDKL_SCRIPT_ROOT}"
+add_project_root "${MINECRAFT_ROOT}"
+
+
 if type -P dircolors >/dev/null ; then
     function load_dircolors {
         [ -r "$1" ] && eval $(dircolors -b "$1")
     }
 
     load_dircolors "/etc/DIR_COLORS"
-	load_dircolors "${HOME}/.dir_colors"
-	load_dircolors "${PDKL_BASHDIR}/DIR_COLORS"
+    load_dircolors "${PDKL_HOME}/.dir_colors"
+    load_dircolors "${PDKL_BASHDIR}/DIR_COLORS"
 
     unset load_dircolors
 fi
 
 ##################################
-
-add_path_prefix "$HOME/src/scripts/bin"
-add_path_prefix "$HOME/games/minecraft/bin"
-add_path_prefix "$HOME/bin"
 
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
