@@ -1,0 +1,6 @@
+# -*- mode: sh; -*-
+#
+# just a flag - we are test for existance
+# only and ignore the contents
+#
+# See 'skip_global_bashrc.mod_instructions' file for details

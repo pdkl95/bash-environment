@@ -1,11 +1,10 @@
-#! /bin/bash
 # do nothing if completion is off globally
 if [ -x "$(complete -p)" ]; then
     return
 fi
 
 # bashcomp provided pre-load
-BASH_COMPLETION="/etc/bash_completion.d/base"
+[ -z "$BASH_COMPLETION" ] && BASH_COMPLETION="/etc/bash_completion.d/base"
 source "/usr/share/bash-completion/.pre"
 
 function load_completion_dir {

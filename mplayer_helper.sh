@@ -321,8 +321,8 @@ function mplayer_launch_helper {
 function m {
     MP_BIN='mplayer2'
     MP_NAMEPAD=''
-#    MP_BINOPT='-hr-seek absolute'
-    MP_BINOPT=''
+    MP_BINOPT='-hr-seek absolute'
+#    MP_BINOPT=''
     mplayer_launch_helper "$@"
 }
 

@@ -30,25 +30,21 @@ alias vi=gvim
 alias grep='grep --color=auto'
 alias diff='colordiff'
 
-alias rscp="rsync --partial --progress --append --rsh=ssh -r -h "
-alias rsmv="rsync --partial --progress --append --rsh=ssh -r -h --remove-sent-files"
+#alias rscp="rsync --partial --progress --append --rsh=ssh -r -h "
+#alias rsmv="rsync --partial --progress --append --rsh=ssh -r -h --remove-sent-files"
 
 alias nano="nano -w"
 alias nn=nano
-alias ..='cd ..'
 
 alias irb="irb --readline -r irb/completion"
 alias nautilus="nautilus --no-desktop"
 
-alias navi="~/bin/git-sh-env.sh ~/src/fanime/navi"
-alias laughingman="~/bin/git-sh-env.sh ~/src/fanime/laughingman"
 alias mpc="mpc -h 10.0.0.200"
 alias mmm="mplayer -aspect 1.666 -x 1920 -y 1080 -fs"
 alias fn="fixnames -fvv"
-alias yt="youtube-dl -t -c --console-title"
+alias yt="youtube-dl -t -c --format 38/37/45/22/44/35/34/18/6/5/17/13"
 
 alias pwgen="pwgen -v -n"
-alias fixmouse=~/.mouse_speed
 
 alias pp="my_ps_tree"
 alias ppw="my_ps_tree_wide"
