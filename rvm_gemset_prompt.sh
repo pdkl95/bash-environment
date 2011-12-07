@@ -11,8 +11,8 @@ function current_rvm_gemset {
     fi
 }
 
-RVMPREFIX="${BLUE}<${cyan}\$(current_rvm_gemset)${BLUE}> "
-PS1_BASIC="${green}\u${GREEN}@${green}\h${cyan} \w ${BLUE}\$${NC} "
+RVMPREFIX="${CCFG[pBLUE]}<${CCFG[pcyan]}\$(current_rvm_gemset)${CCFG[pBLUE]}> "
+PS1_BASIC="${CCFG[ppgreen]}\u${CCFG[pGREEN]}@${CCFG[pgreen]}\h${CCFG[pcyan]} \w ${CCFG[pBLUE]}\$${CC[preset]} "
 PS1_GITSH='`_git_headname`!`_git_workdir``_git_dirty`> '
 function set_rvm_color_prompt {
     if [ -n "$rvm_version" ] ; then

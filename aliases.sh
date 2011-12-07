@@ -1,10 +1,9 @@
 # -*- mode: sh -*-
 
 alias ret="cd \"$OLDPWD\""
-alias ls="ls -hF --color=auto"
-alias l="ls"
-alias ll="ls --color -l --group-directories-first"
-alias la='ls -Al'          # show hidden files
+
+alias ls="ls -hF ${AUTOCOLOR}"
+alias la='ls -lA'          # show hidden files
 alias lx='ls -lXB'         # sort by extension
 alias lk='ls -lSr'         # sort by size, biggest last
 alias lc='ls -ltcr'        # sort by and show change time, most recent last
@@ -12,6 +11,9 @@ alias lu='ls -ltur'        # sort by and show access time, most recent last
 alias lt='ls -ltr'         # sort by date, most recent last
 alias lm='ls -al |more'    # pipe through 'more'
 alias lr='ls -lR'          # recursive ls
+
+alias l="lt"
+alias lll="stat -c %a\ %N\ %G\ %U \${PWD}/*|sort"
 alias tree='tree -CAh'     # nice alternative to 'recursive ls'
 alias ln="ln -v"
 
@@ -20,21 +22,33 @@ alias make='xtitle Making $(basename $PWD) ; make'
 
 alias more="less"
 alias j="jobs -l"
-alias which="type -a"
+alias which="command type -a"
 alias ..="cd .."
 alias ...="cd .."
+alias path='echo -e ${PATH//:/\\n)'
 alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
-alias du="du -kh"
-alias df="df -kTh"
-alias vi=gvim
+alias du="command du -kh"
+alias df="command df -kTh"
 alias grep='grep --color=auto'
-alias diff='colordiff'
+
+alias diff='diff -up'
+is_cmd colordiff && alias diff='colordiff -up'
+[[ "$UNAME" != "Linux" ]] && is_cmd gsed && alias sed='gsed'
+is_cmd ionice && is_cmd nice && alias inice='ionice -c3 -n7 nice'
+is_cmd ccze && alias lessc='ccze -A |`type -P less` -R'
+
+alias chmod='command chmod -c'
+alias rm='command rm -v'
+alias cp='command cp -v'
+alias mv="command mv -v"
+
 
 #alias rscp="rsync --partial --progress --append --rsh=ssh -r -h "
 #alias rsmv="rsync --partial --progress --append --rsh=ssh -r -h --remove-sent-files"
 
 alias nano="nano -w"
 alias nn=nano
+alias env='command env | sort'
 
 alias irb="irb --readline -r irb/completion"
 alias nautilus="nautilus --no-desktop"
