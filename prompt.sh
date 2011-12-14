@@ -15,14 +15,23 @@ prompt_mark() {
 }
 
 prompt_cmdstatus() {
-    local S EVAL="$1"
+    local S fst=true EVAL="$1"
     if [[ "${EVAL}" -eq 0 ]] ; then
-        echo "····"
+        echo "    "
+        #echo "····"
         #echo "qqqq"
     else
-        S="$EVAL*"
+        S="$EVAL»"
+
         while [[ "${#S}" -lt 4 ]]; do
-            S="*${S}"
+            if $fst ; then
+                S="«${S}"
+                fst=false
+            else
+                #S="·${S}"
+                S="!${S}"
+                #S=" ${S}"
+            fi
         done
         echo "$S"
     fi
@@ -35,7 +44,7 @@ print_current_prompt() {
     PDIR="$(prompt_pwd)"
     MARK="$(prompt_mark)"
 
-    xtitle "$CSTATUS $PDIR"
+    xtitle "$CSTATUS ${PWD/$HOME/~}"
     export PS1="$WHOAMI $PDIR $MARK "
 }
 
