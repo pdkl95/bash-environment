@@ -10,7 +10,7 @@ prompt_pwd() {
     echo -ne "\[${CCcyan}\]${PWD/$HOME/~}"
 }
 prompt_mark() {
-    echo -ne "\[${CCblue}\]X"
+    echo -ne "\[${CCblue}\]\$"
     echo -ne "\[${CCnil}\]"
 }
 

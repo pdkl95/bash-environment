@@ -2,6 +2,48 @@
 ###  MPLAYER HELPER SUITE  ###
 ##############################
 
+# option defaults
+: ${MPLAYERPROFILE:=m}
+: ${MPLAYEROPT:=}
+: ${GRATUITOUS_MPLAYER_HELPER_OUTPUT:=false}
+
+######################################################
+# first, a few things moved ovoer from ansicolor.sh
+# that were really only being used here. Should really
+# be expanded innto a full "GUI/Widget Toolkit"
+function pcolorln {
+    pcolor "$@"
+    echo
+}
+
+function NC {
+    color_name_to_ansi 'clear'
+}
+
+STRONG_MARKER_L="$(pcolor DARK!red '-')$(pcolor red '=')$(pcolor BOLD!red '<')"
+STRONG_MARKER_R="$(pcolor BOLD!red '>')$(pcolor red '=')$(pcolor DARK!red '-')"
+function strong_msg {
+    echo "${STRONG_MARKER_L}$(pcolor BOLD!green ' '${1}' ')${STRONG_MARKER_R}"
+}
+
+function warn_msg {
+    strong_msg "$(pcolor YELLOW 'WARNING:') $@"
+}
+
+function error_msg {
+    strong_msg "$(pcolor RED 'ERROR:') $@"
+}
+
+BLANK_LINE="$(pcolor BLACK '')"
+function blankln {
+    # force some useless ANSI in, so it doesn't get eaten by bash
+    echo "$BLANK_LINE"
+}
+
+# ... now back to MPlayer ...
+##################################
+
+
 declare -A MPHSTATIC=()
 MP_BIN='' MP_NAMEPAD='' MP_BINOPT=''
 [ $FIND ] || FIND=$(/usr/bin/which --show-dot --show-tilde find)
@@ -176,7 +218,7 @@ function list_movies_in {
 
     local -a FINDCMD=$(generate_mph_cmdline "$IN")
 
-    [ $GRATUITOUS_MPLAYER_HELPER_OUTPUT -eq 1 ] && draw_field_infobox $NUM "$FINDCMD"
+    $GRATUITOUS_MPLAYER_HELPER_OUTPUT && draw_field_infobox $NUM "$FINDCMD"
 
     function run_find {
         $FIND ${FINDCMD[@]} -print0 | sort -z >> $OUT
@@ -274,7 +316,7 @@ function list_movies_into_tempfile {
         else
             export MPHSTATE='S1'
             FIELDNUM=$FIELDNUM+1
-            if [ $GRATUITOUS_MPLAYER_HELPER_OUTPUT -eq 1 ] ; then
+            if $GRATUITOUS_MPLAYER_HELPER_OUTPUT ; then
                 list_movies_into_newtemp $T1 $FIELDNUM "$arg"
             else
                 list_movies_in $T1 $FIELDNUM "$arg"
@@ -301,36 +343,41 @@ function mplayer_launch_helper {
     local PLAYOPT=$(list_player_options "$@")
     list_movies_into_tempfile "$TMP" "$@"
 
+    local CUR_BIN="${MP_BIN:-mplayer}"
+    local CUR_OPT=""
+    [ -n "${MP_BINOPT}"      ] && CUR_OPT="${MP_BINOPT} ${CUR_OPT}"
+    [ -n "${MPLAYERPROFILE}" ] && CUR_OPT="-profile ${MPLAYERPROFILE} ${CUR_OPT}"
+    [ -n "${MPLAYEROPT}"     ] && CUR_OPT="${CUR_OPT} ${MPLAYEROPT}"
+    [ -n "${PLAYOPT}"        ] && CUR_OPT="${CUR_OPT} ${PLAYOPT}"
+
     if [ -s $TMP ] ; then
         local C=''
-        [ $GRATUITOUS_MPLAYER_HELPER_OUTPUT -eq 1 ] && C='_in_color'
-        local MPCMDS="$(xargs -0 echo $MP_BIN $MP_BINOPT $MPLAYEROPT $PLAYOPT < $TMP)"
+        $GRATUITOUS_MPLAYER_HELPER_OUTPUT && C='_in_color'
+        local MPCMDS="$(xargs -0 echo ${CUR_BIN} ${CUR_OPT} < $TMP)"
         wrapIFS \\n run_mplayer_once$C "$MPCMDS"
     else
         echo "Got nothing."
     fi
 }
 
-#function m {
-#    MP_BIN='mplayer'
-#    MP_NAMEPAD='-'
-#    MP_BINOPT='-quiet'
-#    mplayer_launch_helper "$@"
-#}
-
-function m {
-    MP_BIN='mplayer2'
-    MP_NAMEPAD=''
-    MP_BINOPT='-hr-seek absolute'
-#    MP_BINOPT=''
+mplayer_launch_helper_wrap() {
+    local MP_BIN="$1" MP_NAMEPAD="$2" MP_BINOPT="$3"
+    shift 3
     mplayer_launch_helper "$@"
 }
 
-function mm {
-    MP_BIN='mplayer2'
-    MP_NAMEPAD=''
-    MP_BINOPT='-hr-seek always'
-    mplayer_launch_helper "$@"
-}
+#######################################################################
+# exported wrappers
+
+### first, wrap the basic executables so they load binary-specific configs
+for x in mplayer mplayer2 ; do
+    eval "$x() { command $x -include \"${HOME}/.mplayer/$x/local.conf\" \"\$@\"; }"
+done
+
+### then, specify the actual user-interaction shortcuts
+
+#m()  { mplayer_launch_helper_wrap 'mplayer'  '-' '-quiet'          "$@"; }
+m()  { mplayer_launch_helper_wrap 'mplayer2' ''  ''                "$@"; }
+mm() { mplayer_launch_helper_wrap 'mplayer2' ''  '-hr-seek always' "$@"; }
 
 #alias m=mm

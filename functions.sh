@@ -5,6 +5,86 @@
 ###  general utils/helpers  ###
 ###############################
 
+in_X() {
+    [[ -n "$XAUTHORITY" ]]
+}
+
+can_run() {
+    [[ -x "$(command which $1)" ]]
+}
+
+can_run_as_sudo() {
+    can_run sudo ]] && sudo -l "$@" 2>/dev/null
+}
+
+can_run_as_su() {
+    can_run su
+}
+
+sudo_or_su() {
+    if can_run_as_sudo "$@" ; then
+        sudo "$@"
+    else
+        if can_run_as_su "$@" ; then
+            su -c "$*"
+        else
+            return_error 1 "Not able to run commands as root!"
+        fi
+    fi
+}
+
+gui_sudo_or_su() {
+    in_X || return 2
+
+    local MODE=""
+    # adapted from su-to-zenmap.sh
+    if can_run gksu ; then
+        MODE="gksu"
+        if [[ -n "${KDE_FULL_SESSION}" ]] ; then
+            if can_run kdesu ; then
+                MODE="kdesu"
+            else
+                MODE="kde4su"
+            fi
+        fi
+    elif can_run kdesu ; then
+        MODE="kdesu"
+    elif can_run /usr/lib/kde4/libexec/kdesu ; then
+        MODE="kde4su"
+    elif can_run ktsuss ; then
+        MODE="ktsuss"
+    fi
+    xtitle "ROOT: $@"
+    case $MODE in
+        gksu)
+            if can_run_as_sudo "$@" ; then
+                gksu --sudo-mode -u root "$@"
+                (( $? == 1 )) && return 127
+            else
+                gksu --su-mode -u root "$@"
+            fi
+            ;;
+        kdesu)  kdesu -u root "$@" ;;
+        kde4su) /usr/lib/kde4/libexec/kdesu -u root "$@" ;;
+        ktsuss) ktsuss -u root "$@" ;;
+        # As a last resort, open a new xterm use sudo/su
+        sdterm) xterm -e "sudo -u root $@" ;;
+        sterm)  xterm -e "su -l root -c $@" ;;
+        *)      return 3 ;;
+    esac
+}
+
+as_root() {
+    [[ $# -lt 1 ]] && return 1
+
+    gui_sudo_or_su "$@"
+
+    case "$?" in
+        0|127) return $? ;;
+        *)     sudo_or_su "$@" ;;
+    esac
+}
+
 fullenv() {
     for _a in {A..Z} {a..z} ; do
         _z=\${!${_a}*}
@@ -17,6 +97,19 @@ fullenv() {
 path() {
     echo -e "${PATH//:/\n}"
 }
+
+
+function aa_isalpha ()
+{
+  [[ "$#" -lt "1" ]] && echo "Usage: $FUNCNAME str" >&2 && return 2
+  case $1 in *[!a-zA-Z]*|"") return -1; ;; *) return 0; ;; esac;
+}
+
+function aa_isdigit ()
+{
+  case $1 in *[!0-9]*|"") return -1; ;; *) return 0; ;; esac;
+}
+
 
 parse_git_dirty() {
     [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo "*"
@@ -46,6 +139,34 @@ xtitle() {      # Adds some text in the terminal frame.
     esac
 }
 
+yes_no() {
+    [[ "$#" -lt "1" ]] && echoerr "Usage: $FUNCNAME Question" && return 2
+    local a YN=65
+    echo -en "${1:-Answer} [Y/n] ?"
+    read -n 1 a
+    case $a in
+        [yY]) YN=0 ;;
+    esac
+    return $YN
+}
+
+yn() {
+    [[ "$#" -lt "1" ]] && echo "Usage: $FUNCNAME " >yn && return 2
+    local a YN=65
+    echo -en "\n ${CC[6]}@@ ${1:-Q} $R$X[y/N] ?$R"
+    read -n 1 a
+    echo
+    case $a in
+        [yY])
+            echo -n "Y"
+            YN=0
+            ;;
+        *)
+            echo -n "N"
+    esac
+    return $YN;
+}
+
 man() {
     for i ; do
         xtitle man -a $(basename $1|tr -d .[:digit:])
@@ -58,7 +179,7 @@ L() {
 }
 
 bad_symlinks() {
-    ARG="$@"
+    local ARG="$@"
     [[ -n $ARG ]] || ARG="$PWD"
 
     find -L "$ARG" -type l
@@ -124,25 +245,22 @@ my_ps_tree() {
 my_ps_tree_wide() {
     my_ps_tree ww
 }
+function stat1()
+{
+  local D=${1:-$PWD/*}; stat -c %a\ %A\ \ A\ %x\ \ M\ %y\ \ C\ %z\ \ %N ${D} |sed -e 's/ [0-9:]\{8\}\.[0-9]\{9\} -[0-9]\+//g' |tr  -d "\`\'"|sort -r;
+}
+
 
 # Repeat n times command.
 repeat() {
     local i max
-    max=$1; shift;
-    for ((i=1; i <= max ; i++)); do  # --> C-like syntax
-        eval "$@";
+    max=$1
+    shift
+    for ((i=1; i <= max ; i++)); do
+        eval "$@"
     done
 }
 
-
-# See 'killps' for example of use.
-ask() {
-    echo -n "$@" '[y/n] ' ; read ans
-    case "$ans" in
-        y*|Y*) return 0 ;;
-        *)     return 1 ;;
-    esac
-}
 
 dircmp() {
     diff -qrsl $1 $2 | sort -r | \
@@ -183,62 +301,50 @@ byteMe() {
     echo "$UNITS${METRIC[$MAGNITUDE]}"
 }
 
-fix_tree_fmt() {
-    while read line ; do
-        local -a a=(`echo ${line/ / }`)
-        local    h=$(byteMe "$a")
-        unset a[0]
-
-        while [ $#h -lt 7 ] ; do
-            h=" ${a}"
-        done
-        echo $h ${a[*]}
-    done
-}
-
 fmt_tree() {
+    fix_tree_fmt() {
+        while read line ; do
+            local -a a=(`echo ${line/ / }`)
+            local h=$(byteMe "${a[1]}")
+            while [ ${#h} -lt 7 ] ; do
+                h=" ${h}"
+            done
+            a[1]="$h"
+            unset a[0]
+            echo ${a[@]}
+        done
+    }
+
     fix_tree_fmt | tr ' ' "\t" | column -t
 }
 
-reorder_tree() {
-    sort "$@"
-}
-
 declare LTREE_FINDOPTS LTREE_TIMEFMT
+LTREE_FINDOPTS="-type f"
 LTREE_TIMEFMT="%Tb-%Td,%TH:%TM"
 list_tree_data() {
     local COL1="$1"
     shift
-    [[ -n "${LTREE_FINDOPTS}" ]] || LTREE_FIND_OPTS="-type f"
-
-    find "$@" "${LTREE_FINDOPTS}" -printf "${COL1} %s %M %u ${LTREE_TIMEFMT} %p\n"
+    find "${@:-${PWD}}" ${LTREE_FINDOPTS} -printf "${COL1} %s %M %u ${LTREE_TIMEFMT} %p\n"
 }
 
 list_sorted_tree() {
-    local COL1="$1" SORTOPT="$2"
+    local SORTCOL="$1" SORTOPT="$2"
     shift 2
-    list_tree_data "$COL1" "$@" | reorder_tree "${SORTOPT}" | fmt_tree
+
+    list_tree_data "$SORTCOL" "$@" | sort ${SORTOPT} | fmt_tree
 }
 
 list_globbed_tree() {
     local PREVOPT="${LTREE_FINDOPT}" GLOB="$1"
     shift
-    LTREE_FINDOPTS="${PREVOPT} -iname ${GLOB}"
+    LTREE_FINDOPTS="${PREVOPT} -iname '${GLOB}'"
     list_sorted_tree "%P"  '-i'    "$@"
     LTREE_FINDOPTS="${PREVOPT}"
 }
-list_tree_mtime_asc() {
-    list_sorted_tree '%T@' '-n'    "$@"
-}
-list_tree_mtime_desc() {
-    list_sorted_tree '%T@' '-n -r' "$@"
-}
-list_tree_size_asc() {
-    list_sorted_tree '%s'  '-n'    "$@"
-}
-list_tree_size_desc() {
-    list_sorted_tree '%s'  '-n -r' "$@"
-}
+list_tree_mtime_asc()  { list_sorted_tree '%T@' '-n'    "$@"; }
+list_tree_mtime_desc() { list_sorted_tree '%T@' '-n -r' "$@"; }
+list_tree_size_asc()   { list_sorted_tree '%s'  '-n'    "$@"; }
+list_tree_size_desc()  { list_sorted_tree '%s'  '-n -r' "$@"; }
 
 di.fm() {
     zenity --list --width 500 --height 500 --column 'radio' --column 'url' --print-column 2 $(curl -s http://www.di.fm/ | awk -F '"' '/href="http:.*\.pls.*96k/ {print $2}' | sort | awk -F '/|\.' '{print $(NF-1) " " $0}') | xargs mplayer
@@ -253,7 +359,12 @@ mplayerfb() {
 }
 
 list_open_ports() {
-    sudo lsof -Pi | grep LISTEN
+    as_root lsof -Pi | grep LISTEN
+}
+
+list_sockets_by_user() {
+    local U="${1:${USER}}"
+    as_root lsof -P -i -a -u "$U"
 }
 
 
