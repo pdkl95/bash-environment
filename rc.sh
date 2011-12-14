@@ -66,7 +66,7 @@ set -E
 load_sh "options"
 load_sh "ansicolor"
 load_sh "env"
-load_sh "rvm_gemset_prompt"
+#load_sh "rvm_gemset_prompt"
 load_sh "functions"
 load_sh "prompt"
 load_sh "aliases"
