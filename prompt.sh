@@ -61,7 +61,7 @@ print_current_prompt() {
         # the ANSI escape codes. probably a better way to do this...
         export PS1='`_git_headname`!`_git_workdir``_git_dirty`> '
     else
-        xtitle "$CSTATUS ${PWD/$HOME/~}"
+        xtitle "$CSTATUS ${PWD/$HOME/~}/"
         export PS1="$WHOAMI $PDIR $MARK "
     fi
 }

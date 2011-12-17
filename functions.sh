@@ -346,6 +346,12 @@ list_tree_mtime_desc() { list_sorted_tree '%T@' '-n -r' "$@"; }
 list_tree_size_asc()   { list_sorted_tree '%s'  '-n'    "$@"; }
 list_tree_size_desc()  { list_sorted_tree '%s'  '-n -r' "$@"; }
 
+
+
+mplayer_ident() {
+     mplayer2 -msglevel all=0 -identify -frames 0 "$@"  2> /dev/null
+}
+
 di.fm() {
     zenity --list --width 500 --height 500 --column 'radio' --column 'url' --print-column 2 $(curl -s http://www.di.fm/ | awk -F '"' '/href="http:.*\.pls.*96k/ {print $2}' | sort | awk -F '/|\.' '{print $(NF-1) " " $0}') | xargs mplayer
 }
