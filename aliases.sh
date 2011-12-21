@@ -1,11 +1,6 @@
-# like an "ls", bu use stat to sort by file perms (octal)
-alias lll="stat -c %a\ %N\ %G\ %U \${PWD}/*|sort"
-if is_cmd tree ; then
-    alias tree='command tree -CAh'
-else
-    alias tree="command ls -FR"
-fi
-
+alias ls="ls --color"
+alias ll="ls -l"
+alias lt="ll -tr"
 alias top='xtitle Processes on $HOST && top'
 alias make='xtitle Making $(basename $PWD) ; make'
 
