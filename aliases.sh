@@ -32,7 +32,7 @@ alias lm="command cd $HOME/src/fanime/laughingman && command git sh"
 
 alias ret="cd \"$OLDPWD\""
 
-alias ls="command ls --dereference ${AUTOCOLOR}"
+alias ls="command ls ${AUTOCOLOR}"
 alias ll="ls -l --human-readable"  # make the long format easier to read
 alias la='ll --almost-all'         # show hidden, skip . and ..
 alias lx='ll -X --ignore-backups'  # ort by extension, ignoring traling ~

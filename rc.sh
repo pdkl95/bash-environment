@@ -67,6 +67,8 @@ load_sh "functions"
 load_sh "prompt"
 load_sh "aliases"
 load_sh "completion"
+
+# Specialty Tools
 defer_load_sh "mplayer_helper" "m" "mm"
 
 
