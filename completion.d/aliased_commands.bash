@@ -6,6 +6,6 @@ function compalias {
 
 compalias _git -o default -o nospace -F _git g
 compalias _rake -F _rake ber
-compalias _mplayer -F _mplayer mplayer2
+#compalias _mplayer -F _mplayer mplayer2
 
 unset compalias

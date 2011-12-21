@@ -2,10 +2,10 @@
 # -*- mode: sh -*-
 
 load_sh 'functions/widget'
-load_sh 'functions/queryhelper'
-load_sh 'functions/emacs'
-load_sh 'functions/run'
-load_sh 'functions/proc'
+#load_sh 'functions/queryhelper'
+#load_sh 'functions/emacs'
+#load_sh 'functions/run'
+#load_sh 'functions/proc'
 
 
 fullenv() {
@@ -142,33 +142,6 @@ byteMe() {
     done
     echo "$UNITS${METRIC[$MAGNITUDE]}"
 }
-
-mplayer_ident() {
-     mplayer2 -msglevel all=0 -identify -frames 0 "$@"  2> /dev/null
-}
-
-di.fm() {
-    zenity --list --width 500 --height 500 --column 'radio' --column 'url' --print-column 2 $(curl -s http://www.di.fm/ | awk -F '"' '/href="http:.*\.pls.*96k/ {print $2}' | sort | awk -F '/|\.' '{print $(NF-1) " " $0}') | xargs mplayer
-}
-
-ytplay() {
-    mplayer -fs -quiet $(youtube-dl -g "$1")
-}
-
-mplayerfb() {
-    mplayer -vo fbdev $1 -fs -subcp ${2:-cp1251} -vf scale=${3:-1280:720}
-}
-
-
-vacuum_firefox() {
-    find ~/.mozilla/firefox/ -type f -name "*.sqlite" -exec sqlite3 {} VACUUM \;
-}
-
-#nuke_site() {
-#    local host="$1"
-#    firefox -new-tab "http://meyerweb.com/eric/tools/gmap/hydesim.html?dll=$(GET "$host" | grep ICBM | sed -e "s/<meta content='//" -e "s/'.*//" -e 's/ //')&yd=22&zm=12&op=156"
-#}
-
 
 my_ip_from_outsie_prespective() {
     curl ifconfig.me

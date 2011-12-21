@@ -13,8 +13,8 @@ function load_completion_dir {
         [[ "$file" == "$1/base" ]] || source "$file"
     done
 }
-load_completion_dir "/etc/bash_completion.d"
-load_completion_dir "${HOME}/.bash_completion.d"
+#load_completion_dir "/etc/bash_completion.d"
+#load_completion_dir "${HOME}/.bash_completion.d"
 [ -n "${rvm_path}" ] && safe_load "${rvm_path}/scripts/completion"
 load_completion_dir "${PDKL_BASHDIR}/completion.d"
 
