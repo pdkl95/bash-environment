@@ -1,89 +1,12 @@
 #! /bin/bash
 # -*- mode: sh -*-
 
-###############################
-###  general utils/helpers  ###
-###############################
+load_sh 'functions/widget'
+load_sh 'functions/queryhelper'
+load_sh 'functions/emacs'
+load_sh 'functions/run'
+load_sh 'functions/proc'
 
-in_X() {
-    [[ -n "$XAUTHORITY" ]]
-}
-
-can_run() {
-    [[ -x "$(command which $1)" ]]
-}
-
-can_run_as_sudo() {
-    can_run sudo ]] && sudo -l "$@" 2>/dev/null
-}
-
-can_run_as_su() {
-    can_run su
-}
-
-sudo_or_su() {
-    if can_run_as_sudo "$@" ; then
-        sudo "$@"
-    else
-        if can_run_as_su "$@" ; then
-            su -c "$*"
-        else
-            return_error 1 "Not able to run commands as root!"
-        fi
-    fi
-}
-
-gui_sudo_or_su() {
-    in_X || return 2
-
-    local MODE=""
-    # adapted from su-to-zenmap.sh
-    if can_run gksu ; then
-        MODE="gksu"
-        if [[ -n "${KDE_FULL_SESSION}" ]] ; then
-            if can_run kdesu ; then
-                MODE="kdesu"
-            else
-                MODE="kde4su"
-            fi
-        fi
-    elif can_run kdesu ; then
-        MODE="kdesu"
-    elif can_run /usr/lib/kde4/libexec/kdesu ; then
-        MODE="kde4su"
-    elif can_run ktsuss ; then
-        MODE="ktsuss"
-    fi
-    xtitle "ROOT: $@"
-    case $MODE in
-        gksu)
-            if can_run_as_sudo "$@" ; then
-                gksu --sudo-mode -u root "$@"
-                (( $? == 1 )) && return 127
-            else
-                gksu --su-mode -u root "$@"
-            fi
-            ;;
-        kdesu)  kdesu -u root "$@" ;;
-        kde4su) /usr/lib/kde4/libexec/kdesu -u root "$@" ;;
-        ktsuss) ktsuss -u root "$@" ;;
-        # As a last resort, open a new xterm use sudo/su
-        sdterm) xterm -e "sudo -u root $@" ;;
-        sterm)  xterm -e "su -l root -c $@" ;;
-        *)      return 3 ;;
-    esac
-}
-
-as_root() {
-    [[ $# -lt 1 ]] && return 1
-
-    gui_sudo_or_su "$@"
-
-    case "$?" in
-        0|127) return $? ;;
-        *)     sudo_or_su "$@" ;;
-    esac
-}
 
 fullenv() {
     for _a in {A..Z} {a..z} ; do
@@ -117,14 +40,6 @@ parse_git_dirty() {
 
 parse_git_branch() {
     git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/[\1$(parse_git_dirty)]/"
-}
-
-emacsclient() {
-    command emacsclient --create-frame --no-wait --alternate-editor="/usr/bin/emacs" "$@"
-}
-
-e() {
-  emacsclient "$@" >& /dev/null &disown
 }
 
 strip_ansi_escape_codes() {
@@ -178,48 +93,6 @@ L() {
     l=`builtin printf %${2:-$COLUMNS}s` && echo -e "${l// /${1:-=}}"
 }
 
-bad_symlinks() {
-    local ARG="$@"
-    [[ -n $ARG ]] || ARG="$PWD"
-
-    find -L "$ARG" -type l
-}
-
-# Swap 2 filenames around, if they exist
-swap() {
-    local TMPFILE=tmp.$$
-
-    [ $# -ne 2 ] && echo "swap: 2 arguments needed" && return 1
-    [  ! -e $1 ] && echo "swap: $1 does not exist"  && return 1
-    [  ! -e $2 ] && echo "swap: $2 does not exist"  && return 1
-
-    mv "$1" $TMPFILE
-    mv "$2" "$1"
-    mv $TMPFILE "$2"
-}
-
-
-extract() {
-    if [ -f $1 ] ; then
-        case $1 in
-            *.tar.bz2)   tar xvjf $1     ;;
-            *.tar.gz)    tar xvzf $1     ;;
-            *.bz2)       bunzip2 $1      ;;
-            *.rar)       unrar x $1      ;;
-            *.gz)        gunzip $1       ;;
-            *.tar)       tar xvf $1      ;;
-            *.tbz2)      tar xvjf $1     ;;
-            *.tgz)       tar xvzf $1     ;;
-            *.zip)       unzip $1        ;;
-            *.Z)         uncompress $1   ;;
-            *.7z)        7z x $1         ;;
-            *)           echo "'$1' cannot be extracted via >extract<" ;;
-        esac
-    else
-        echo "'$1' is not a valid file"
-    fi
-}
-
 # possible addition to the above... needs work first :/
 # atb() {
 #    l=$(tar tf $1)
@@ -230,25 +103,6 @@ extract() {
 #     fi
 # }
 
-cps() {
-    ps -u root U `whoami` --forest -o pid,stat,tty,user,command |ccze -m ansi
-}
-
-my_ps() {
-    ps --deselect --ppid 2 "$@" -o pid,user,%cpu,%mem,nlwp,stat,bsdstart,vsz,rss,cmd --sort=bsdstart
-}
-
-my_ps_tree() {
-    ps_custom f "$@"
-}
-
-my_ps_tree_wide() {
-    my_ps_tree ww
-}
-function stat1()
-{
-  local D=${1:-$PWD/*}; stat -c %a\ %A\ \ A\ %x\ \ M\ %y\ \ C\ %z\ \ %N ${D} |sed -e 's/ [0-9:]\{8\}\.[0-9]\{9\} -[0-9]\+//g' |tr  -d "\`\'"|sort -r;
-}
 
 
 # Repeat n times command.
@@ -262,18 +116,6 @@ repeat() {
 }
 
 
-dircmp() {
-    diff -qrsl $1 $2 | sort -r | \
-        awk '/differ/ {
-           print "different  ",$2;
-         }
-         /are identical/ {
-           print "same       ",$2;
-         }
-         /Only in/ {
-           print $0;
-         }'
-}
 
 byteMe() {
     # Divides by 2^10 until < 1024 and then append metric suffix
@@ -301,53 +143,6 @@ byteMe() {
     echo "$UNITS${METRIC[$MAGNITUDE]}"
 }
 
-fmt_tree() {
-    fix_tree_fmt() {
-        while read line ; do
-            local -a a=(`echo ${line/ / }`)
-            local h=$(byteMe "${a[1]}")
-            while [ ${#h} -lt 7 ] ; do
-                h=" ${h}"
-            done
-            a[1]="$h"
-            unset a[0]
-            echo ${a[@]}
-        done
-    }
-
-    fix_tree_fmt | tr ' ' "\t" | column -t
-}
-
-declare LTREE_FINDOPTS LTREE_TIMEFMT
-LTREE_FINDOPTS="-type f"
-LTREE_TIMEFMT="%Tb-%Td,%TH:%TM"
-list_tree_data() {
-    local COL1="$1"
-    shift
-    find "${@:-${PWD}}" ${LTREE_FINDOPTS} -printf "${COL1} %s %M %u ${LTREE_TIMEFMT} %p\n"
-}
-
-list_sorted_tree() {
-    local SORTCOL="$1" SORTOPT="$2"
-    shift 2
-
-    list_tree_data "$SORTCOL" "$@" | sort ${SORTOPT} | fmt_tree
-}
-
-list_globbed_tree() {
-    local PREVOPT="${LTREE_FINDOPT}" GLOB="$1"
-    shift
-    LTREE_FINDOPTS="${PREVOPT} -iname '${GLOB}'"
-    list_sorted_tree "%P"  '-i'    "$@"
-    LTREE_FINDOPTS="${PREVOPT}"
-}
-list_tree_mtime_asc()  { list_sorted_tree '%T@' '-n'    "$@"; }
-list_tree_mtime_desc() { list_sorted_tree '%T@' '-n -r' "$@"; }
-list_tree_size_asc()   { list_sorted_tree '%s'  '-n'    "$@"; }
-list_tree_size_desc()  { list_sorted_tree '%s'  '-n -r' "$@"; }
-
-
-
 mplayer_ident() {
      mplayer2 -msglevel all=0 -identify -frames 0 "$@"  2> /dev/null
 }
@@ -364,16 +159,17 @@ mplayerfb() {
     mplayer -vo fbdev $1 -fs -subcp ${2:-cp1251} -vf scale=${3:-1280:720}
 }
 
-list_open_ports() {
-    as_root lsof -Pi | grep LISTEN
-}
-
-list_sockets_by_user() {
-    local U="${1:${USER}}"
-    as_root lsof -P -i -a -u "$U"
-}
-
 
 vacuum_firefox() {
     find ~/.mozilla/firefox/ -type f -name "*.sqlite" -exec sqlite3 {} VACUUM \;
+}
+
+#nuke_site() {
+#    local host="$1"
+#    firefox -new-tab "http://meyerweb.com/eric/tools/gmap/hydesim.html?dll=$(GET "$host" | grep ICBM | sed -e "s/<meta content='//" -e "s/'.*//" -e 's/ //')&yd=22&zm=12&op=156"
+#}
+
+
+my_ip_from_outsie_prespective() {
+    curl ifconfig.me
 }

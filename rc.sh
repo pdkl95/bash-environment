@@ -12,24 +12,10 @@
 export PDKL_HOME="/home/endymion"
 export PDKL_BASHDIR="${PDKL_HOME}/.bash"
 
-echoerr() {
-    echo "$@" 1>&2;
-}
 
-return_error() {
-    local err="$1"
-    shift
-    echo "ERROR (${FUNCNAME[1]}): $@"
-    return $err
-}
-
-is_defined() {
-    declare -p $1 >/dev/null 2>&1
-}
-
-is_cmd() {
-    command command type $1 &>/dev/null || return 1
-}
+#############################################################
+# The basic loader so we can load the rest from other files #
+#############################################################
 
 safe_load() {
     [ -f "$1" ] && source "$1"
@@ -59,18 +45,29 @@ add_project_root() {
 
 add_project_root "${PDKL_HOME}"
 
-set -E
-#set -e
 
-# all real work is done elsewhere
+###################################
+# all real work is done elsewhere #
+###################################
+
+# this should always load first, as it contains things
+# that other files we will load need
+load_sh "setup"
+
+# these are probably next, because they define constants that
+# end up in a few places
 load_sh "options"
 load_sh "ansicolor"
+
+# the core of our bash environment
 load_sh "env"
-#load_sh "rvm_gemset_prompt"
 load_sh "functions"
+
+# UI
 load_sh "prompt"
 load_sh "aliases"
 load_sh "completion"
 defer_load_sh "mplayer_helper" "m" "mm"
+
 
 unset safe_load load_sh add_path_prefix add_project_root

@@ -59,89 +59,17 @@ else
     export PAGER=more
 fi
 
-
 export TIMEFORMAT=$'\nreal %3R\tuser %3U\tsys %3S\tpcpu %P\n'
 export FIGNORE='.o:~'
 
-setup_history() {
-    export HISTCONTROL=${HISTCONTROL:-'ignoreboth'};
-    export HISTFILE="${PDKL_BASHDIR}/history.list"
-    export HISTSIZE=500
-    export HISTFILESIZE=2000
-    export HISTIGNORE="&:bg:fg:ll:h:top:clear:exit"
-
-    unset HISTTIMEFORMAT
-
-    HISTFILEMASTER_DIR="${PDKL_BASHDIR}/history.d"
-    [[ ! -d "$HISTFILEMASTER_DIR/" ]] && mkdir -pv "$HISTFILEMASTER_DIR"
-
-    # if no readable HISTFILE then create one with current history
-    [[ ! -r "${HISTFILE}" ]] && history -w "$HISTFILE"
-
-    # if no HISTFILEMASTER then create one with current history
-    HISTFILEMASTER="${HISTFILEMASTER_DIR}/combined.log"
-    [[ ! -f "$HISTFILEMASTER" ]] && history -r && history -w "$HISTFILEMASTER" && history -&& echo "" > "$HISTFILE"
-    export HISTFILEMASTER
-
-    HISTFILEMASTER_C="$HISTFILEMASTER_DIR/combined-uniq.log"
-    [[ ! -f "$HISTFILEMASTER_C" ]] && echo "" > "$HISTFILEMASTER_C"
-    export HISTFILEMASTER_C
-}
-
-histfilemaster() {
-    set -vx;
-    history -a
-    [[ "`wc -l < $HISTFILE`" -gt "$HISTSIZE" ]] && (
-        cat $HISTFILE >> $HISTFILEMASTER
-        cat $HISTFILE > `date +$HISTFILEMASTER_DIR/%m-%d-%y.history`
-        cat $HISTFILE $HISTFILEMASTER_C | sort | uniq > $HISTFILEMASTER_DIR/hc.tmp
-        [[ "$(wc -l < $HISTFILEMASTER_DIR/hc.tmp)" -gt "$(wc -l < $HISTFILEMASTER_C)" ]] && mv $HISTFILEMASTER_DIR/hc.tmp $HISTFILEMASTER_C || cat $HISTFILE >> $HISTFILEMASTER_C;
-        echo "" > $HISTFILE
-    )
-    set +vx;
-}
-
-
-uniqhistory() {
-    ( echo $HISTFILE; find $HISTFILEMASTER_DIR -type f 2>$N6 ) | xargs -iFFF cat FFF 2>$N6 | sed -e 's/^[ \t]*//;s/[ \t]*$//' -e '/[^ \t]\{1,\}/!d' | tr --squeeze ' ' | sort -u
-}
-
-savehist() {
-    history ${HISTCMD:-5000} | sed -e 's/^[ 0-9]*\(.*\)/\1/g' | tee -a $HISTFILEMASTER_C >> $HISTFILEMASTER
-    cat $HISTFILE | tee -a $HISTFILEMASTER_C >> $HISTFILEMASTER
-    history -w
-    echo
-}
-
-h1() {
-    [[ "$#" -lt "1" ]] && echo "Usage: $FUNCNAME query" >&2 && return 2
-    command grep -h -i "$@" $HISTFILEMASTER
-}
-
-
-h1c() {
-    [[ "$#" -lt "1" ]] && echo "Usage: $FUNCNAME query" >&2 && return 2
-    command grep --color=always -h -i "$@" $HISTFILEMASTER
-}
-
-h2() {
-    [[ "$#" -lt "1" ]] && echo "Usage: $FUNCNAME query" >&2 && return 2
-    command grep -h "$@" $HISTFILEMASTER_C
-}
-h2i() {
-    [[ "$#" -lt "1" ]] && echo "Usage: $FUNCNAME query" >&2 && return 2
-    command grep -h -i "$@" $HISTFILEMASTER_C
-}
-h2c() {
-    [[ "$#" -lt "1" ]] && echo "Usage: $FUNCNAME query" >&2 && return 2
-    export GREP_COLOR=`echo -en "\e[1;3$(( $RANDOM % 7 + 1 ))"`
-    command grep --color=always -h "$@" $HISTFILEMASTER_C
-}
-
-hpopular() {
-  cat $HISTFILEMASTER | awk '{print $2}' | sort | uniq -c | sort -rn | head -n ${1:-50};
-}
-setup_history
+# huge history, shared across all bashes. sync it in PROMPT_COMMAND by
+# calling "history -a" at a minimum
+export HISTCONTROL="erasedups"
+export HISTFILE="${PDKL_BASHDIR}/history.list"
+export HISTSIZE=100000
+export HISTFILESIZE=100000
+export HISTIGNORE="&:bg:fg:lt:h:m:mm:mplayer:mplayer2:top:clear:exit"
+unset HISTTIMEFORMAT
 
 # *** HACK ***
 # Workaround for how Gentoo deals with ruygems. We manage it

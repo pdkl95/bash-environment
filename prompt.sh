@@ -49,6 +49,10 @@ prompt_cmdstatus() {
 
 print_current_prompt() {
     local EVAL="$?" CSTATUS WHOAMI PDIR MARK
+
+    history -a
+    #history -n
+
     CSTATUS="$(prompt_cmdstatus $EVAL)"
     WHOAMI="$(prompt_whoami)"
     PDIR="$(prompt_pwd)"

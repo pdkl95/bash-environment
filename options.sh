@@ -7,9 +7,9 @@ umask 0002
 #set +x # xtrace
 set +C # noclobber
 set +f # noglob
-set +H # histexpand
 set +n # noexec
 #------------------ <<< Remember '+' means *OFF* with set!
+set -H # histexpand
 set -b # notify
 set -h # hashall
 set -m # monitor
