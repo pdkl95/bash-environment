@@ -73,3 +73,6 @@ defer_load_sh "mplayer_helper" "m" "mm"
 
 
 unset safe_load load_sh add_path_prefix add_project_root
+
+## rvm is implicitly loades leswhere instea of the traditional line here
+
