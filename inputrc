@@ -1,0 +1,68 @@
+# make sure th basic distro settings are what we start with
+$include /etc/inputrc
+
+### OPTIONS ###
+set bell-style none
+set blink-matching-paren On
+#set bind-tty-special-chars On
+set completion-query-items 350
+set convert-meta Off
+set echo-control-characters off
+set enable-meta-key On
+set editing-mode emacs
+set expand-tilde Off
+set input-meta On
+set output-meta On
+set mark-symlinked-directories On
+set page-completions Off
+set show-all-if-ambiguous On
+set show-all-if-unmodified On
+set visible-stats Off
+
+### KEY BINDINGS ###
+
+Space: magic-space
+
+#TAB: menu-complete
+#"\e[Z": "\e-1\C-i"
+"\e[Z": menu-complete
+
+Control-d: unix-filename-rubout
+
+"\e[5~": previous-history
+"\e[6~": next-history
+
+"\e[5;5~": reverse-history-search
+"\e[6;5~": forward-history-search
+
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+
+
+"\e[1;5C": shell-forward-word
+"\e[1;5D": shell-backward-word
+"\e[1;3C": forward-word
+"\e[1;3D": backward-word
+
+Control-NEWLINE: operate-and-get-next
+"\e[3~": delete-char
+"\e[2~": overwrite-mode
+"\M-o": "> output"
+
+### Bash-specific macros ###
+$if Bash
+    # previous comand, but edit initial options first
+    "\C-f": "\C-p\C-a\e[1;2C"
+
+    # cd to whatever was named LAST in the previous command
+    "s-c": 'cd !$\015ls\015'
+
+
+    #######
+
+    #reload the entire bash enviroment
+    "\C-x\C-b": ". ~/.bashrc"
+    # reload this .inputrc
+    "\C-x\C-r": re-read-init-file
+    #"\C-x\C-r": f
+$endif
