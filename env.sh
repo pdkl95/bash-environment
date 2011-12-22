@@ -62,12 +62,11 @@ fi
 export TIMEFORMAT=$'\nreal %3R\tuser %3U\tsys %3S\tpcpu %P\n'
 export FIGNORE='.o:~'
 
-# huge history, shared across all bashes. sync it in PROMPT_COMMAND by
-# calling "history -a" at a minimum
-export HISTCONTROL="erasedups"
+
 export HISTFILE="${PDKL_BASHDIR}/history.list"
 export HISTSIZE=100000
 export HISTFILESIZE=100000
+export HISTCONTROL=""
 export HISTIGNORE="&:bg:fg:lt:h:m:mm:mplayer:mplayer2:top:clear:exit"
 unset HISTTIMEFORMAT
 
