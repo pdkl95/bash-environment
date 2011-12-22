@@ -16,9 +16,9 @@ set -m # monitor
 set -B # braceexpand
 
 shopt -s checkwinsize checkhash
-shopt -s autocd promptvars
-shopt -s extquote extglob globstar dotglob
+shopt -s promptvars
+shopt -s extquote extglob dotglob
 shopt -s histappend histreedit histverify cmdhist
 shopt -s no_empty_cmd_completion
-shopt -u checkjobs huponexit
+shopt -u  huponexit
 shopt -u failglob mailwarn cdable_vars

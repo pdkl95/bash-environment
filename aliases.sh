@@ -75,24 +75,6 @@ alias grep='grep --color=auto'
 alias diff='diff -up'
 is_cmd colordiff && alias diff='colordiff -up'
 [[ "$UNAME" != "Linux" ]] && is_cmd gsed && alias sed='gsed'
-is_cmd ionice && is_cmd nice && alias inice='ionice -c3 -n7 nice'
-is_cmd ccze && alias lessc='ccze -A |`type -P less` -R'
-
-alias irb="command irb --readline -r irb/completion"
-alias nautilus="command nautilus --no-desktop"
-
-#is_cmd mpc && alias mpc="mpc -h 10.0.0.200"
-is_cmd pwgen && alias pwgen="command pwgen -v -n"
-is_cmd fixnames && alias fn="command fixnames -fvv"
-is_cmd youtube-dl && alias yt="command youtube-dl -t -c --format 38/37/45/22/44/35/34/18/6/5/17/13"
-
-# pseudo 'pstree' from ps; has more info
-alias pp="my_ps_tree"
-alias ppw="my_ps_tree ww"
-# also, fixup the actual "pstree" (requires wide output, but
-# can be very easy to read
-alias pstree="pstree -Gp"
-
 
 alias g="git"
 alias gg="git status"
@@ -101,11 +83,4 @@ alias bake="bundle exec rake"
 alias gitlog="git --no-pager log --oneline --graph -n 18 --decorate"
 
 
-alias lT="list_tree_mtime_asc"
-alias lTr="list_tree_mtime_desc"
-alias lS="list_tree_size_asc"
-alias lSr="list_tree_size_desc"
 
-
-#alias rscp="rsync --partial --progress --append --rsh=ssh -r -h "
-#alias rsmv="rsync --partial --progress --append --rsh=ssh -r -h --remove-sent-files"
