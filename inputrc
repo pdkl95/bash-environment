@@ -4,7 +4,7 @@ $include /etc/inputrc
 ### OPTIONS ###
 set bell-style none
 set blink-matching-paren On
-#set bind-tty-special-chars On
+set bind-tty-special-chars Off
 set completion-query-items 350
 set convert-meta Off
 set echo-control-characters off
@@ -21,48 +21,138 @@ set visible-stats Off
 
 ### KEY BINDINGS ###
 
-Space: magic-space
-
-#TAB: menu-complete
-#"\e[Z": "\e-1\C-i"
+# <shift>+TAB
 "\e[Z": menu-complete
 
 Control-d: unix-filename-rubout
 
-"\e[5~": previous-history
-"\e[6~": next-history
-
-"\e[5;5~": reverse-history-search
-"\e[6;5~": forward-history-search
-
+##### Search-as-you-go is much vaster
+# UP
 "\e[A": history-search-backward
+# DOWN
 "\e[B": history-search-forward
 
+##### standard search tools moved to <shift>+ or PGUP/PGDOWN
+# <shift>+UP
+"\e[1;2A": previous-history
+# <shift>+DOWN
+"\e[1;2B": next-history
+# PAGEUP
+"\e[5~": previous-history
+# PAGEDOWN
+"\e[6~": next-history
 
+##### a different, interactive kind of search
+# <control>+PAGEUP
+"\e[5;5~": reverse-history-search
+# <control>+PAGEDOWN
+"\e[6;5~": forward-history-search
+
+##### word-by-word horizontal movement in the shell
+##### So important, it's mount more than once
+# <control>+RIGHT
 "\e[1;5C": shell-forward-word
+# <control>+LEFT
 "\e[1;5D": shell-backward-word
+# <shift>+RIGHT
+"\e[1;2C": shell-forward-word
+# <shift>+LEFT
+"\e[1;2D": shell-backward-word
+
+##### basic L/R still do the standard single-char move
+# <alt>+RIGHT
 "\e[1;3C": forward-word
+# <alt>+LEFT
 "\e[1;3D": backward-word
 
+##### If you've scrolled up in history, this
+##### accepts the command ilke normal NEWLINE (return)
+##### but *stays* at that point in the history, plus one line
+##### This lets you repeat an entire _sequence_ of commands
+##### from the history by find teh first command, holding
+##### down <control>,, and hitting <newline> a bunch of times.
 Control-NEWLINE: operate-and-get-next
+
+##### <delete> - makes sure it's still bound to the correct
+##### comman as it gets rewritten fairly eaisily
 "\e[3~": delete-char
-"\e[2~": overwrite-mode
-"\M-o": "> output"
 
-### Bash-specific macros ###
+##### Needed to be a known command for other, complex commands
+##### below that entire more than one command
+"\C-x\C-k": kill-whole-line
+
+##### go to kust before the first option of THIS command
+##### that is, if you had alread typed
+#####    echo foo bar baz
+##### no matter the point is now, you end here
+#####    echo § foo bar baz
+##### a single space is added to so the point is
+##### _between_ whitespace.
+##### This is very similar to the next macro, but stays
+##### within the current command only, without touching
+##### the history
+# <alt>+2
+"\e2": "[1;5C "
+
+##### load the previous comand, and edit
+##### move to enter the FIRST option
+##### example, if the previos command was:
+#####     prog foo bar baz
+##### Then pressin C-f would scroll up oneto the history
+##### log to that commmand, and put the editing point
+##### at the where the section marker indicates here:
+#####     prog § foo bar baz
+##### A single extra space is also added such that the point
+##### is now _between_ spaces and is read for something else
+##### to be entered.
+# <control>+f
+"\C-f": "[1;5C "
+
+### ----- Bash-specific macros ----- ###
 $if Bash
-    # previous comand, but edit initial options first
-    "\C-f": "\C-p\C-a\e[1;2C"
+    ##### if a History Expansion is ready when you hit space
+    ##### apropriate expansion wil execute *immediately* with the
+    ##### results automagically replacing the current command as
+    ##### if you hasd typed again it from scratch
+    # <space>
+    Space: magic-space
 
-    # cd to whatever was named LAST in the previous command
-    "s-c": 'cd !$\015ls\015'
+    ##### cd to whatever was named LAST in the previous command
+    ##### for example, typing
+    #####     cp -r /some/other/dir/ foo<RETURN><ALT>+l
+    ##### will, after the copy is done, have you end up
+    ##### in the newly copied "foo/" directory. It does an
+    ##### 'ls' for you as ell once it gets there, as thhat's alost
+    ##### certainly what you want to see first.
+    ##### Note, this is <alt>+<Lowercase 'L'>, if you're using
+    ##### a stupid font that confuses those with '1'
+    # <alt>+l
+    "\el": 'cd !$ ls -lh'
 
+    ##### A shortcut for the previos shortcut, that presses
+    ##### the <return> in the middle for your
+    # <alt>+L
+    "\eL": 'l'
 
-    #######
-
-    #reload the entire bash enviroment
-    "\C-x\C-b": ". ~/.bashrc"
-    # reload this .inputrc
-    "\C-x\C-r": re-read-init-file
-    #"\C-x\C-r": f
+    ##### reload the entire bash enviroment by running your
+    ##### ~/.bashrc script again from the top
+    ##### This compliments the builting C-xC-r to relaod *THIS* file
+    # <control>+x <control>+b
+    "\C-x\C-b": ". ~/.bashrc"
 $endif
+
+
+
+#######################
+# bash isn't /exactly/
+# the right mode here,
+# but at least it get
+# the colors right...
+#       |
+#       |
+#      \ /
+#       V
+
+# Local Variables:
+# mode: sh
+# End:

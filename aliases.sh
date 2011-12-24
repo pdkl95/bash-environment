@@ -82,5 +82,20 @@ alias be="bundle exec"
 alias bake="bundle exec rake"
 alias gitlog="git --no-pager log --oneline --graph -n 18 --decorate"
 
+is_cmd ionice && is_cmd nice && alias inice='ionice -c3 -n7 nice'
+is_cmd ccze && alias lessc='ccze -A |`type -P less` -R'
 
+alias irb="command irb --readline -r irb/completion"
+alias nautilus="command nautilus --no-desktop"
 
+#is_cmd mpc && alias mpc="mpc -h 10.0.0.200"
+is_cmd pwgen && alias pwgen="command pwgen -v -n"
+is_cmd fixnames && alias fn="command fixnames -fvv"
+is_cmd youtube-dl && alias yt="command youtube-dl -t -c --format 38/37/45/22/44/35/34/18/6/5/17/13"
+
+# pseudo 'pstree' from ps; has more info
+alias pp="my_ps_tree"
+alias ppw="my_ps_tree ww"
+# also, fixup the actual "pstree" (requires wide output, but
+# can be very easy to read
+is_cmd pstree && alias pstree="pstree -Gp"

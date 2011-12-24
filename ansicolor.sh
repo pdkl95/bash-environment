@@ -96,7 +96,7 @@ if $USE_ANSI_COLOR ; then
     CCon_Icyan='\e[0;106m'    # Cyan
     CCon_Iwhite='\e[0;107m'   # White
 
-    function attr_name_to_ansi {
+    attr_name_to_ansi() {
         case "$1" in
             concealed|CONCEALED)     echo -ne '\e[8m' ;;
             reverse|REVERSE)         echo -ne '\e[7m' ;;
@@ -109,7 +109,7 @@ if $USE_ANSI_COLOR ; then
         esac
     }
 
-    function color_name_to_ansi_fg {
+    color_name_to_ansi_fg() {
         case "$1" in
             black)  echo -ne '\e[30m' ;;
             red)    echo -ne '\e[31m' ;;
@@ -169,11 +169,14 @@ if $USE_ANSI_COLOR ; then
         fi
     }
 
-    function pcolor {
+    pcolor() {
         local C="$1" ; shift
         echo -n $(color_name_to_ansi "$C")"$@"$'\e[0m'
     }
 
+    strip_ansi_escape_codes() {
+        sed -r "s/(\x5C\x5B)?\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K](\x5C\x5D)?//g"
+    }
 else
     # COLOR IS OFF, define things to their respectve null/emptry
     # values or otherwise pass things through unchanged
@@ -183,24 +186,11 @@ else
         declare -- "$x"=""
     done
 
-    unset -f attr_name_to_ansi
-    function attr_name_to_ansi {
-        echo -n ''
-    }
-    unset -f color_name_to_ansi_fg
-    function color_name_to_ansi_fg {
-        echo -n ''
-    }
-    unset -f color_name_to_ansi_bg
-    function color_name_to_ansi_bg {
-        echo -n ''
-    }
-    unset -f color_name_to_ansi
-    function color_name_to_ansi {
-        echo -n ''
-    }
-    unset -f pcolor
-    function pcolor {
-        echo -n "$@"
-    }
+    unset -f pcolor color_name_to_ansi{,_bg,_fg} attr_name_to_ansi
+    attr_name_to_ansi()     { echo -n ''; }
+    color_name_to_ansi_fg() { echo -n ''; }
+    color_name_to_ansi_bg() { echo -n ''; }
+    color_name_to_ansi()    { echo -n ''; }
+    pcolor()     { echo -n "$@"; }
+    strip_ansi() { echo -n "$@"; }
 fi

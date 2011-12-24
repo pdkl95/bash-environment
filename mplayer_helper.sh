@@ -11,7 +11,7 @@
 # first, a few things moved ovoer from ansicolor.sh
 # that were really only being used here. Should really
 # be expanded innto a full "GUI/Widget Toolkit"
-function pcolorln {
+pcolorln() {
     pcolor "$@"
     echo
 }
