@@ -11,10 +11,8 @@ the spagetti mess it used to be.
 
 ### **WARNING**
 
-As this completely changes
-most evertything in bash,
-installing it can be
-occasionally a bit hairy.
+As this completely changes most evertything in bash,
+installing it can be occasionally a bit hairy.
 
  - **BACKUP FIRST**
  - **BACKUP OFTEN**
@@ -34,17 +32,9 @@ just link them in:
 echo $PWD
 
 # required
-ln -s .bash/rc.sh        .bashrc
 ln -s .bash/profile.sh   .bash_profile
-
-# optional, in various amounts
+ln -s .bash/rc.sh        .bashrc
 ln -s .bash/inputrc      .inputrc
-ln -s .bash/env.sh       .bash_env
-ln -s .bash/functions.sh .bash_functions
-ln -s .bash/aliases.sh   .bash_aliases
-ln -s .bash/history.list .bash_history
-
-```
 
 
 Copyright
