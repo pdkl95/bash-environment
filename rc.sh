@@ -52,7 +52,7 @@ add_project_root "${PDKL_HOME}"
 
 # this should always load first, as it contains things
 # that other files we will load need
-load_sh "setup"
+load_sh "basic_tools"
 
 # these are probably next, because they define constants that
 # end up in a few places
