@@ -4,6 +4,7 @@ if [ -x "$(complete -p)" ]; then
 fi
 
 load_compdir() {
+    [[ -d "$1" ]] || return
     [[ -r "$1/base" ]] && source "$1/base"
     for file in "$1"/* ; do
         [[ "$file" == "$1/base" ]] || source "$file"
@@ -21,7 +22,7 @@ safe_load "/usr/share/bash-completion/.pre"
 load_compdir "/etc/bash_completion.d"
 safe_load "/usr/share/bash-completion/.post"
 
-load_compdir "${PDKL_BASHDIR}/completion.d"
+load_compdir "${bashENV}/bash_completion.d"
 compalias _git -o default -o nospace g
 compalias _rake bake
 compalias _mplayer mplayer2

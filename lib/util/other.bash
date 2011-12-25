@@ -1,14 +1,6 @@
 #! /bin/bash
 # -*- mode: sh -*-
 
-load_sh 'functions/widget'
-load_sh 'functions/queryhelper'
-load_sh 'functions/emacs'
-load_sh 'functions/run'
-load_sh 'functions/proc'
-load_sh 'functions/compare_trees.sh'
-
-
 ####################
 ### GIT Helpers  ###
 ####################

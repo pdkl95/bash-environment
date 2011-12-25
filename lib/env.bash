@@ -1,11 +1,7 @@
 export INPUTRC="~/.inputrc"
 
-# various project-wide directory roots
-export PDKL_SCRIPT_ROOT="${PDKL_HOME}/src/scripts"
-export MINECRAFT_ROOT="${PDKL_HOME}/games/minecraft"
-
-add_project_root "${PDKL_SCRIPT_ROOT}"
-add_project_root "${MINECRAFT_ROOT}"
+add_path_prefix "${bashHOME}/games/minecraft/bin"
+add_path_prefix "${bashHOME}/src/scripts/bin"
 
 ##########################################
 # select an editor fin order of preference
