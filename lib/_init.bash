@@ -118,18 +118,22 @@ safe_load() {
     [ -f "$1" ] && source "$1"
 }
 
-load_bash_lib() {
+parse_bash_libname() {
     if [[ "$1" =~ ^/ ]] ; then
-        safe_load "$1"
+        echo "$1"
     elif [[ "$1" =~ .sh$ ]] ; then
-        safe_load ="${bashLIB}/$1"
+        echo "${bashLIB}/$1"
     else
-        safe_load "${bashLIB}/$1.bash"
+        echo "${bashLIB}/$1.bash"
     fi
 }
 
+load_bash_lib() {
+    safe_load "$(parse_bash_libname "$1")"
+}
+
 defer_load_bash_lib() {
-    local file="$(readlink -f "${bashENV}/$1.sh")" ; shift
+    local file="$(parse_bash_libname "$1")" ; shift
     # REQUIRED: $file must redefine all elements of "$@"
     #           it will cause $file to randomly be reloaded
     for x in "$@" ; do

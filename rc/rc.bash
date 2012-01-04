@@ -1,7 +1,10 @@
+#!/bin/bash
 # -*- mode: sh -*-
 
 # Shell is non-interactive?
 [[ $- != *i* ]] && return
+
+export TERM=xterm-256color
 
 ######################
 ###  Interactive!  ###
@@ -29,7 +32,7 @@ load_bash_lib 'util/queryhelper'
 load_bash_lib 'util/emacs'
 load_bash_lib 'util/run'
 load_bash_lib 'util/proc'
-load_bash_lib 'util/compare_trees.sh'
+load_bash_lib 'util/compare_trees'
 load_bash_lib "util/other"
 load_bash_lib "prompt"
 load_bash_lib "aliases"

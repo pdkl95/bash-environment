@@ -376,8 +376,11 @@ done
 
 ### then, specify the actual user-interaction shortcuts
 
-#m()  { mplayer_launch_helper_wrap 'mplayer'  '-' '-quiet'          "$@"; }
+mn() { mplayer_launch_helper_wrap 'mplayer'  '-' '-quiet'          "$@"; }
 m()  { mplayer_launch_helper_wrap 'mplayer2' ''  ''                "$@"; }
 mm() { mplayer_launch_helper_wrap 'mplayer2' ''  '-hr-seek always' "$@"; }
 
 #alias m=mm
+
+
+
