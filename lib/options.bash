@@ -3,8 +3,6 @@ ulimit -S -c 0
 #umask 0022
 umask 0002
 
-#set +v # verbose
-#set +x # xtrace
 set +C # noclobber
 set +f # noglob
 set +n # noexec
@@ -15,10 +13,7 @@ set -h # hashall
 set -m # monitor
 set -B # braceexpand
 
-shopt -s checkwinsize checkhash
-shopt -s promptvars
-shopt -s extquote extglob dotglob
-shopt -s histappend histreedit histverify cmdhist
-shopt -s no_empty_cmd_completion
-shopt -u  huponexit
-shopt -u failglob mailwarn cdable_vars
+
+shopt -u huponexit failglob mailwarn cdable_vars
+shopt -s checkhash checkwinsize cmdhist dotglob extglob extquote \
+histappend histreedit histverify no_empty_cmd_completion promptvars

@@ -2,7 +2,9 @@
 # -*- mode: sh -*-
 
 emacsclient_run() {
-    command emacsclient-emacs-24 "$@" ;
+    export AUTOSTART_EMACS_CMD="$@"
+    command emacsclient-emacs-24 --alternate-editor="$HOME/src/scripts/bin/autostart_emacs_daemon" "$@"
+    unset AUTOSTART_EMACS_CMD
 }
 emacs_eval()         { emacsclient_run --eval                   "$@" ; }
 emacs_tty()          { emacsclient_run --tty                    "$@" ; }

@@ -17,6 +17,8 @@ export TERM=xterm-256color
 ###############################################
 ###  setup the stanndard $HOME environment  ###
 ###############################################
+
+add_path_prefix "${HOME}/node_modules/.bin"
 add_path_prefix "${bashHOME}/bin"
 
 
