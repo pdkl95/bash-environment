@@ -18,7 +18,7 @@ alias emacsclient="emacs_form_wait"
 # and for good measure...
 alias xemacs="emacs_frame_wait"
 
-
+alias path='echo -e ${PATH//:/\\n}'
 alias env='command env | sort'
 
 # try and help with safety; less annoying than -i
