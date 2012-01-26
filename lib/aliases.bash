@@ -1,22 +1,10 @@
 # -*- mode: sh -*-
 
-# first and most important: editors
+# not-commonly-used editors
 alias z="command zile"
 alias nano="command nano -w"
 alias n="nano"
 
-alias E="emacs_eval"
-alias e="emacs_frame_nowait"
-alias et="emacs_tty"
-
-# trap emacs itself so it goes through
-# the emacsclient wrapper
-alias emacs="emacs_frame_wait"
-# trap random calls to "emacsclient", so
-# can enforce specific options
-alias emacsclient="emacs_form_wait"
-# and for good measure...
-alias xemacs="emacs_frame_wait"
 
 alias path='echo -e ${PATH//:/\\n}'
 alias env='command env | sort'
@@ -87,6 +75,8 @@ is_cmd ccze && alias lessc='ccze -A |`type -P less` -R'
 
 alias irb="command irb --readline -r irb/completion"
 alias nautilus="command nautilus --no-desktop"
+
+alias mii="mkvmerge --identify-verbose"
 
 #is_cmd mpc && alias mpc="mpc -h 10.0.0.200"
 is_cmd pwgen && alias pwgen="command pwgen -v -n"

@@ -28,14 +28,10 @@ add_path_prefix "${bashHOME}/bin"
 
 load_bash_lib "options"
 load_bash_lib "ansicolor"
+load_bash_lib "helpers"
 load_bash_lib "env"
-load_bash_lib 'util/widget'
-load_bash_lib 'util/queryhelper'
-load_bash_lib 'util/emacs'
-load_bash_lib 'util/run'
-load_bash_lib 'util/proc'
-load_bash_lib 'util/compare_trees'
-load_bash_lib "util/other"
+load_bash_lib "editor"
+load_bash_lib "util"
 load_bash_lib "prompt"
 load_bash_lib "aliases"
 load_bash_lib "completion"

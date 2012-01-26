@@ -1,0 +1,60 @@
+;;; FOO.el --- FOO DESC
+
+;; Copyright (c) 20xx Brent Sanders
+
+;; Author: Brent Sanders
+;; URL: http://github.com/pdkl95/FOO
+;; Version: 1.0.0
+;; Created: 20xx-yy-zz
+;; By: Brent Sanders
+;; Keywords: FOO, BAR, BAZ
+
+;;; Commentary:
+
+;; Lorem ipsum dolor sit amet, consectetur adipiscing elit. In ut
+;; volutpat dolor. Ut imperdiet lacus pulvinar leo rhoncus eu posuere
+;; purus tempor. Proin eu ligula at nunc varius lobortis. Vivamus sed leo
+;; massa, eu pulvinar tellus. Vestibulum sapien ligula, rhoncus eu semper
+;; in, ullamcorper vitae nibh. Suspendisse ut mauris risus.
+;;
+;; Pellentesque vel dolor sodales libero cursus ultrices. Donec gravida
+;; ante ac mauris varius non eleifend felis tempus. Vestibulum imperdiet
+;; dapibus justo quis porttitor. Nullam quis magna sit amet ante mollis
+;; pretium et non libero.
+;;
+;; Suspendisse leo urna, ornare eu placerat ut, venenatis non est. Donec
+;; id nunc vitae nisi cursus commodo non vitae dolor.
+;;
+;; Duis pharetra nulla nec magna pretium lacinia. Suspendisse convallis
+;; blandit vehicula. Curabitur facilisis quam nec turpis tempus
+;; tincidunt. Vivamus lorem dolor, pharetra sed pulvinar sed, gravida non
+;; dolor.
+;;
+;; Quisque accumsan dignissim diam, in tempor elit adipiscing quis. Morbi
+;; vulputate mauris in eros ultricies sed convallis risus accumsan. Sed
+;; ultrices mollis nulla quis imperdiet. Donec ac ligula erat, eget
+;; semper ligula. In adipiscing eleifend nulla quis suscipit.
+
+
+;; (require 'FOO)
+
+;;; Code:
+
+(eval-when-compile (require 'cl))
+(require 'bar)
+
+;; Additional (optional) libraries for fontification
+(require 'baz nil t)
+
+
+;;;   ...
+;;;   ...
+;;;   ...
+
+
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.FOO$" . FOO))
+
+;; Setup/Activation
+(provide 'FOO)
+;;; haml-mode.el ends here

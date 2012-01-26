@@ -1,0 +1,42 @@
+# encoding: utf-8
+
+$LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
+require "FOO/version"
+
+require 'bundler/gem_tasks'
+
+begin
+    require 'rake/extensiontask'
+rescue LoadError
+    abort "This Rakefile requires rake-compiler (gem install rake-compiler)"
+end
+
+eval(File.read("FOO.gemspec")).tap do |spec|
+  spec.version = "#{spec.version}.pre"
+
+  Gem::PackageTask.new spec
+  Rake::ExtensionTask.new 'FOO', spec
+end
+
+require 'rake/testtask'
+Rake::TestTask.new(:spec) do |spec|
+  spec.libs << 'lib' << 'spec'
+  spec.pattern = 'spec/**/*_spec.rb'
+  spec.verbose = true
+end
+
+gem 'rdoc'
+require 'rdoc/task'
+RDoc::Task.new do |rdoc|
+  rdoc.generator = 'hanna'
+  rdoc.main     = 'README.rdoc'
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title = "FOO #{Foo::VERSION}"
+  rdoc.rdoc_files.include 'README.rdoc'
+  rdoc.rdoc_files.include 'lib/**/*.rb'
+  rdoc.rdoc_files.include 'ext/*.[c]'
+end
+
+
+task :default => [:compile, :rdoc]
+#task :default => [:compile, :spec, :rdoc]

@@ -1,0 +1,19 @@
+#!/bin/env ruby
+# encoding: utf-8
+
+class Foo
+  module ClassMethods
+
+  end
+  extend ClassMethods
+
+  def initialize
+
+  end
+end
+
+
+# Local Variables:
+# mode: ruby
+# coding: utf-8-unix
+# End:

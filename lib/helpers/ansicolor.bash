@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ############################
 ###  ANSI COLOR HELPERS  ###
 ############################
@@ -102,7 +104,7 @@ if $USE_ANSI_COLOR ; then
             reverse|REVERSE)         echo -ne '\e[7m' ;;
             blink|BLINK)             echo -ne '\e[5m' ;;
             underline|UNDERLINE)     echo -ne '\e[4m' ;;
-            dark|DARK|faint|FAINT)   echo -ne '\e[2m' ;;
+            dark|DARK|dim|DIM)       echo -ne '\e[2m' ;;
             bold|BOLD)               echo -ne '\e[1m' ;;
             clear|CLEAR|reset|RESET) echo -ne '\e[0m' ;;
             *)                       echo -ne '\e[0m' ;;
@@ -130,7 +132,7 @@ if $USE_ANSI_COLOR ; then
         esac
     }
 
-    function color_name_to_ansi_bg {
+    color_name_to_ansi_bg() {
         case "$1" in
             black)  echo -ne '\e[40m' ;;
             red)    echo -ne '\e[41m' ;;
@@ -151,10 +153,10 @@ if $USE_ANSI_COLOR ; then
         esac
     }
 
-    function color_name_to_ansi {
+    color_name_to_ansi() {
         local X="$1"
 
-        while [[ "$X" =~ ^(.*)!(.*)$ ]] ; do
+        while [[ "$X" =~ ^(.*)[!:](.*)$ ]] ; do
             X=${BASH_REMATCH[2]}
             attr_name_to_ansi ${BASH_REMATCH[1]}
         done
@@ -191,6 +193,46 @@ else
     color_name_to_ansi_fg() { echo -n ''; }
     color_name_to_ansi_bg() { echo -n ''; }
     color_name_to_ansi()    { echo -n ''; }
-    pcolor()     { echo -n "$@"; }
-    strip_ansi() { echo -n "$@"; }
+    pcolor()                { echo -n "$@"; }
+    strip_ansi()            { echo -n "$@"; }
 fi
+
+###############################################
+# Color Helpers & Macros
+#
+# MUST be implemented *strictly* in terms of
+# the overridable functions found above!!!!
+
+pcolor_wrap() {
+    local L="$1" R="$2" ; shift 2
+
+    # optional FIRST color for the wrapper
+    local Cwrap="purple"
+    if [[ $# -gt 1 ]] ; then
+        Cwrap="$1"; shift
+    fi
+
+    # optional SECOND color for the inner-text
+    local TXT
+    if [[ $# -gt 1 ]] ; then
+        local C="$1" ; shift
+        TXT="$(pcolor "$C" "$*")"
+    else
+        TXT="$*"
+    fi
+    echo -n "$(pcolor "$Cwrap" "$L")$TXT$(pcolor "$Cwrap" "$R")"
+}
+
+pcolor_wrap_paren()  { pcolor_wrap '(' ')' "$@" ; }
+pcolor_wrap_square() { pcolor_wrap '[' ']' "$@" ; }
+pcolor_wrap_angle()  { pcolor_wrap '<' '>' "$@" ; }
+pcolor_wrap_curly()  { pcolor_wrap '{' '}' "$@" ; }
+
+
+
+# Local Variables:
+# mode: sh
+# sh-basic-offset: 4
+# sh-shell: bash
+# coding: unix
+# End:
