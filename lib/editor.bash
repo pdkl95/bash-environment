@@ -68,13 +68,15 @@ prepare_file_for_editing() {
 }
 
 prepare_for_editing() {
-    for file in "$@"; do
-        case "$file" in
-            -*)
-                : ;; # skip options
-            [^-]*)
-                prepare_file_for_editing "$file"
+    while [[ $1 = -* ]] ; do
+        case "$1" in
+            *)
+                : # skip options
+                shift ;;
         esac
+    done
+    for file in "$@" ; do
+        prepare_file_for_editing "$file"
     done
 }
 

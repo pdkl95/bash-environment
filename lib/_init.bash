@@ -13,70 +13,41 @@ _bsrc_dir="$( cd -P "$( dirname "${_bsrc}" )" && pwd )"
 unset _bsrc _bsrc_dir
 
 : ${bashHOME:=${HOME}}
-: ${bashENV:=$(dirname ${bashLIB})}
+: ${bashENVIRO:=$(dirname ${bashLIB})}
 : ${bashETC:=${bashENV}/etc}
 : ${bashRC:=${bashENV}/rc}
+: ${bashINIT:=${bashLIB}/_init.bash}
 
 : ${bashVERBOSE:=2}
 
+export bashHOME bash
+
 # put a bunch of it on this hash to try and reduce
 # clutter in teh main namespace
-declare -A rcpath
+declare -A bashEV
+
+# cache the bash* vars in the array we export
+bashEV[HOME]="${bashHOME}"
+bashEV[ENV]="${bashENV}"
+bashEV[ROOT]="${bashROOT}"
+bashEV[ETC]="${bashETC}"
+bashEV[RC]="${bashRC}"
+bashEV[INIT]="${bashINIT}"
+bashEV[VERBOSE]="${bashVERBOSE}"
 
 # the paths (outside our env) that BASH expects
 # to find things
-rcpath[inputrc_standard]="$HOME/.inputrc"
-rcpath[bashrc_standard]="$HOME/.bashrc"
-rcpath[profile_standard]="$HOME/.bash_profile"
-rcpath[logout_standard]="$HOME/.bash_logout"
+bashEV[inputrc_standard]="$HOME/.inputrc"
+bashEV[bashrc_standard]="$HOME/.bashrc"
+bashEV[profile_standard]="$HOME/.bash_profile"
+bashEV[logout_standard]="$HOME/.bash_logout"
 
-# actual internal path of those same files, where
-# they can be easily picked up by GIT
-rcpath[inputrc]="${bashETC}/inputrc"
-rcpath[bashrc]="${bashRC}/rc.bash"
-rcpath[profile]="${bashRC}/profile.bash"
-rcpath[logout]="${bashRC}/logout.bash"
+# and the rc paths
+bashEV[inputrc]="${bashETC}/inputrc"
+bashEV[bashrc]="${bashRC}/rc.bash"
+bashEV[profile]="${bashRC}/profile.bash"
+bashEV[logout]="${bashRC}/logout.bash"
 
-## messaging/prints to the user that include
-## the context of who call it to help with debugging
-
-echo_debug() {
-    if (( $bashVERBOSE > 2 )) ; then
-        local from="${FUNCNAME[1]}"
-        echo "<${from}> $@"
-    fi
-}
-
-echo_info() {
-    if (( $bashVERBOSE > 1 )) ; then
-        local from="${FUNCNAME[1]}"
-        echo "<${from}> $@"
-    fi
-}
-
-echo_error() {
-    if (( $bashVERBOSE > 0 )) ; then
-        local from="${FUNCNAME[1]}"
-        echo "<${from}> $@" 1>&2
-    fi
-}
-
-echo_and_run() {
-    if (( $bashVERBOSE > 1 )) ; then
-        local from="${FUNCNAME[1]}"
-        echo "<${from}> EXEC: $@"
-    fi
-    "$@"
-}
-
-# similar to Perl's die - give up with a nice error message
-die() {
-    echo_error "FATAL ERROR!!"
-    for line in "$@"; do
-        echo_error "$line"
-    done
-    exit -1
-}
 
 
 ##########################################################
@@ -90,7 +61,26 @@ is_defined() {
 }
 
 is_cmd() {
-    command command type $1 &>/dev/null || return 1
+    #command command type $1 &>/dev/null || return 1
+    command hash "$1" 2>&-
+}
+
+: ${DEBUG_MSG_TRUE:=TRUE/zero}
+: ${DEBUG_MSG_FALSE:=FALSE/non-zero}
+
+yn() {
+    local RETVAL=$?
+    if (( $# > 0 )) ; then
+        local cmd="$1" ; shift
+        $cmd "$@"
+        RETVAL=$?
+    fi
+    if (( $RETVAL == 0 )) ; then
+        echo "${DEBUG_MSG_TRUE}"
+    else
+        echo "${DEBUG_MSG_FALSE}"
+    fi
+    return $RETVAL
 }
 
 in_X() {

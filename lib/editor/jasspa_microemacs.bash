@@ -12,14 +12,10 @@ MEBACKUPSUB="sX/X!X"
 export MEBACKUPPATH MEBACKUPSUB
 
 _me() {
+    local OPT=""
     prepare_for_editing "$@"
-    if is_git_managed ; then
-        echo me -B "$@"
-        me -B "$@"
-    else
-        echo me "$@"
-        me "$@"
-    fi
+    is_git_managed && OPT="-B"
+    command me $OPT "$@" &
 }
 
 alias me="_me"

@@ -19,6 +19,11 @@ else
     esac
 fi
 
+ANSI_COLOR_LIST="bk rd gr yl bl pr cy wh"
+ANSI_MODE_LIST_COMMON="N D B"
+ANSI_MODE_LIST="${ANSI_MODE_LIST_COMMON} U R"
+ANSI_MODE_LIST_FULL="${ANSI_MODE_LIST} I C"
+
 # Defne the base color values and helpers
 # iff color is enabled. otherwise, pass things
 # though unchanged with empty-strings
@@ -100,56 +105,60 @@ if $USE_ANSI_COLOR ; then
 
     attr_name_to_ansi() {
         case "$1" in
-            concealed|CONCEALED)     echo -ne '\e[8m' ;;
-            reverse|REVERSE)         echo -ne '\e[7m' ;;
-            blink|BLINK)             echo -ne '\e[5m' ;;
-            underline|UNDERLINE)     echo -ne '\e[4m' ;;
-            dark|DARK|dim|DIM)       echo -ne '\e[2m' ;;
-            bold|BOLD)               echo -ne '\e[1m' ;;
-            clear|CLEAR|reset|RESET) echo -ne '\e[0m' ;;
-            *)                       echo -ne '\e[0m' ;;
+            c|C|cn|CN|concealed|CONCEALED)     echo -ne '\e[8m' ;;
+            r|R|rv|RV|reverse|REVERSE)         echo -ne '\e[7m' ;;
+            i|I|bi|BI|blink|BLINK)             echo -ne '\e[5m' ;;
+            u|U|ul|UL|underline|UNDERLINE)           echo -ne '\e[4m' ;;
+            d|D|di|DI|dark|DARK|dim|DIM)       echo -ne '\e[2m' ;;
+            b|B|bd|bd|bold|BOLD)               echo -ne '\e[1m' ;;
+            n|N|nr|NR|clear|CLEAR|reset|RESET) echo -ne '\e[0m' ;;
+            *)                             echo -ne '\e[0m' ;;
         esac
     }
 
     color_name_to_ansi_fg() {
         case "$1" in
-            black)  echo -ne '\e[30m' ;;
-            red)    echo -ne '\e[31m' ;;
-            green)  echo -ne '\e[32m' ;;
-            yellow) echo -ne '\e[33m' ;;
-            blue)   echo -ne '\e[34m' ;;
-            purple) echo -ne '\e[35m' ;;
-            cyan)   echo -ne '\e[36m' ;;
-            white)  echo -ne '\e[37m' ;;
-            BLACK)  echo -ne '\e[90m' ;;
-            RED)    echo -ne '\e[91m' ;;
-            GREEN)  echo -ne '\e[92m' ;;
-            YELLOW) echo -ne '\e[93m' ;;
-            BLUE)   echo -ne '\e[94m' ;;
-            PURPLE) echo -ne '\e[95m' ;;
-            CYAN)   echo -ne '\e[96m' ;;
-            WHITE)  echo -ne '\e[97m' ;;
+            bk|black)   echo -ne '\e[30m' ;;
+            rd|red)     echo -ne '\e[31m' ;;
+            gr|green)   echo -ne '\e[32m' ;;
+            yl|yellow)  echo -ne '\e[33m' ;;
+            bl|blue)    echo -ne '\e[34m' ;;
+            pr|purple)  echo -ne '\e[35m' ;;
+            mg|magenta) echo -ne '\e[35m' ;;
+            cy|cyan)    echo -ne '\e[36m' ;;
+            wh|white)   echo -ne '\e[37m' ;;
+            BK|BLACK)   echo -ne '\e[90m' ;;
+            RD|RED)     echo -ne '\e[91m' ;;
+            GR|GREEN)   echo -ne '\e[92m' ;;
+            YL|YELLOW)  echo -ne '\e[93m' ;;
+            BL|BLUE)    echo -ne '\e[94m' ;;
+            PR|PURPLE)  echo -ne '\e[95m' ;;
+            MG|MAGENTA) echo -ne '\e[95m' ;;
+            CY|CYAN)    echo -ne '\e[96m' ;;
+            WH|WHITE)   echo -ne '\e[97m' ;;
         esac
     }
 
     color_name_to_ansi_bg() {
         case "$1" in
-            black)  echo -ne '\e[40m' ;;
-            red)    echo -ne '\e[41m' ;;
-            green)  echo -ne '\e[42m' ;;
-            yellow) echo -ne '\e[43m' ;;
-            blue)   echo -ne '\e[44m' ;;
-            purple) echo -ne '\e[45m' ;;
-            cyan)   echo -ne '\e[46m' ;;
-            white)  echo -ne '\e[47m' ;;
-            BLACK)  echo -ne '\e[100m' ;;
-            RED)    echo -ne '\e[101m' ;;
-            GREEN)  echo -ne '\e[102m' ;;
-            YELLOW) echo -ne '\e[103m' ;;
-            BLUE)   echo -ne '\e[104m' ;;
-            PURPLE) echo -ne '\e[105m' ;;
-            CYAN)   echo -ne '\e[106m' ;;
-            WHITE)  echo -ne '\e[107m' ;;
+            bk|black)   echo -ne '\e[40m' ;;
+            rd|red)     echo -ne '\e[41m' ;;
+            gr|green)   echo -ne '\e[42m' ;;
+            yl|yellow)  echo -ne '\e[43m' ;;
+            bl|blue)    echo -ne '\e[44m' ;;
+            pr|purple)  echo -ne '\e[45m' ;;
+            mg|magenta) echo -ne '\e[45m' ;;
+            cy|cyan)    echo -ne '\e[46m' ;;
+            wh|white)   echo -ne '\e[47m' ;;
+            BK|BLACK)   echo -ne '\e[100m' ;;
+            RD|RED)     echo -ne '\e[101m' ;;
+            GR|GREEN)   echo -ne '\e[102m' ;;
+            YL|YELLOW)  echo -ne '\e[103m' ;;
+            BL|BLUE)    echo -ne '\e[104m' ;;
+            PR|PURPLE)  echo -ne '\e[105m' ;;
+            MG|MAGENTA) echo -ne '\e[105m' ;;
+            CY|CYAN)    echo -ne '\e[106m' ;;
+            WH|WHITE)   echo -ne '\e[107m' ;;
         esac
     }
 
@@ -229,6 +238,66 @@ pcolor_wrap_angle()  { pcolor_wrap '<' '>' "$@" ; }
 pcolor_wrap_curly()  { pcolor_wrap '{' '}' "$@" ; }
 
 
+demo_ansi_colors() {
+    local mlist mchr clist="" max colsperstack stackwidth stackmax stacklimit
+
+    if [[ "$1" == "-c" ]] ; then
+        mlist="${ANSI_MODE_LIST_COMMON}"
+        shift
+    elif [[ "$1" == "-f" ]] ; then
+        mlist="${ANSI_MODE_LIST_FULL}"
+        shift
+    else
+        mlist="${ANSI_MODE_LIST}"
+    fi
+    mchr="$(echo "$mlist" | tr -d ' ')"
+    colsperstack=${#mchr}
+
+    (( max=8 ))
+
+    (( stackwidth=colsperstack*max ))
+    (( stackmax=COLUMNS/stackwidth ))
+
+    (( stacklimit=2*(stackmax/2) ))
+
+    for c in ${ANSI_COLOR_LIST}; do
+        clist="$clist $c $(upcase $c)"
+    done
+
+    for bg in $clist; do
+        local stack=0
+        for fg in $clist; do
+            local line=""
+            local linelen newlen
+            (( linelen=0 ))
+            for mode in $mlist; do
+                local C="${mode}:${fg}/${bg}"
+                local S="$C"
+                local Slen="${#S}" Plen newlen
+                (( Plen=max-Slen ))
+                local P=$(printf "%${Plen}s")
+                (( newlen=linelen+max ))
+                if (( $newlen >= $COLUMNS )) ; then
+                    echo "$line"
+                    line=""
+                    (( linelen=0 ))
+                else
+                    (( linelen=newlen ))
+                fi
+                line="${line}$(pcolor "$C" "$S$P")"
+            done
+            echo -ne "$line"
+            (( linelen=0 ))
+            (( stack++ ))
+            if (( stack >= stacklimit )) ; then
+                (( stack=0 ))
+                echo
+                #echo --
+            fi
+        done
+        #echo "    <<< BG >>>   "
+    done
+}
 
 # Local Variables:
 # mode: sh

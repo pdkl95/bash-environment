@@ -22,34 +22,23 @@ xtitle() {      # Adds some text in the terminal frame.
     esac
 }
 
-yes_no() {
-    [[ "$#" -lt "1" ]] && echoerr "Usage: $FUNCNAME Question" && return 2
-    local a YN=65
-    echo -en "${1:-Answer} [Y/n] ?"
-    read -n 1 a
+ask_yn() {
+    if (( $# < 1 )) ; then
+        echo "Usage: $FUNCNAME <question>"
+        return 2
+    fi
+    local a
+    echo -en "$(pcolor PURPLE "${1:-Q}") "
+    echo -en "$(pcolor_wrap_square BLUE $(pcolor GREEN 'y')$(pcolor blue '/')$(pcolor RED 'N'))"
+    echo -en "? "
+    read -n 1 -s a
     case $a in
-        [yY]) YN=0 ;;
+        [yY]) echo "$(pcolor DIM:GREEN/BLACK 'YES')" ; return 0 ;;
+        *)    echo "$(pcolor black/red   'NO')"  ; return 1 ;;
     esac
-    return $YN
 }
 
-yn() {
-    [[ "$#" -lt "1" ]] && echo "Usage: $FUNCNAME " >yn && return 2
-    local a YN=65
-    echo -en "\n ${CC[6]}@@ ${1:-Q} $R$X[y/N] ?$R"
-    read -n 1 a
-    echo
-    case $a in
-        [yY])
-            echo -n "Y"
-            YN=0
-            ;;
-        *)
-            echo -n "N"
-    esac
-    return $YN;
-}
-
+# all man pages!
 man() {
     for i ; do
         xtitle man -a $(basename $1|tr -d .[:digit:])
@@ -57,6 +46,7 @@ man() {
     done
 }
 
+# draw a TERM-wide horizontal line
 L() {
     l=`builtin printf %${2:-$COLUMNS}s` && echo -e "${l// /${1:-=}}"
 }
@@ -114,6 +104,7 @@ byteMe() {
 my_ip_from_outsie_prespective() {
     curl ifconfig.me
 }
+alias my_ip="my_ip_from_outside_prespective"
 
 mplayer_ident() {
      mplayer2 -msglevel all=0 -identify -frames 0 "$@"  2> /dev/null
@@ -123,18 +114,30 @@ di.fm() {
     zenity --list --width 500 --height 500 --column 'radio' --column 'url' --print-column 2 $(curl -s http://www.di.fm/ | awk -F '"' '/href="http:.*\.pls.*96k/ {print $2}' | sort | awk -F '/|\.' '{print $(NF-1) " " $0}') | xargs mplayer
 }
 
-ytplay() {
-    mplayer -fs -quiet $(youtube-dl -g "$1")
-}
+#ytplay() {
+#    mplayer -fs -quiet $(youtube-dl -g "$1")
+#}
 
-mplayerfb() {
-    mplayer -vo fbdev $1 -fs -subcp ${2:-cp1251} -vf scale=${3:-1280:720}
-}
+#mplayerfb() {
+#    mplayer -vo fbdev $1 -fs -subcp ${2:-cp1251} -vf scale=${3:-1280:720}
+#}
 
+if is_cmd sqlite3 ; then
+    sqlite_cleanup() {
+        if [[ -w "$1" ]] ; then
+            sqlite3 "$1" VACUUM
+            sqlite3 "$1" REINDEX
+        fi
+    }
 
-vacuum_firefox() {
-    find ~/.mozilla/firefox/ -type f -name "*.sqlite" -exec sqlite3 {} VACUUM \;
-}
+    vacuum_firefox() {
+        for db in "$HOME"/.mozilla/firefox/????????.*/*.sqlite ; do
+            echo "VACUUMING: ${db}"
+            sqlite_cleanup "$db"
+        done
+    }
+fi
+
 
 #nuke_site() {
 #    local host="$1"
