@@ -186,7 +186,8 @@ if $USE_ANSI_COLOR ; then
     }
 
     strip_ansi_escape_codes() {
-        sed -r "s/(\x5C\x5B)?\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K](\x5C\x5D)?//g"
+        sed -r "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g"
+
     }
 else
     # COLOR IS OFF, define things to their respectve null/emptry
@@ -296,6 +297,55 @@ demo_ansi_colors() {
             fi
         done
         #echo "    <<< BG >>>   "
+    done
+}
+
+######################
+# "256 colors" style #
+######################
+
+_Cff() { tput setaf $1 ; }  # foreground
+_Cbb() { tput setab $1 ; }  # background
+_C00() { tput sgr0     ; }  # reset
+
+
+# wrap text in a "256 colors" style color
+Cwrap() {
+    local code="$1" ; shift
+    _Cff $code
+    echo -ne "$*"
+    _C00
+}
+
+# shorthand for changing to a color and echoing
+# text WITHOUT the reset, to save time
+C() {
+    local code="$1" ; shift
+    _Cff $code
+    echo -ne "$*"
+}
+
+
+demo_256_colors() {
+    local i j x y
+    for i in {0..31}; do
+        for j in {0..7}; do
+            (( x=(32*j)+i ))
+            (( y=255-x ))
+            _Cff 0
+            _Cbb $x
+            echo -n ' X?'
+            _C00
+            echo -n ' '
+            _Cff $x
+            printf "%03d " $x
+            _Cff $y
+            _Cbb $x
+            printf "%03d" $y
+            _C00
+            echo -n '   '
+        done
+        echo
     done
 }
 
