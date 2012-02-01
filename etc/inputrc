@@ -3,26 +3,33 @@ $include /etc/inputrc
 
 ### OPTIONS ###
 set bell-style none
-set blink-matching-paren On
-set bind-tty-special-chars Off
+set bind-tty-special-chars off
+set blink-matching-paren on
+set completion-ignore-case on
 set completion-query-items 350
-set convert-meta Off
+set convert-meta off
 set echo-control-characters off
-set enable-meta-key On
 set editing-mode emacs
-set expand-tilde Off
-set input-meta On
-set output-meta On
-set mark-symlinked-directories On
-set page-completions Off
-set show-all-if-ambiguous On
-set show-all-if-unmodified On
-set visible-stats Off
+set enable-meta-key on
+set expand-tilde off
+set input-meta on
+set mark-symlinked-directories on
+set output-meta on
+set page-completions off
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+set visible-stats off
 
 ### KEY BINDINGS ###
 
-# <shift>+TAB
-"\e[Z": menu-complete
+# DEBUG THESE BINGINGS EASILY
+# JUST DUMP THE TABLE
+"\edf": dump-functions
+"\edv": dump-variablesm
+"\edm": dump-macros
+
+# for alias debugging
+"\ea": alias-expand-line
 
 Control-d: unix-filename-rubout
 

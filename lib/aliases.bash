@@ -76,7 +76,9 @@ is_cmd ccze && alias lessc='ccze -A |`type -P less` -R'
 alias irb="command irb --readline -r irb/completion"
 alias nautilus="command nautilus --no-desktop"
 
+alias mi="mediainfo"
 alias mii="mkvmerge --identify-verbose"
+alias h2="h264enc -2p -p slow -pf high"
 
 #is_cmd mpc && alias mpc="mpc -h 10.0.0.200"
 is_cmd pwgen && alias pwgen="command pwgen -v -n"

@@ -3,6 +3,10 @@ export INPUTRC="~/.inputrc"
 add_path_prefix "${bashHOME}/games/minecraft/bin"
 add_path_prefix "${bashHOME}/src/scripts/bin"
 
+# rbenv instead of rvm?
+add_path_prefix "${bashHOME}/.rbenv/bin"
+eval "$(rbenv init -)"
+
 # misc settings
 export TIMEFORMAT=$'\nreal %3R\tuser %3U\tsys %3S\tpcpu %P\n'
 export FIGNORE='.o:~'

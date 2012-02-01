@@ -27,12 +27,12 @@ fi
 # default sort order to the ASCII-order sort that
 # is still so common.
 # but not recommended unless you kno how all the
-: ${LC_COLLATE:=iso_8859.1}
+export LC_COLLATE="C"
 #
 # default to 1-octet-per-"charcter" strings as well
 # as that affects the formating, layout, etc, of pretty
 # much all formatting everywehere...
-: ${LC_CTYPE:=iso_8859_1}
+export LC_CTYPE="C"
 #
 # <div class="rant">
 #   <h3>fix your software!</h3>
