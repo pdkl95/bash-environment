@@ -1,7 +1,8 @@
-#!bash
-#
+#!/bin/bash
+# -*- mode: sh -*-
+
 # Bash completion support for Pygments (the 'pygmentize' command).
-#
+
 
 # defer calling pygmentize to the first invocation
 PYGMT_FORMATTERS=
@@ -16,6 +17,7 @@ _pygmentize() {
 
     _pygmentize_formatter_list() {
         pygmentize -L lexers | grep '* ' | cut -c3- | sed -e 's/,//g' -e 's/:$//'
+    }
 
     _pygmentize_formatter_list() {
         pygmentize -L styles | grep '* ' | cut -c3- | sed s/:$//
@@ -53,4 +55,5 @@ _pygmentize() {
         return 0
     fi
 }
+
 complete -F _pygmentize -o default pygmentize

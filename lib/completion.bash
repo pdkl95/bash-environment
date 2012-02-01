@@ -1,3 +1,6 @@
+#! /bin/bash
+# -*- mode: sh -*-
+
 # do nothing if completion is off globally
 if [ -x "$(complete -p)" ]; then
     return
@@ -17,12 +20,17 @@ compalias() {
     [ "$(type -t "$f")" = function ] && complete -F "$f" "$@"
 }
 
+# load standard system-provided completions
+# WARNING: probably GENTOO specific?
 [ -z "$BASH_COMPLETION" ] && BASH_COMPLETION="/etc/bash_completion.d/base"
 safe_load "/usr/share/bash-completion/.pre"
 load_compdir "/etc/bash_completion.d"
 safe_load "/usr/share/bash-completion/.post"
 
-load_compdir "${bashENV}/bash_completion.d"
+# finally, load our custom libs
+load_compdir "${bashLIB}/completion"
+
+# and connect to any of the simple aliases, etc
 compalias _git -o default -o nospace g
 compalias _rake bake
 compalias _mplayer mplayer2
