@@ -1,0 +1,104 @@
+#!/bin/env ruby
+
+require 'uri'
+
+wget = `which wget`.chomp
+raise "could not find wget!" if wget =~ /no wget in/ or wget.length < 1
+raise "usage: #{$0} [-p] <url> [ftp_user] [ftp_pass]" if ARGV.length < 1
+
+$pretend = ARGV.include?('-p') and ARGV.delete('-p')
+
+uri = URI.parse(ARGV[0])
+opt = Array.new
+
+opt << "--ftp-user=#{ARGV[1]}"     if ARGV[1]
+opt << "--ftp-password=#{ARGV[2]}" if ARGV[2]
+opt << "--no-clobber"
+opt << "--retr-symlinks"
+
+# mirroring options
+#opt << "--mirror" # should be -r -N -L inf --no-remove-listing
+opt << "--recursive"         # -r
+opt << "--level inf"         # -l inf
+opt << "--page-requisites"   # -p
+#opt << "--convert-links"     # -k
+#opt << "--backup-converted"  # -K
+#opt << "--adjust-extension"  # -E
+#opt << "--no-remove-listing"
+
+# how much to mirror?
+opt << "--no-parent"
+#opt << "--span-hosts"        # -H   bad?!
+
+# how to do the work
+#opt << "--wait=4"
+#opt << "--wait=1"
+#opt << "--random-wait=on"
+opt << "--verbose"
+opt << "--progress=bar:force"
+
+# output
+opt << "--no-host-directories"
+opt << "--directory-prefix=."
+
+# cleanout the output directory structure
+path = uri.path
+path += '/' unless path =~ /\/$/
+dir_count = path.count("/") - 1
+opt << "--cut-dirs=#{dir_count}" if dir_count > 0
+
+# fake things a bit for paranoid servers
+#opt << "--referer=#{uri}"
+#opt << "--user-agent=\"Mozilla/4.0 (compatible; MSIE 7.0b; Windows NT 6.0)\""
+
+# sanity check things...
+puts "WGET: #{wget}"
+puts "OPTS:"
+puts opt.map{ |x| "    #{x}\n" }.join
+puts "mirroring: #{uri}"
+puts "using FTP: logging in as \"#{ARGV[1]}\"/\"#{ARGV[2]}\"" if ARGV[1] && ARGV[2]
+
+opt << uri.to_s
+cmd = wget + ' ' + opt.join(' ')
+
+puts "\nWGET_CMD: \"#{cmd}\"\n\n"
+
+5.downto(1) do |x|
+  print ">>> start in: #{x} <<< \r"
+  STDOUT.flush
+  sleep 1
+end
+puts ">>>>>>>>> Launching wget! <<<<<<<<<<\n\n"
+
+time_start = Time.now
+if $pretend
+  puts "----- just pretending; skipping the actual wget! -----"
+else
+  system cmd
+  sleep 2
+end
+time_end = Time.now
+
+def interval(a,b)
+  elapsed = (a - b).to_f
+  [["day",    24*60*60],
+   ["hour",   60*60],
+   ["minute", 60],
+   ["second", nil]
+  ].collect do |name, len|
+    if len
+      x = (elapsed / len).floor
+      elapsed -= x * len
+    else
+      x = elapsed
+    end
+    (x > 0) ? "#{x.to_i} #{name}#{'s' unless x.to_i == 1}" : nil
+  end.delete_if do |x|
+    x.nil?
+  end.join(", ")
+end
+
+puts "\n>>>>>>>>> wget finished! <<<<<<<<<<<\n"
+puts "Time START: #{time_start}"
+puts "Time END:   #{time_end}"
+puts "Total: " + interval(time_end, time_start)

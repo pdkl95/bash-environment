@@ -1,0 +1,9 @@
+#!/bin/sh
+
+NUM=$1
+
+mkdir -p /tmp/jwz_streamrip
+cd /tmp/jwz_streamrip
+
+pwd
+streamripper http://cerebrum.dnalounge.com:8001/mixtape/$NUM.mp3 -t -c -o never -q 02 -D %S/%02q-%A-%T

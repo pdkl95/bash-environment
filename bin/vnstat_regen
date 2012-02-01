@@ -1,0 +1,52 @@
+#!/bin/bash
+
+D="${HOME}/static/sysmon/vnstat"
+mkdir -p "$D"
+
+function v {
+    local name
+    name="$1"
+    shift
+    vnstati "-o" "$D/$name.png" "$@"
+}
+
+function vif {
+    local iface name
+    iface="$1"
+    name="$2"
+    shift 2
+    v "${iface}/${name}" "$@" "-i" "${iface}"
+}
+
+function vc {
+    local min
+    min="$1"
+    shift
+    v "$@" "-c" "${min}"
+}
+
+function vic {
+    local iface name min
+    iface="$1"
+    name="$2"
+    min="$3"
+    shift 3
+    vif "${iface}" "${name}" "-c" "${min}" "$@"
+}
+
+function if_all {
+    local iface
+    iface="$1"
+    shift
+    mkdir -p "$D/${iface}"
+    vif "${iface}" "summary"      "-s"
+    vic "${iface}"  "hourly"   15 "-h"
+    vic "${iface}"  "hr_sum"   15 "-hs"
+    vic "${iface}"   "daily"   60 "-d"
+    vic "${iface}" "monthly" 1440 "-m"
+    cat "$D/index.haml.in" | sed "s/%%IFACE%%/${iface}/g" > "$D/${iface}/index.haml"
+}
+
+if_all eth1
+if_all he6
+if_all lo

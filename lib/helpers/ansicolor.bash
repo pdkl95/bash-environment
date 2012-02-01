@@ -185,10 +185,20 @@ if $USE_ANSI_COLOR ; then
         echo -n $(color_name_to_ansi "$C")"$@"$'\e[0m'
     }
 
-    strip_ansi_escape_codes() {
+    strip_ansi() {
         sed -r "s/\x1B\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g"
 
     }
+
+    # ok, not a color, but it does use ANSI codes
+    xtitle() {
+        local title="$(echo "$*" | strip_ansi)"
+        case "$TERM" in
+            *term|rxvt)  echo -ne "\033]0;${title}\007" ;;
+            *)           echo -ne "" ;;
+        esac
+    }
+
 else
     # COLOR IS OFF, define things to their respectve null/emptry
     # values or otherwise pass things through unchanged
@@ -205,6 +215,7 @@ else
     color_name_to_ansi()    { echo -n ''; }
     pcolor()                { echo -n "$@"; }
     strip_ansi()            { echo -n "$@"; }
+    xtitle()                { echo -n ''; }
 fi
 
 ###############################################

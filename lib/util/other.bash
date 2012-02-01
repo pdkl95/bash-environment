@@ -14,14 +14,6 @@ fullenv() {
     done | cat -Tsv
 }
 
-xtitle() {      # Adds some text in the terminal frame.
-    local title="$(echo "$*" | strip_ansi_escape_codes)"
-    case "$TERM" in
-        *term|rxvt)  echo -ne "\033]0;${title}\007" ;;
-        *)           echo -ne "" ;;
-    esac
-}
-
 ask_yn() {
     if (( $# < 1 )) ; then
         echo "Usage: $FUNCNAME <question>"

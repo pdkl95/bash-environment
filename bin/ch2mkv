@@ -1,0 +1,115 @@
+#!/bin/bash
+
+###########################################
+# Convert various video container types   #
+# into the nicer mkv format automatically #
+###########################################
+
+: ${bashINIT:=$HOME/.bash/lib/_init.bash}
+source "${bashINIT?}"
+loadlib 'mkv'
+
+minfo() {
+    local SECTION="$1" PARAM="$2"
+    shift 2
+    mediainfo --Inform="${SECTION};%${PARAM}%\n" "$@"
+}
+
+show_param() {
+    local SECTION="$1" PARAM="$2" val file
+    shift 2
+    for file in "$@"; do
+        val="$(minfo "${SECTION}" "${PARAM}" "$file")"
+        echo "${SECTION}-${PARAM}: ${file}: \"${val}\""
+    done
+}
+
+minfo_gen() {
+    mediainfo --Inform='General;%Format% %Duration% %VideoCount% %AudioCount% %TextCount% %ChaptersCount% %ImageCount% %MenuCount%\n' "$1"
+}
+
+minfo_audio() {
+    mediainfo --Inform='Audio;%ID% %Language/String2% %Channels% %SamplingRate% %Format% %BitRate_Mode% %BitRate% %ReplayGain_Gain%\n' "$1"
+}
+
+minfo_video() {
+    mediainfo --Inform='Video;%ID% %CodecID% %Width% %Height% %FrameRate% %DisplayAspectRatio%\n' "$1"
+}
+
+minfo_sub() {
+    mediainfo --Inform='Text;%ID% %Language/String2% %Format%\n' "$1"
+}
+
+chkmkv() {
+    mkvalidator --no-warn --quiet "$1"
+}
+
+tomkv_simple() {
+    mkvmerge -o "${1%.*}.mkv" "$*"
+}
+
+
+convert_to_mkv() {
+    local file="$1" dst tmp
+
+    if [[ ! -f "$1" ]] ; then
+        echo "ERROR: not a file: '$file'"
+        exit -1
+    fi
+
+    tmp="$(tempfile --mode 0644 --prefix=ch2mkv_ --suffix=.mkv)"
+    dst="${file%.*}.mkv"
+
+    cleanup_tmp() {
+        [ -f "$tmp" ] && rm -f -- "$tmp"
+    }
+    trap cleanup_tmp RETURN
+
+    echo ">>> *** change to MKV ***"
+    echo ">>>\\"
+    echo ">>> +"
+    echo ">>> |  input: '$file'"
+    echo ">>> | output: '$dst'"
+    echo ">>> | (temp): '$tmp'"
+    echo ">>> +"
+    echo ">>>/"
+    echo ">>> remuxing with mkvmerge..."
+    echo mkvmerge -o "$tmp" "$file"
+    mkvmerge -o "$tmp" "$file"
+
+    echo ">>> validating the results..."
+    if chkmkv "$tmp" ; then
+        echo ">>> moving '$tmp' -> '$dst'"
+        mv -f -- "$tmp" "$dst"
+
+        if [[ "$file" == "$dst" ]] ; then
+            echo ">>> original already overwritten"
+        else
+            echo ">>> removing original: '$file'"
+            rm -f -- "$file"
+        fi
+    else
+        echo "ERROR: created mkv is invalid!"
+        exit 0
+    fi
+}
+
+xxconvert_to_mkv() {
+    local file="$1"
+    show_param Audio Format "$@"
+    show_param Audio Language/String2 "$@"
+    show_param Video CodecID "$@"
+    return
+    echo "--GENERAL--"
+    minfo_gen "$1"
+    echo "--VIDEO--"
+    minfo_video "$1"
+    echo "--AUDIO--"
+    minfo_audio "$1"
+    echo "--SUBS--"
+    minfo_sub "$1"
+}
+
+for arg in "$@" ; do
+    convert_to_mkv "$arg"
+done

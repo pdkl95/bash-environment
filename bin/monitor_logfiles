@@ -1,0 +1,24 @@
+#!/bin/bash
+
+LOGS="/var/log/messages"
+LOGS="$LOGS /var/log/apache2/custom_log"
+
+OPT=""
+OPT="$OPT --disable-factory"
+OPT="$OPT --window"
+OPT="$OPT --hide-menubar"
+OPT="$OPT --profile=logmon"
+OPT="$OPT --class=TerminalApp"
+OPT="$OPT --name=logmon"
+OPT="$OPT --geometry 350x46+0+738"
+OPT="$OPT --title=TITLE: ${LOGS// / }"
+
+#CMD="su -c '/root/bin/logmon-pdkl $LOGS'"
+CMD="su -c 'logmon $LOGS'"
+
+#echo gnome-terminal $OPT -e "$CMD"
+gnome-terminal $OPT -e "$CMD" &
+
+# Local Variables:
+# coding: utf-8-unix
+# End:

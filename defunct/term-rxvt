@@ -1,0 +1,19 @@
+#!/bin/sh
+
+FONT=''
+
+#FONT='-windows-dina-medium-r-normal--15-90-96-96-c-70-microsoft-cp1252'
+FONT='-freetype-coding font tobi-medium-r-normal--16-120-96-96-p-48-iso10646-1'
+#FONT='-xos4-terminus-medium-r-normal--14-140-72-72-c-80-iso8859-1'
+#FONT='-lfp-trachtenberg-medium-r-normal--11-110-75-75-c-90-iso10646-1'
+
+
+OPT="-bg black -fg white +sb -sl 5000"
+
+if [[ -n $FONT ]]; then
+  rxvt $OPT -fn "$FONT" "$@"&
+else
+  rxvt $OPT "$@"&
+fi
+
+

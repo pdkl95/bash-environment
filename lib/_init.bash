@@ -14,6 +14,7 @@ unset _bsrc _bsrc_dir
 
 : ${bashHOME:=${HOME}}
 : ${bashENVIRO:=$(dirname ${bashLIB})}
+: ${bashBIN:=${bashENV}/bin}
 : ${bashETC:=${bashENV}/etc}
 : ${bashRC:=${bashENV}/rc}
 : ${bashINIT:=${bashLIB}/_init.bash}
