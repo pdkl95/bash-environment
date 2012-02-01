@@ -3,7 +3,7 @@ export INPUTRC="~/.inputrc"
 add_path_prefix "${bashHOME}/games/minecraft/bin"
 add_path_prefix "${bashHOME}/src/scripts/bin"
 
-# rbenv instead of rvm?
+# let RBenv manager our rubies
 add_path_prefix "${bashHOME}/.rbenv/bin"
 eval "$(rbenv init -)"
 
@@ -13,6 +13,6 @@ export FIGNORE='.o:~'
 
 # *** HACK ***
 # Workaround for how Gentoo deals with ruygems. We manage it
-# entirely separate from the distory anyway (rvm/bundler), so this
+# entirely separate from the distory anyway (rbenv/bundler), so this
 # has little utility anyway.
 export RUBYOPT=""

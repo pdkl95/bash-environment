@@ -1,5 +1,42 @@
 ##################################################
 # PROMPT
+
+current_ruby_version() {
+    local OPT="$1"
+    local V=$(rbenv version-name)
+    local T="$V"
+
+    case ${V} in
+        1.8.7-p???)    T='1.8.7' ;;
+        1.9.3-p0-perf) T='1.9.3' ;;
+    esac
+
+    cmark() {
+        case $T in
+            1.9.3) echo 'D' ;;  # 'D'efault
+            1.8.7) echo 'S' ;;  # 'S'able legacy
+            *)     echo '?' ;;
+        esac
+    }
+
+    dmark() {
+        case $T in
+            1.9.3) echo ''   ;;  # EMPTY on 'Default'
+            1.8.7) echo 'LM' ;;  # LaughingMan (fanime)
+            *)     echo '??' ;;  # mark 'unknown' for others
+        esac                     #
+    }                            #   |
+                                 #   V
+    case "$OPT" in               #
+        -c|--char)  cmark   ;;   #   |
+        -d|--dmark) dmark   ;;   #   V
+        -s|--short) echo $T ;;   #
+        -l|--long)  echo $V ;;   # ..but falsl back to
+        *)          echo $V ;;   # version-strigs in the end
+    esac
+}
+
+
 _gitsh_is_active() {
     [ "$(type -t gitalias)" ]
 }
