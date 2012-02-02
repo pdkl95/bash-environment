@@ -17,7 +17,6 @@ emacs_frame_nowait() { emacsclient_run --create-frame --no-wait "$@" ; }
 # but backup the old versions first
 export NOT_EMACS_EDITOR="$EDITOR"
 export NOT_EMACS_VISUAL="$VISUAL"
-emacs_extern_wrapper() { emacs_tty "$@" ; }
 export EDITOR="emacs_extern_wrapper.bash"
 export VISUAL="${EDITOR}"
 

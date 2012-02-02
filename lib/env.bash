@@ -1,7 +1,7 @@
 #! /bin/bash
 # -*- mode: sh -*-
 
-load_bash_lib "env/locale"
-load_bash_lib "env/pager"
-load_bash_lib "env/history"
-load_bash_lib "env/misc"
+bashEV_load "env/locale"
+bashEV_load "env/pager"
+bashEV_load "env/history"
+bashEV_load "env/misc"

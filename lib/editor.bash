@@ -18,7 +18,7 @@ select_prefered_editor() {
 select_prefered_editor
 export VISUAL="${EDITOR}"
 
-export NEWFILE_TEMPLATE_DIR="${bashETC}/templates"
+export NEWFILE_TEMPLATE_DIR="${bashEV[ETC]}/templates"
 
 template_for_tname() {
     local T="${NEWFILE_TEMPLATE_DIR}/$1"
@@ -80,5 +80,8 @@ prepare_for_editing() {
     done
 }
 
-is_cmd emacs && load_bash_lib "editor/emacs"
-is_cmd me    && load_bash_lib "editor/jasspa_microemacs"
+bashEV_load "editor/emacs"
+bashEV_load "editor/jasspa_microemacs"
+
+#is_cmd emacs && load_bash_lib "editor/emacs" || echo 'no emacs!'
+#is_cmd me    && load_bash_lib "editor/jasspa_microemacs"

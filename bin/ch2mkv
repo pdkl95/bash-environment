@@ -5,7 +5,7 @@
 # into the nicer mkv format automatically #
 ###########################################
 
-: ${bashINIT:=$HOME/.bash/lib/_init.bash}
+: ${bashINIT:=$HOME/.bash/BOOTSTRAP.bash}
 source "${bashINIT?}"
 loadlib 'mkv'
 

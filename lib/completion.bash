@@ -23,12 +23,12 @@ compalias() {
 # load standard system-provided completions
 # WARNING: probably GENTOO specific?
 [ -z "$BASH_COMPLETION" ] && BASH_COMPLETION="/etc/bash_completion.d/base"
-safe_load "/usr/share/bash-completion/.pre"
+bashEV_load "/usr/share/bash-completion/.pre"
 load_compdir "/etc/bash_completion.d"
-safe_load "/usr/share/bash-completion/.post"
+bashEV_load "/usr/share/bash-completion/.post"
 
 # finally, load our custom libs
-load_compdir "${bashLIB}/completion"
+load_compdir "${bashEV[LIB]}/completion"
 
 # and connect to any of the simple aliases, etc
 compalias _git -o default -o nospace g

@@ -1,0 +1,3 @@
+#!/bin/bash
+source "${bashEV_BOOTSTRAP:-${HOME}/.bash/BOOTSTRAP.bash}"
+bashEV_autostart

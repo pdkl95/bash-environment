@@ -1,15 +1,14 @@
+export TERM="xterm-256color"
 export INPUTRC="~/.inputrc"
 
-# minecraft has custom launchers
-add_path_prefix "${bashHOME}/games/minecraft/bin"
+export PATH="\
+${bashEV[HOME]}/.bash/bin:\
+${HOME}/node_modules/.bin:\
+${HOME}/games/minecraft/bin:\
+${PATH}"
 
-# let RBenv manager our rubies
-add_path_prefix "${bashHOME}/.rbenv/bin"
+
 eval "$(rbenv init -)"
-
-# finally, add our own bin/ dir to the start
-# of $PATH so we can override things if necessary
-add_path_prefix "${bashBIN}"
 
 # misc settings
 export TIMEFORMAT=$'\nreal %3R\tuser %3U\tsys %3S\tpcpu %P\n'
