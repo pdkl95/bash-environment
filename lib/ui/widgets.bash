@@ -1,6 +1,28 @@
 #!/bin/bash
 # -*- mode: sh -*-
 
+ask_yn() {
+    if (( $# < 1 )) ; then
+        echo "Usage: $FUNCNAME <question>"
+        return 2
+    fi
+    local a
+    echo -en "$(pcolor PURPLE "${1:-Q}") "
+    echo -en "$(pcolor_wrap_square BLUE $(pcolor GREEN 'y')$(pcolor blue '/')$(pcolor RED 'N'))"
+    echo -en "? "
+    read -n 1 -s a
+    case $a in
+        [yY]) echo "$(pcolor DIM:GREEN/BLACK 'YES')" ; return 0 ;;
+        *)    echo "$(pcolor black/red   'NO')"  ; return 1 ;;
+    esac
+}
+
+# draw a TERM-wide horizontal line
+L() {
+    l=`builtin printf %${2:-$COLUMNS}s` && echo -e "${l// /${1:-=}}"
+}
+
+# redunden?
 lin() {
     local L2 L1='__________________________________________________________________________'
     case ${1:-1} in
@@ -61,4 +83,3 @@ countdown() {
     IFS="${OLD_IFS}"
     echo "        "
 }
-

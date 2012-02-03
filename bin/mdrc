@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+root = File.expand_path('../../', __FILE__)
+$:.unshift File.expand_path('lib', root)
+
+require 'redcarpet'
+
+ext = {
+  parse: {
+    no_intraemphasis:    true,
+    fenced_code_blocks:  true,
+    space_after_headers: true,
+    autolink:            true,
+    lax_html_blocks:     true
+  },
+  render: {
+    hard_wrap:     true,
+    with_toc_data: true,
+    filtered_html: false
+  }
+}
+
+
+render = Redcarpet::Render::HTML.new ext[:render]
+STDOUT.write(Redcarpet::Markdown.new(render, ext[:parse]).render(ARGF.read))

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-bashEV_load "ui/ansicolor"
-bashEV_load "ui/messages"
-bashEV_load "ui/widgets"
-bashEV_load "ui/prompt"
+bashEV_include "ui/ansicolor"
+bashEV_include "ui/messages"
+bashEV_include "ui/widgets"
+bashEV_include "ui/prompt"
 
 # Local Variables:
 # mode: sh

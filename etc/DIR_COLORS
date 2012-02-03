@@ -1,7 +1,7 @@
 # Configuration file for dircolors, a utility to help you set the
 # LS_COLORS environment variable used by GNU ls with the --color option.
 
-# Copyright (C) 1996, 1999-2010 Free Software Foundation, Inc.
+# Copyright (C) 1996, 1999-2011 Free Software Foundation, Inc.
 # Copying and distribution of this file, with or without modification,
 # are permitted provided the copyright notice and this notice are preserved.
 
@@ -52,6 +52,7 @@ TERM screen-256color
 TERM screen-256color-bce
 TERM screen-bce
 TERM screen-w
+TERM screen.Eterm
 TERM screen.rxvt
 TERM screen.linux
 TERM terminator
@@ -134,6 +135,9 @@ EXEC 01;32
 .deb 01;31
 .rpm 01;31
 .jar 01;31
+.war 01;31
+.ear 01;31
+.sar 01;31
 .rar 01;31
 .ace 01;31
 .zoo 01;31
@@ -164,6 +168,7 @@ EXEC 01;32
 .mpeg 01;35
 .m2v 01;35
 .mkv 01;35
+.webm 01;35
 .ogm 01;35
 .mp4 01;35
 .m4v 01;35
@@ -221,8 +226,3 @@ EXEC 01;32
 .oga 00;36
 .spx 00;36
 .xspf 00;36
-
-
-###############
-# new additions
-.webm 01;35

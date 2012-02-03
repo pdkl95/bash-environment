@@ -1,5 +1,22 @@
 #!/bin/bash
 
+##################################################
+### First some message-printing minor features ###
+##################################################
+
+byte2human() {
+    declare -a LABELS=('B' 'KB' 'MB' 'GB' 'TB' 'XB' 'PB')
+    local magscale=1024 magnitude=0 size=$1
+
+    while (( size >= magscale )) ; do
+        (( size=size/magscale ))
+        (( magnitude+ ))
+    done
+   echo "${size}${LABELS[${magnitue}]]}"
+}
+
+
+
 ################################################
 ###  ALL DEBUG/INFO/PROMPT MESSAGE PRINTING  ###
 ################################################

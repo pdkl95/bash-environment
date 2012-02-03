@@ -5,7 +5,7 @@
 
 # these perl-isms are sometimes convenient
 # durring the init process,...
-function __DIR__ {
+__DIR__() {
     local SRC="${BASH_SOURCE[0]}"
     while [ -h "$SRC" ] ; do
         SRC="$(readlink "$SRC")"
@@ -13,7 +13,7 @@ function __DIR__ {
     cd -P "$(dirname "$SRC")" && pwd
 }
 
-function __FILE__ {
+__FILE__() {
     echo "$(__DIR__)/${BASH_SOURCE[0]}"
 }
 
@@ -98,6 +98,11 @@ bashEV_load() {
     bashEV_safe_load "$(bashEV_find_lib "$1")"
 }
 
+# like load in all way, but is a mark for caching
+bashEV_include() {
+    bashEV_load "$@"
+}
+
 bashEV_load_minimal() {
     bashEV_load "env"
 }
@@ -106,13 +111,13 @@ bashEV_load_standard() {
     bashEV_load "ui"
     bashEV_load "editor"
     bashEV_load "app"
-    bashEV_load "util/aliases"
+    bashEV_load "aliases"
     bashEV_load "completion"
 }
 
 bashEV_boot_as_script() {
     bashEV_load_minimal
-    bashEV_load_standard
+    bashEV_load
 }
 
 bashEV_boot_as_bashrc() {
@@ -121,7 +126,7 @@ bashEV_boot_as_bashrc() {
 }
 
 bashEV_boot_as_profile() {
-    bashEV_boo_as_bashrc || return
+    bashEV_boot_as_bashrc || return
     # post-bashrc-start?
 }
 
