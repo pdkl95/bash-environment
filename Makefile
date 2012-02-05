@@ -1,49 +1,83 @@
+# software we use during building
+MOVE=mv --force
+COPY=cp --no-clobber
+RMTREE=rm -rf
+CC_DIRCOLORS=dircolors -b
+
 # shorthand for bashEV[ROOT]
-EV=~/.bash
+EVDIR = $(CURDIR)
 # shorthand for the often-use folders
-L=$(EV)/lib
+LIB := $(EVDIR)/lib
+ETC := $(EVDIR)/etc
+CACHEDIR := $(EVDIR)/var/cache
+
+sysOFF := $(ETC)/system_bashrc-BYPASS
+sysON  := $(ETC)/system_bashrc-ENABLED
+sysTPL := $(ETC)/templates/internal/system_bashrc_flag
 
 
-caches=$(L)/etc/ls_colors.sh
-targets=
+caches  :=
+targets := $(LIB)/env/LS_COLORS.bash
 
+
+# by default, just build everything (which is expected,
+# behavior from make).
+#
+# sur[rising maker feverythikgns noramlly expected from MAKE. This probably
+# ignoreos that
 all: build
 .PHONY: all
 
+.SUFFIXES:
 
-#################################################################
-###  Cleaning up after ourselves and our build/inall/tec
+#########################################################
+##   Enabling/Disabling of the System's global bashrc  ##
+#########################################################
+
+$(sysOFF):
+	$(MOVE) "$(sysON)" "$(sysOFF)" || $(COPY) "$(sysTPL)" "$(sysOFF)"
+	@echo "*** loading of system rcfiles: DISABLED ***"
+
+$(sysON):
+	$(MOVE) "$(sysOFF)" "$(sysON)" || $(COPY) "$(sysTPL)" "$(sysON)"
+	@echo "*** loading of system rcfiles: ENABLED ***"
+
+.PHONY: sysrc_on sysrc_off
+sysrc_off: "$(sysOFF)"
+sysrc_on:  "$(sysON)"
+
+
+#########################################################
+##  Cleaning up after ourselves and our build/install  ##
+#########################################################
+
+.PHONY: clean distclean clean-targets clean-cache clean-temp
+
+clean-targets:
+	$(RMTREE) $(targets)
 
 clean-cache:
-.PHONY: clean-cache
-	rm -rf $(caches)
+	$(RMTREE) $(CACHEDIR)/cache-*
 
-clean-gargets:
-.PHONY: clean-targets
-	rm -rf $(caches)
-
-distclean: clean-temp clean-cache clean-targets
-.PHONY: distclean
+clean-temp:
+	$(RMTREE) *~
 
 clean: clean-temp clean-cache
-.PHONY: clean
+distclean: clean clean-targets
 
 
 ##################################################################
 ##   BUILD - Generate needed items, cache some thigns in bash   ##
 ##################################################################
 
+.PHONY: build build-cache build-targets
+
 build-caches: $(caches)
-.PHONY: build-cache
 
 
 build-targets: $(targets)
-.PHONY: build-targets
-	rm -rf $(caches)
 
 build: build-caches build-targets
-.PHONY: build
-
 
 
 
@@ -52,9 +86,8 @@ build: build-caches build-targets
 ###          ----------------------------
 
 
-lib/etc/ls_colors.sh: etc/DIR_COLORS
-	dircolors -b $< > $@
-
+$(LIB)/env/LS_COLORS.bash: $(ETC)/LS_COLORS.dircolors
+	$(CC_DIRCOLORS) $< > $@
 
 
 

@@ -2,117 +2,24 @@
 
 ############################
 ###  ANSI COLOR HELPERS  ###
-############################
 # enable color if possilbe
-
-if is_defined USE_ANSI_COLOR ; then
-    if [[ ${USE_ANSI_COLOR} == 0 ]] || [[ "${USE_ANSI_COLOR}" == "true" ]] ; then
-        USE_ANSI_COLOR=true
-    else
-        USE_ANSI_COLOR=false
-    fi
-else
-    case ${TERM:-dummy} in
-        linux*|con80*|con132*|console|xterm*|vt*|screen*|putty|Eterm|dtterm|ansi|rxvt|gnome*|*color*)
-            : ${USE_ANSI_COLOR:=true}   ;;
-        *)  : ${USE_ANSI_COLOR:=false}  ;;
-    esac
-fi
-
-ANSI_COLOR_LIST="bk rd gr yl bl pr cy wh"
-ANSI_MODE_LIST_COMMON="N D B"
-ANSI_MODE_LIST="${ANSI_MODE_LIST_COMMON} U R"
-ANSI_MODE_LIST_FULL="${ANSI_MODE_LIST} I C"
 
 # Defne the base color values and helpers
 # iff color is enabled. otherwise, pass things
 # though unchanged with empty-strings
-if $USE_ANSI_COLOR ; then
-    AUTOCOLOR=' --color=auto'
-
-    # Reset
-    CCnil='\e[0m'             # Text Reset
-
-    # Regular Colors
-    CCblack='\e[0;30m'        # Black
-    CCred='\e[0;31m'          # Red
-    CCgreen='\e[0;32m'        # Green
-    CCyellow='\e[0;33m'       # Yellow
-    CCblue='\e[0;34m'         # Blue
-    CCpurple='\e[0;35m'       # Purple
-    CCcyan='\e[0;36m'         # Cyan
-    CCwhite='\e[0;37m'        # White
-
-    # Bold
-    CCBblack='\e[1;30m'       # Black
-    CCBred='\e[1;31m'         # Red
-    CCBgreen='\e[1;32m'       # Green
-    CCByellow='\e[1;33m'      # Yellow
-    CCBblue='\e[1;34m'        # Blue
-    CCBpurple='\e[1;35m'      # Purple
-    CCBcyan='\e[1;36m'        # Cyan
-    CCBwhite='\e[1;37m'       # White
-
-    # Underline
-    CCUblack='\e[4;30m'       # Black
-    CCUred='\e[4;31m'         # Red
-    CCUgreen='\e[4;32m'       # Green
-    CCUyellow='\e[4;33m'      # Yellow
-    CCUblue='\e[4;34m'        # Blue
-    CCUpurple='\e[4;35m'      # Purple
-    CCUcyan='\e[4;36m'        # Cyan
-    CCUwhite='\e[4;37m'       # White
-
-    # Background
-    CCon_black='\e[40m'       # Black
-    CCon_red='\e[41m'         # Red
-    CCon_green='\e[42m'       # Green
-    CCon_yellow='\e[43m'      # Yellow
-    CCon_blue='\e[44m'        # Blue
-    CCon_purple='\e[45m'      # Purp/le
-    CCon_cyan='\e[46m'        # Cyan
-    CCon_white='\e[47m'       # White
-
-    # High Intensty
-    CCIblack='\e[0;90m'       # Black
-    CCIred='\e[0;91m'         # Red
-    CCIgreen='\e[0;92m'       # Green
-    CCIyellow='\e[0;93m'      # Yellow
-    CCIblue='\e[0;94m'        # Blue
-    CCIpurple='\e[0;95m'      # Purple
-    CCIcyan='\e[0;96m'        # Cyan
-    CCIwhite='\e[0;97m'       # White
-
-    # Bold High Intensty
-    CCBIblack='\e[1;90m'      # Black
-    CCBIred='\e[1;91m'        # Red
-    CCBIgreen='\e[1;92m'      # Green
-    CCBIyellow='\e[1;93m'     # Yellow
-    CCBIblue='\e[1;94m'       # Blue
-    CCBIpurple='\e[1;95m'     # Purple
-    CCBIcyan='\e[1;96m'       # Cyan
-    CCBIwhite='\e[1;97m'      # White
-
-    # High Intensty backgrounds
-    CCon_Iblack='\e[0;100m'   # Black
-    CCon_Ired='\e[0;101m'     # Red
-    CCon_Igreen='\e[0;102m'   # Green
-    CCon_Iyellow='\e[0;103m'  # Yellow
-    CCon_Iblue='\e[0;104m'    # Blue
-    CCon_Ipurple='\e[10;95m'  # Purple
-    CCon_Icyan='\e[0;106m'    # Cyan
-    CCon_Iwhite='\e[0;107m'   # White
+if ${USE_ANSI_COLOR} ; then
+    AUTOCOLOR='--color=auto'
 
     attr_name_to_ansi() {
         case "$1" in
             c|C|cn|CN|concealed|CONCEALED)     echo -ne '\e[8m' ;;
             r|R|rv|RV|reverse|REVERSE)         echo -ne '\e[7m' ;;
             i|I|bi|BI|blink|BLINK)             echo -ne '\e[5m' ;;
-            u|U|ul|UL|underline|UNDERLINE)           echo -ne '\e[4m' ;;
+            u|U|ul|UL|underline|UNDERLINE)     echo -ne '\e[4m' ;;
             d|D|di|DI|dark|DARK|dim|DIM)       echo -ne '\e[2m' ;;
             b|B|bd|bd|bold|BOLD)               echo -ne '\e[1m' ;;
             n|N|nr|NR|clear|CLEAR|reset|RESET) echo -ne '\e[0m' ;;
-            *)                             echo -ne '\e[0m' ;;
+            *)                                 echo -ne '\e[0m' ;;
         esac
     }
 
@@ -191,22 +98,20 @@ if $USE_ANSI_COLOR ; then
     }
 
     # ok, not a color, but it does use ANSI codes
-    xtitle() {
-        local title="$(echo "$*" | strip_ansi)"
-        case "$TERM" in
-            *term|rxvt)  echo -ne "\033]0;${title}\007" ;;
-            *)           echo -ne "" ;;
-        esac
-    }
-
+    if [[ "$TERM" =~ (xterm|rxvt|gnome)-(256)?color ]] ; then
+        xtitle() {
+            local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
+            echo -ne "\033]0;${title}\007"
+        }
+    else
+        xtitle() {
+            echo -n ''
+        }
+    fi
 else
     # COLOR IS OFF, define things to their respectve null/emptry
     # values or otherwise pass things through unchanged
     AUTOCOLOR=''
-    CCnil=''
-    for x in CC{,B,U,I,on_,BI,on_I}{black,red,green,yellow,blue,purple,cyan,white} ; do
-        declare -- "$x"=""
-    done
 
     unset -f pcolor color_name_to_ansi{,_bg,_fg} attr_name_to_ansi
     attr_name_to_ansi()     { echo -n ''; }
@@ -254,26 +159,35 @@ pcolor_wrap_curly()  { pcolor_wrap '{' '}' "$@" ; }
 # "256 colors" style #
 ######################
 
-_Cff() { tput setaf $1 ; }  # foreground
-_Cbb() { tput setab $1 ; }  # background
-_C00() { tput sgr0     ; }  # reset
+if ${USE_ANSI_256COLOR} ; then
+    _Cff() { tput setaf $1 ; }  # foreground
+    _Cbb() { tput setab $1 ; }  # background
+    _C00() { tput sgr0     ; }  # reset
 
 
-# wrap text in a "256 colors" style color
-Cwrap() {
-    local code="$1" ; shift
-    _Cff $code
-    echo -ne "$*"
-    _C00
-}
+    # wrap text in a "256 colors" style color
+    Cwrap() {
+        local code="$1" ; shift
+        _Cff $code
+        echo -ne "$*"
+        _C00
+    }
 
-# shorthand for changing to a color and echoing
-# text WITHOUT the reset, to save time
-C() {
-    local code="$1" ; shift
-    _Cff $code
-    echo -ne "$*"
-}
+    # shorthand for changing to a color and echoing
+    # text WITHOUT the reset, to save time
+    C() {
+        local code="$1" ; shift
+        _Cff $code
+        echo -ne "$*"
+    }
+
+else
+    _Cff()  { : ; }
+    _Cbb()  { : ; }
+    _C00()  { : ; }
+    Cwrap() { shift ; echo -ne "$*" ; }
+    C()     { shift ; echo -ne "$*" ; }
+fi
 
 
 

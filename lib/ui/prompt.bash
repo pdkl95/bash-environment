@@ -31,7 +31,7 @@ current_ruby_version() {
         -c|--char)  cmark   ;;   #   |
         -d|--dmark) dmark   ;;   #   V
         -s|--short) echo $T ;;   #
-        -l|--long)  echo $V ;;   # ..but falsl back to
+        -l|--long)  echo $V ;;   # ..but falls back to
         *)          echo $V ;;   # version-strigs in the end
     esac
 }
@@ -46,38 +46,61 @@ _gitsh_cur_branch() {
     echo "$br"
 }
 
-
-prompt_whoami() {
-    echo -ne "\[${CCgreen}\]${USER}"
-    echo -ne "\[${CCBgreen}\]@"
-    echo -ne "\[${CCgreen}\]${HOSTNAME}"
-}
-
-prompt_pwd() {
-    echo -ne "\[${CCcyan}\]${PWD/$HOME/~}"
-}
-prompt_mark() {
-    echo -ne "\[${CCblue}\]\$"
-    echo -ne "\[${CCnil}\]"
-}
+if ${USE_ANSI_256COLOR} ; then
+    prompt_whoami() {
+        echo -ne "\[\e[38;5;28m\]${USER}"
+        echo -ne "\[\e[38;5;40m\]@"
+        echo -ne "\[\e[38;5;28m\]${HOSTNAME}"
+    }
+    prompt_pwd() {
+        echo -ne "\[\e[38;5;44m\]${PWD/$HOME/~}"
+    }
+    prompt_mark() {
+        echo -ne "\[\e[48;5;18;38;5;63m\]\$"
+        echo -ne "\[\e[0m\]"
+    }
+else
+    if ${USE_ANSI_COLOR} ; then
+        prompt_whoami() {
+            echo -ne "\[\e[32m\]${USER}"
+            echo -ne "\[\e[92m\]@"
+            echo -ne "\[\e[32m\]${HOSTNAME}"
+        }
+        prompt_pwd() {
+            echo -ne "\[\e[36m\]${PWD/$HOME/~}"
+        }
+        prompt_mark() {
+            echo -ne "\[\e[94m\]\$"
+            echo -ne "\[\e[0m\]"
+        }
+    else
+        prompt_whoami() {
+            echo -ne "${USER}@${HOSTNAME}"
+        }
+        prompt_pwd() {
+            echo -ne "${PWD/$HOME/~}"
+        }
+        prompt_mark() {
+            echo -ne "\$"
+        }
+    fi
+fi
 
 prompt_cmdstatus() {
     local S fst=true EVAL="$1"
     if [[ "${EVAL}" -eq 0 ]] ; then
-        echo "    "
-        #echo "····"
-        #echo "qqqq"
+        #echo "    "
+        echo "^_^ "
     else
-        S="$EVAL»"
+        S="$EVAL*"
 
         while [[ "${#S}" -lt 4 ]]; do
             if $fst ; then
-                S="«${S}"
+                S="${S}"
                 fst=false
             else
-                #S="·${S}"
-                S="!${S}"
-                #S=" ${S}"
+                #S="*${S}"
+                S=" ${S}"
             fi
         done
         echo "$S"

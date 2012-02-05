@@ -1,0 +1,44 @@
+#!/bin/bash
+# -*- mode: sh -*-
+
+pr() {
+    echo "ERROR ** $@"
+}
+
+pr "-=!=--=!=--=!=--=!=--=!=-"
+pr "FAILED TO AUTOSTART EMACS"
+pr "-=!=--=!=--=!=--=!=--=!=-"
+
+# strip off emacsclient
+cmd="${AUTOSTART_EMACS_CMD#* * }"
+
+find_path() {
+   which "$1"
+}
+
+tryeditor() {
+    local from="$1" name="$2"
+    local path="$(find_path "$name")"
+    pr
+    pr ">>>>>------------>>>>>>"
+    pr "fallback: $from"
+    pr "    name: $name"
+    pr "    path: $path"
+    [[ -e "$path" ]] || { pr "*** ERROR: not found!"; return ; }
+    [[ -x "$path" ]] || { pr "*** ERROR: no eXec perm!"; return ; }
+    pr "TRYING: $path $cmd"
+    exec "$path" "$cmd"
+}
+
+tryeditor '$NOT_EMACS_VISUAL' "$NOT_EMACS_VISUAL"
+tryeditor '$NOT_EMACS_EDITOR' "$NOT_EMACS_EDITOR"
+tryeditor "GUESS -> nano"  "nano"
+tryeditor "GUESS -> vi"    "vi"
+
+pr
+pr "!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+pr "No usable editor was found!"
+pr "Aborting attempt   ;_;     "
+pr "!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+return 127

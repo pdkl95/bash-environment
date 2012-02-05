@@ -18,15 +18,16 @@ demo-ansi-raw-escapes() {
 
 demo-color-macros() {
     local mlist mchr clist="" max colsperstack stackwidth stackmax stacklimit
-
-    if [[ "$1" == "-c" ]] ; then
-        mlist="${ANSI_MODE_LIST_COMMON}"
+    local mlist="M D B"
+    if [[ "$1" != "-c" ]] ; then
         shift
-    elif [[ "$1" == "-f" ]] ; then
-        mlist="${ANSI_MODE_LIST_FULL}"
-        shift
+        ek
     else
-        mlist="${ANSI_MODE_LIST}"
+        mlist="${mlist} U R"
+        if [[ "$1" == "-f" ]] ; then
+            shift
+            mlist="${mlist} I C"
+        fi
     fi
     mchr="$(echo "$mlist" | tr -d ' ')"
     colsperstack=${#mchr}
@@ -38,7 +39,7 @@ demo-color-macros() {
 
     (( stacklimit=2*(stackmax/2) ))
 
-    for c in ${ANSI_COLOR_LIST}; do
+    for c in "bk rd gr yl bl pr cy wh"; do
         clist="$clist $c $(upcase $c)"
     done
 
@@ -79,12 +80,14 @@ demo-color-macros() {
 
 
 
-democ-color-stripe256() {
+demo-color-stripe256() {
     local i j x y
-    for i in {0..31}; do
-        for j in {0..7}; do
-            (( x=(32*j)+i ))
+    for i in {0..15}; do
+        for j in {0..15}; do
+            (( x=(16*j)+i ))
             (( y=255-x ))
+            #(( x=(x+16)%256 ))
+            #(( y=(y+16)%256 ))
             _Cff 0
             _Cbb $x
             echo -n ' X?'

@@ -4,15 +4,16 @@
 ### First some message-printing minor features ###
 ##################################################
 
-byte2human() {
+byte2si() {
     declare -a LABELS=('B' 'KB' 'MB' 'GB' 'TB' 'XB' 'PB')
-    local magscale=1024 magnitude=0 size=$1
+    local scale=1024 magnitude=0 size=$1
 
-    while (( size >= magscale )) ; do
-        (( size=size/magscale ))
-        (( magnitude+ ))
+    while (( size >= scale )) ; do
+        size=$( echo "${size}/${scale}.0" | bc )
+        (( magnitude++ ))
     done
-   echo "${size}${LABELS[${magnitue}]]}"
+    echo "magnitude=$magnitude"
+    echo "${size}${LABELS[${magnitue}]}"
 }
 
 

@@ -1,12 +1,92 @@
 #! /bin/bash
 # -*- mode: sh -*-
 
+: ${TERM:=xterm-256color}
+: ${INPUTRC:=$HOME/.inputrc}
+
+PATH="\
+${bashEV[HOME]}/.bash/bin:\
+${HOME}/node_modules/.bin:\
+${HOME}/games/minecraft/bin:\
+${PATH}"
+
+export TERM INPUTRC PATH
+
+
+# guess color mode from the terminal name
+# if it's not set already
+TERM="xterm-256color"
+
+if is_undef USE_ANSI_COLOR ; then
+    case ${TERM:-dummy} in
+        linux*|con80*|con132*|console|xterm*|vt*|screen*|putty|Eterm|dtterm|ansi|rxvt|gnome*|*color*)
+            USE_ANSI_COLOR=true
+            [[ -z "${COLOR_MODE}" ]] && COLOR_MODE="ansi-16color"
+            ;;
+        *)  USE_ANSI_COLOR=false ;;
+    esac
+fi
+
+if is_undef USE_ANSI_256COLOR ; then
+    if [[ $TERM =~ -256color$ ]] ; then
+        USE_ANSI_256COLOR=true
+        COLOR_MODE="ansi-256color"
+    else
+        USE_ANSI_256COLOR=false
+    fi
+fi
+
+export USE_ANSI_COLOR USE_ANSI_256COLOR COLOR_ON
+
+# macro to generate a standard "xtitle"
+# wrapper around a command
+xtitle_for() {
+    local cmd="$1" title="$2" ; shift 2
+    local xt="xtitle \"$title\$@\""
+    #echo "XT> $xt"
+    local cm="command $cmd \"\$@\""
+    #echo "CM> $cm"
+    local func="_$cmd() { $xt ; $cm ; }"
+    #echo "FUNC> $func"
+    eval $func
+    eval "alias $cmd=_$cmd"
+}
+
+xtpush() {
+    local t="$1" ; shift
+    local cmd="$1" ; shift
+
+    local old="$xtitlePFX"
+    restore_xtitle_prefix() {
+        export xtitlePFX="$old"
+    }
+    trap restore_xtitle_prefix RETURN
+
+    export xtitlePFX="${xtitlePFX}${t} - "
+    xtitle ''
+    $cmd "$@"
+
+    restore_xtitle_prefix
+}
+
+# load other major env sections...
 bashEV_include "env/bashopts"
 bashEV_include "env/locale"
 bashEV_include "env/pager"
 bashEV_include "env/history"
 bashEV_include "env/misc"
+bashEV_include "env/LS_COLORS"
 
+
+# misc settings
+export TIMEFORMAT=$'\nreal %3R\tuser %3U\tsys %3S\tpcpu %P\n'
+export FIGNORE='.o:~'
+
+# *** HACK ***
+# Workaround for how Gentoo deals with ruygems. We manage it
+# entirely separate from the distory anyway (rbenv/bundler), so this
+# has little utility anyway.
+export RUBYOPT=""
 
 ######################################################
 ###  and a few other thigns that should always be  ###

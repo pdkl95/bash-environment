@@ -56,6 +56,7 @@ bashEV[bootDIR]="$(dirname "${bashEV[SRC]}")"
 bashEV[ROOT]="$(cd -P "${bashEV[bootDIR]}" && pwd)"
 
 bashEV[LIB]="${bashEV[ROOT]}/lib"
+bashEV[BIN]="${bashEV[ROOT]}/bin"
 bashEV[ETC]="${bashEV[ROOT]}/etc"
 bashEV[VAR]="${bashEV[ROOT]}/var"
 bashEV[RC]="${bashEV[ROOT]/RC}"
@@ -127,7 +128,8 @@ bashEV_boot_as_bashrc() {
 
 bashEV_boot_as_profile() {
     bashEV_boot_as_bashrc || return
-    # post-bashrc-start?
+    local rc="${bashEV[ETC]}/profile.bash"
+    [[ -e "$rc" ]] && source "$rc"
 }
 
 bashEV_boot_as_command() {
@@ -135,18 +137,24 @@ bashEV_boot_as_command() {
     #echo "BOOT_CMD: $cmd"
     bashEV_load "editor"
     echo "CMD> $cmd "${bashEV[bootARGS]}""
+    $cmd ${bashEV[bootARGS]}
 }
 
 bashEV_autostart() {
-    local name="${bashEV[bootAS]}"
+    local name="$1"
+    #echo "name=$name"
+    if [[ -z "$name" ]] ; then
+        name="${bashEV[bootAS]}"
+    fi
 
     [[ "$name" =~ ^-?bash$ ]]  && name='.bashrc'
 
-
+    #echo "AUTOSTART: $name"
     case "$name" in
-        bashev)  bashEV_boot_as_script ;;
-        .bashrc) bashEV_boot_as_bashrc ;;
-        *)       bashEV_boot_as_command "$name" ;;
+        bashev)        bashEV_boot_as_script  ;;
+        .bashrc)       bashEV_boot_as_bashrc  ;;
+        .bash_profile) bashEV_boot_as_profile ;;
+        *)             bashEV_boot_as_command "$name" ;;
     esac
 
 }
@@ -155,7 +163,14 @@ is_defined() {
     declare -p $1 >/dev/null 2>&1
 }
 
+is_undef() {
+    ! is_defined "$@"
+}
+
 is_cmd() {
     #command command type $1 &>/dev/null || return 1
     command hash "$1" 2>&-
 }
+
+
+export bashEV

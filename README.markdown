@@ -4,10 +4,10 @@ Bash Insanity
 I think i rely on bash _way_ too much now or something.
 
 This is just my (futile?) attempt at reigning in, refactoring,
-simplifying and generally fixing all bash stuff I've collected
-over the years. I have no idea if this is actually a _good idea_
-in the long term, but I suppose it's at least better than
-the spagetti mess it used to be.
+simplifying and generally fixing all bash stuff I've collected over
+the years. I have no idea if this is actually a _good idea_ in the
+long term, but I suppose it's at least better than the spagetti mess
+it used to be.
 
 ##### Edit:
 
@@ -112,4 +112,6 @@ in no particular order:
 - http://stackoverflow.com/questions/tagged/bash?sort=votes
 - https://www.google.com/
 
+
 ...and I'm sure many others!
+
