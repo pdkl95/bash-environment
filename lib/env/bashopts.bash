@@ -15,5 +15,7 @@ set -B # braceexpand
 
 
 shopt -u huponexit failglob mailwarn cdable_vars
-shopt -s checkhash checkwinsize cmdhist dotglob extglob extquote \
-histappend histreedit histverify no_empty_cmd_completion promptvars
+shopt -s checkhash checkwinsize cmdhist
+shopt -s dotglob extglob extquote
+shopt -s histappend histreedit histverify
+shopt -s no_empty_cmd_completion promptvars

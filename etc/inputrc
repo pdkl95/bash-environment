@@ -5,7 +5,7 @@ $include /etc/inputrc
 set bell-style none
 set bind-tty-special-chars off
 set blink-matching-paren on
-set completion-ignore-case on
+set completion-ignore-case off
 set completion-query-items 350
 set convert-meta off
 set echo-control-characters off
