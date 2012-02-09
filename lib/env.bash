@@ -6,6 +6,7 @@
 
 PATH="\
 ${bashEV[HOME]}/.bash/bin:\
+${HOME}/.rbenv/shims:\
 ${HOME}/node_modules/.bin:\
 ${HOME}/games/minecraft/bin:\
 ${PATH}"

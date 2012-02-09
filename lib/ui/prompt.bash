@@ -111,7 +111,7 @@ print_current_prompt() {
     local EVAL="$?" CSTATUS WHOAMI PDIR MARK
 
     history -a
-    #history -n
+    history -n
 
     CSTATUS="$(prompt_cmdstatus $EVAL)"
     WHOAMI="$(prompt_whoami)"

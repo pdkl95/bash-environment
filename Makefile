@@ -87,6 +87,7 @@ build: build-caches build-targets
 
 
 $(LIB)/env/LS_COLORS.bash: $(ETC)/LS_COLORS.dircolors
+	rm -f $@
 	$(CC_DIRCOLORS) $< > $@
 
 

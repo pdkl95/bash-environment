@@ -32,7 +32,8 @@ export VISUAL="${EDITOR}"
 # Map it all to some easy shortcuts
 
 alias E="emacs_eval"
-alias e="emacs_tty "
+#alias e="emacs_tty"
+alias e="emacs_frame_nowait"
 alias et="emacs_tty"
 alias ex="emacs_frame_nowait"
 

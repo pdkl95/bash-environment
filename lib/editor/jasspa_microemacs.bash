@@ -15,7 +15,7 @@ _me() {
     local OPT=""
     prepare_for_editing "$@"
     is_git_managed && OPT="-B"
-    command me $OPT "$@" &
+    command me $OPT "$@" &disown
 }
 
 alias me="_me"

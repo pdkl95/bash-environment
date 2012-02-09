@@ -112,6 +112,7 @@ bashEV_load_standard() {
     bashEV_load "ui"
     bashEV_load "editor"
     bashEV_load "app"
+    bashEV_load "autobackground"
     bashEV_load "aliases"
     bashEV_load "completion"
 }

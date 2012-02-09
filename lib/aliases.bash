@@ -1,5 +1,10 @@
 # -*- mode: sh -*-
 
+# shortcuts to projects
+alias lm="command cd $HOME/src/fanime/laughingman && xtpush '{LM}' git-sh"
+alias mc="command cd $HOME/games/minecraft"
+
+
 # not-commonly-used editors
 xtitle_for zile "zile "
 alias z="zile"
@@ -15,9 +20,6 @@ xtitle_for mv "mv "
 alias rm='command rm -v'
 alias ln="command ln -v"
 alias chmod='command chmod -c'
-
-
-alias lm="command cd $HOME/src/fanime/laughingman && xtpush '{LM}' git-sh"
 
 alias ret="cd \"$OLDPWD\""
 
@@ -42,7 +44,22 @@ else
     alias tree="command ls -FR"
 fi
 
-alias top='xtitle Processes on $HOST && top'
+if is_cmd nice ; then
+    if is_cmd ionice ; then
+        alias verynice='xtpush "<ionice+nice>" ionice -c3 -n7 nice'
+    else
+        alias verynice="nice"
+    fi
+else
+    nice="noop"
+    nerynice="noop"
+fi
+
+alias iftop='xtitle Network Activity on eth1; sudo iftop -i eth1 -P'
+alias  htop='xtitle Processes on $HOST ; sudo htop'
+alias  _top='xtitle Processes on $HOST ;  top'
+alias   top="htop"
+
 alias make='xtitle Making $(basename $PWD) ; make'
 
 alias more="less"
@@ -71,17 +88,6 @@ alias gg="git status"
 alias be="xtpush '{BUNDLER}' bundle exec"
 alias bake="be rake"
 alias gitlog="git --no-pager log --oneline --graph -n 18 --decorate"
-
-if is_cmd nice ; then
-    if is_cmd ionice ; then
-        alias verynice='xtpush "<ionice+nice>" ionice -c3 -n7 nice'
-    else
-        alias verynice="nice"
-    fi
-else
-    nice="noop"
-    nerynice="noop"
-fi
 
 alias irb="command irb --readline -r irb/completion"
 is_cmd nautilus   && alias nautilus="command nautilus --no-desktop"
