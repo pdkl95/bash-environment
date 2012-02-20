@@ -5,7 +5,15 @@ chkmkv() {
 }
 
 cleanmkv() {
-    /root/mkclean --remux --optimize "$1" "$2"
+    mkclean --doctype 2 --remux --optimize "$1" "$2"
+}
+
+minfo() {
+    mediainfo "$1"
+}
+
+diffver() {
+    grc diff -u <(minfo "$1") <(minfo "$2")
 }
 
 remux_into_mkv() {
@@ -44,6 +52,8 @@ convert_to_mkv() {
     echo ">>> remuxing with mkvmerge..."
     remux_into_mkv "$file" "$tmp1"
     cleanmkv "$tmp1" "$tmp2"
+
+    diffver "$file" "$tmp2"
 
     echo ">>> validating the results..."
     if chkmkv "$tmp2" ; then

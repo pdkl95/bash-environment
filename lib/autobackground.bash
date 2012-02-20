@@ -1,5 +1,5 @@
 # -*- mode: sh; -*-
-
+return
 load_bg() {
     for x in "$@" ; do
         eval "$x() { command $x \"\$@\" & }"

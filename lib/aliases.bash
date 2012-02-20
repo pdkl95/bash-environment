@@ -2,7 +2,8 @@
 
 # shortcuts to projects
 alias lm="command cd $HOME/src/fanime/laughingman && xtpush '{LM}' git-sh"
-alias mc="command cd $HOME/games/minecraft"
+alias mc="command cd $HOME/games/minecraft/"
+alias mcu="command launch_minecraft --select"
 
 
 # not-commonly-used editors
@@ -79,7 +80,12 @@ alias duh="command du -khs * | sort -h"
 alias du="command du -kh"
 alias df="command df -kTh"
 alias diff='diff -up'
-
+alias pdklgrep="command grep --extended-regexp --color=auto"
+alias igrep="pdklgrep --ignore-case"
+alias vgrep="pdklgrep --invert-match"
+alias ivgrep="pdklgrep --ignore-case --invert-match"
+alias gr="igrep"
+alias ff="find . -type f"
 
 [[ "$UNAME" != "Linux" ]] && is_cmd gsed && alias sed='gsed'
 

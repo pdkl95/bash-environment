@@ -5,7 +5,7 @@
 # option defaults
 : ${MPLAYERPROFILE:=m}
 : ${MPLAYEROPT:=}
-: ${GRATUITOUS_MPLAYER_HELPER_OUTPUT:=false}
+: ${GRATUITOUS_MPLAYER_HELPER_OUTPUT:=true}
 
 ######################################################
 # first, a few things moved ovoer from ansicolor.sh
@@ -255,6 +255,9 @@ function run_mplayer_once_in_color {
         col=$(expr $col - 1)
     done
 
+    verbosity=$(echo "$*" | tr ' ' '\n' | grep -w -c -- '-v')
+    echo "VERBOSITY=${verbosity}"
+    echo
     echo "${MPHSTATIC[CMDLINE_MSG]}"
     pcolorln DARK!white $@
     echo -n "${MPHSTATIC[HANDOFF_MSG]/MOVIEPLAYER/$MP_BIN}"
@@ -275,7 +278,19 @@ function run_mplayer_once_in_color {
         sed -un '0,/^$/! p'
     }
 
-    run_mplayer_once $* 2> /dev/null | filter_mp_output | colorize_filename | strip_initial_blank_line
+    function strip_perframe_stats {
+        egrep --line-buffered \
+            -e 'A: *[[:digit:]]+.[[:digit:]] V: *[[:digit:]]+.[[:digit:]] A-V'
+    }
+
+    case "${VERBOSITY}" in
+        0)  run_mplayer_once $* 2> /dev/null | filter_mp_output | colorize_filename | strip_initial_blank_line
+            ;;
+        1)  run_mplayer_once $* | strip_perframe_stats | colorize_filename
+            ;;
+        *)  run_mplayer_once $* | colorize_filename
+    esac
+
     echo "${MPHSTATIC[FINISH_MSG]/PAD/$pad}"
 }
 
@@ -296,7 +311,7 @@ function list_movies_into_newtemp {
     local T2="$ORIG-$NUM"
 
     function cleanup_t2 {
-        [ -f "$T2" ] && rm -f -- "$T2"
+        [ -f "$T2" ] && command rm -f -- "$T2"
     }
     trap cleanup_t2 RETURN
     echo "newtemp> $@" > /dev/null
@@ -336,7 +351,7 @@ function mplayer_launch_helper {
     local TMP="$(tempfile)"
 
     function cleanup_tmp {
-        [ -f "$TMP" ] && rm -f -- "$TMP"
+        [ -f "$TMP" ] && command rm -f -- "$TMP"
     }
     trap cleanup_tmp RETURN
 
@@ -376,11 +391,29 @@ done
 
 ### then, specify the actual user-interaction shortcuts
 
-mn() { mplayer_launch_helper_wrap 'mplayer'  '-' '-quiet'          "$@"; }
-m()  { mplayer_launch_helper_wrap 'mplayer2' ''  ''                "$@"; }
-mm() { mplayer_launch_helper_wrap 'mplayer2' ''  '-hr-seek always' "$@"; }
+mplayer2launch() {
+    local MP_BIN="mplayer2"
+    local MP_NAMEPAD=""
+    mplayer_launch_helper "$@"
+}
 
-#alias m=mm
+m() {
+    local MP_BINOPT=''
+    mplayer2launch "$@"
+}
+mm() {
+    local MP_BINOPT='-v'
+    mplayer2launch "$@"
+}
+m3d() {
+    local MP_BINOPT='-profile m.3d -v'
+    mplayer2launch "$@"
+}
+mdbg()   {
+    local MP_BINOPT='-v -v -v -msglevel demux=0'
+    mplayer2launch "$@"
+}
 
-
-
+mn() {
+    mplayer_launch_helper_wrap mplayer '-' '-quiet' "$@"
+}

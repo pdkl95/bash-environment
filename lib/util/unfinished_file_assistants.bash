@@ -42,7 +42,7 @@ fmt_tree() {
     fix_tree_fmt() {
         while read line ; do
             local -a a=(`echo ${line/ / }`)
-            local h=$(byteMe "${a[1]}")
+            local h="${a[1]}"
             while [ ${#h} -lt 7 ] ; do
                 h=" ${h}"
             done

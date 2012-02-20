@@ -6,6 +6,7 @@
 
 PATH="\
 ${bashEV[HOME]}/.bash/bin:\
+${HOME}/bin:\
 ${HOME}/.rbenv/shims:\
 ${HOME}/node_modules/.bin:\
 ${HOME}/games/minecraft/bin:\
@@ -16,7 +17,7 @@ export TERM INPUTRC PATH
 
 # guess color mode from the terminal name
 # if it's not set already
-TERM="xterm-256color"
+[[ "$TERM" =~ xterm ]] && TERM="xterm-256color"
 
 if is_undef USE_ANSI_COLOR ; then
     case ${TERM:-dummy} in
@@ -80,6 +81,7 @@ bashEV_include "env/LS_COLORS"
 
 
 # misc settings
+export GREP_COLORS="rv:mt=38;5;197;1:sl=48;5;234:cx=38;5;247:fn=38;5;039:ln=38;5;208:bn=38;5;227:se=48;5;017;38;5;57"
 export TIMEFORMAT=$'\nreal %3R\tuser %3U\tsys %3S\tpcpu %P\n'
 export FIGNORE='.o:~'
 
@@ -179,3 +181,8 @@ as_root() {
         *)     sudo_or_su "$@" ;;
     esac
 }
+
+
+# Pull in autoenv from the standard gem checkout location
+source "${HOME}/.autoenv/activate.sh"
+source "${HOME}/src/autoenv_helpers/init.bash"
