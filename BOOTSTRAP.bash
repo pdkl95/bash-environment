@@ -58,8 +58,6 @@ bashEV[ROOT]="$(cd -P "${bashEV[bootDIR]}" && pwd)"
 bashEV[LIB]="${bashEV[ROOT]}/lib"
 bashEV[BIN]="${bashEV[ROOT]}/bin"
 bashEV[ETC]="${bashEV[ROOT]}/etc"
-bashEV[VAR]="${bashEV[ROOT]}/var"
-bashEV[RC]="${bashEV[ROOT]/RC}"
 
 bashEV[INIT]="${bashEV[LIB]}/_init.bash"
 bashEV[HOME]="${bashEV_HOME:-${HOME}}"

@@ -75,11 +75,12 @@ bash looks at to build its environment is redirected
 in a manner similar to this:
 
 ```bash
-mv ~/.bash_profile ~/.bash_logout ~/.bashrc ~/.inputrc .bash/var/backup/
-ln -s .bash/rc/profile.bash ~/.bash_profile
-ln -s .bash/rc/logout.bash  ~/.bash_logout
-ln -s .bash/rc/rc.sh        ~/.bashrc
-lb -s .bash/etc/inputrc     ~/.inputrc
+mkdir -p ~/.bash/backup
+mv ~/.bash_profile ~/.bash_logout ~/.bashrc ~/.inputrc ~/.bash/backup/
+ln -s ~/.bash/rc/profile.bash ~/.bash_profile
+ln -s ~/.bash/rc/logout.bash  ~/.bash_logout
+ln -s ~/.bash/rc/rc.sh        ~/.bashrc
+lb -s ~/.bash/etc/inputrc     ~/.inputrc
 ```
 
 This way, it should *theoretically* be a simple

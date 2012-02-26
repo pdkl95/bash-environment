@@ -87,6 +87,7 @@ alias ivgrep="pdklgrep --ignore-case --invert-match"
 alias gr="igrep"
 alias ff="find . -type f"
 
+
 [[ "$UNAME" != "Linux" ]] && is_cmd gsed && alias sed='gsed'
 
 alias g="git"
@@ -102,7 +103,12 @@ is_cmd mkvmerge   && alias   mii="mkvmerge --identify-verbose"
 is_cmd h264enc    && alias    h2="h264enc -2p -p slow -pf high"
 is_cmd mpc        && alias   mpc="command mpc -h 127.0.0.1"
 is_cmd pwgen      && alias pwgen="command pwgen -v -n"
-is_cmd fixnames   && alias    fn="command fixnames -fvv"
+is_cmd fixnames   && alias    fn="command fixnames -vvM"
 is_cmd youtube-dl && alias    yt="command youtube-dl --console-title -t -c --format 38/37/45/22/44/35/34/18/6/5/17/13"
 
-#if ${USE_COLOR}
+if is_cmd grc ; then
+    alias colordiff="grc diff"
+    alias diff="colordiff -u"
+    alias diffw="colordiff -u --ignore-all-space"
+    alias diff2col="command diff --side-by-side --ignore-all-space"
+fi

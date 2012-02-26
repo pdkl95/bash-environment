@@ -6,7 +6,7 @@
 #################
 
 # where save it
-export HISTFILE="${bashEV[VAR]}/history.list"
+export HISTFILE="${bashEV[ROOT]}/history.list"
 
 # HUGE history file! why not, we have the disk...
 export HISTSIZE=100000
