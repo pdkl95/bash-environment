@@ -1,0 +1,140 @@
+#!/bin/bash
+
+JOBLIST="${HOME}/var/pending_jobs/"
+
+VERS='1.0'
+HELP="
+usage: $0 [options] [<job-script>]
+"
+
+JOB=""
+INTERACT=false
+
+die() {
+    echo -e "$(basename "$0"): ERROR: $@" 1>&2
+    exit 1
+}
+
+while (( $# > 0 )) ; do
+    case $1 in
+        -h | --help)                echo -e "$HELP" ;  exit 0 ;;
+        -V | --version)             echo "$VERSION" ;  exit 0 ;;
+        -S | --show-joblist-prefix) echo "$JOBLIST" ;  exit 0 ;;
+        -P | --with-joblist-prefix) JOBLIST="$2"    ; shift 2 ;;
+        -x | --exec)                JOB="$2"        ; shift 2 ;;
+        -i | --interactive)         INTERACT=true   ; shift   ;;
+        --) shift ; break ;;
+        -*) echo "bad opt: $1" ; exit 1 ;;
+        *)  break ;;
+    esac
+done
+
+case $# in
+    0) INTERACT=true ;;
+    1) JOB="$1"      ;;
+    *) die "missing script to run!$USAGE" ;;
+esac
+
+mkdir -p "$JOBLIST"
+
+#########################
+# END arggument parsing #
+#########################
+
+validate_job() {
+    [[ -f "$1" ]] || die "not a file: $1"
+    [[ -x "$1" ]] || die "missing execute permissions on: $1"
+}
+
+setup_job() {
+    if "$1" --setup ; then
+        echo ">>> Job setup is complete"
+    else
+        echo "!!! Setup did not finish!"
+        exit 1
+    fi
+}
+
+txt() {
+    local X="$("$1" "--gettext-$2")"
+    #echo -e ">>> $1 --gettext-$2 returned:" 1>&2
+    #echo -e ">>> $X" 1>&2
+    echo -e "$X"
+}
+
+ask_how_to_proceed() {
+    zenity --list                       \
+        --hide-header                   \
+        --text   "$(txt "$1" question)" \
+        --column "" --column "Option"   \
+        COMMIT   "$(txt "$1" commit)"   \
+        ROLLBACK "$(txt "$1" rollback)" \
+        CANCEL   "$(txt "$1" cancel)"
+}
+
+run_commit()   { exec "$1" --commit   ; }
+run_rollback() { exec "$1" --rollback ; }
+
+exec_one_job() {
+    validate_job "$1"
+    local JOBDIR="$(dirname "$1")"
+    cd "$JOBDIR"
+
+    setup_job
+    case $(ask_how_to_proceed) in
+        COMMIT)   run_commit   "$1" ;;
+        ROLLBACK) run_rollback "$1" ;;
+        *)        echo "Cancel"     ;;
+    esac
+}
+
+#############3
+
+declare jfile=""
+jobfield() {
+    eval "$(cat $jfile)"
+    echo "${!1}"
+}
+
+
+declare -a MENU=()
+select_job() {
+    zenity --list --checklist     \
+        --width=666 --height=420  \
+        --text "Select a job run" \
+        --column "Run?"           \
+        --column "Job Name"       \
+        --column "Original Cmd"   \
+        "${MENU[@]}"
+}
+
+show_and_select_jobs() {
+    local jlist=$(find $JOBLIST -type f -name '*.job')
+
+    MENU=()
+    c=0
+    for j in $jlist ; do
+        jfile="$j"
+        MENU[$c]="$(basename "$j")"
+        (( c++ ))
+        MENU[$c]="$(jobfield JOB_NAME)"
+        (( c++ ))
+        MENU[$c]="$(jobfield SUMMARY)"
+        (( c++ ))
+        echo -e "MENU=( ${MENU[@]} )\n"
+    done
+    job="$(select_job)"
+echo "job -> $job"
+}
+
+##########
+## main ##
+##########
+
+if [[ -n "$JOB" ]] ; then
+    exec_one_job "$JOB"
+elif $INTERACT ; then
+    show_and_select_jobs
+else
+    die "Nothing to do?!\ntry --help for options?!"
+fi

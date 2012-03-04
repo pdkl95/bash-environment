@@ -1,83 +1,429 @@
 #!/bin/bash
 
-chkmkv() {
-    mkvalidator --no-warn --quiet "$1"
+SELF="$0"
+SELFNAME="$(basename "$SELF")"
+ARGS="$@"
+
+#############################
+### Customizable Settings ###
+#############################
+
+# ask for the prefix from the dispatcher
+# tool if non was
+: ${JOBLIST:=$(joblist --show-joblist-prefix)}
+
+# to shut off the entire defered job sytem
+# iand run 100% synchronously, set this to
+# the empty string ""
+#LOCAL_JOBLIST="${LOCAL_JOBLIST}/
+# WARNIG: doing so could be dangerous!
+# you *really* should verify the results
+# first, before any of the destructive
+# parts are procesed!
+LOCAL_JOBLIST="${JOBLIST}/${SELFNAME}"
+
+# ...but as a safety fail-safe, if the
+# above setting is disables so we commit
+# the changes immediately, we will still
+# not *destroy* the original file unless
+# you ALSO sert this varible to "always"
+#
+# On the event that we oneed to clobber
+# the original file, but cannot because
+# of this setting, processing will SIMPLLY
+# TERMINATE, "successfully". It's up to
+# you, then to handle the final "mv"!!!
+CLOBBER_ORIGINAL=""
+
+# set this to false, if you don't want
+# all the ANSI excape codes on STDOUT
+COLOR=true
+
+
+###############################
+### BEIGN parameter parsing ###
+###############################
+
+declare -i ret jobcount
+declare orig orig_basename Tmp1 tmp2
+declare dst dst_basename dst_dirname dst_real
+declare defer_sh jobfile
+
+cleanup_tmp() {
+    local -i retval=${1:-1}
+    if [ -f "$tmp1" ] ; then
+        echo "cleaning up tempfile $tmp2" 1>&2
+        rm -f -- "$tmp1"
+    fi
+    if [ -f "$tmp2" ] ; then
+        echo "cleaning up tempfile $tmp2" 1>&2
+        rm -f -- "$tmp2"
+    fi
+    exit $retval
+
+    echo "${SELFNAME}: ${1:-Unknown Error}" 1>&2
+    cleanup_tmp $retval
+    exit $retval
 }
 
-cleanmkv() {
-    mkclean --doctype 2 --remux --optimize "$1" "$2"
+die() {
+    local -i ret="$1" ; shift
+    echo -e ${@} 1>&2
+    exit $ret
 }
 
-minfo() {
-    mediainfo "$1"
+died_in() {
+    ret=$?
+    die $ret "ERROR - $1 failed with error code $ret"
+}
+
+if $COLOR ; then
+    NC="\e[0m"
+    prln()  { echo -e "\e[1;36m>>>\e[0;32m $@$NC"      ; }
+    declare -i RR=0
+    perr()  {
+        if (( RR<1 )) ; then
+            echo -e "\e[0;31m*\e[1;31m!\e[0;31m* $@$NC" 1>&2
+        else
+            echo -e "\e[1;31m!\e[0;31m*\e[1;31m! $@$NC" 1>&2
+        fi
+        (( RR=1-RR ))
+    }
+    pwarn() { perr "${NC}\e[1;33mWARN\e[0;2;33m:\e[1;34m $@" ; }
+    pBAD()  { perr "\e[1;41;33m-=< \e[4;37mERROR\e[0m\e[41m \e[1;33m>=-$NC \e[1;35m$@" ; }
+else
+    prln()  { echo ">>> $@"      ; }
+    perr()  { echo "!!! $@" 1>&2 ; }
+    pwarn() { perr "WARN: $@" ; }
+    pBAD()  { perr "*** ERROR: $@ ***" ; }
+fi
+
+# lets give at least a *chance* to interrupt before the we do
+# destructive things like overitting the original files O.O
+countdown_delay() {
+    sleep 1 ; pwarn " (3)"
+    sleep 1 ; pwarn " (2)"
+    sleep 1 ; pwarn " (1)"
+    sleep 1 ; pwarn " (0)"
+}
+
+safe_make_tempfile() {
+    tempfile --mode 0644 --prefix=ch2mkv_ --suffix=.mkv || died_in "tempfile"
+}
+
+cook_name() {
+    sed -re 's/.*\///g' | tr ' .,-' '____' | tr -c -d 'a-zA-Z0-9_-' | sed -re 's/_+/_/g'
+}
+
+prepare_filenames() {
+    [[ -f "$1" ]] || die "not a file: $file"
+
+    orig="$(readlink -f "$1")"            || died_in "readlink"
+    orig_basename="$(basename "${orig}")" || died_in "basename"
+
+    dst_real="${orig%.*}.mkv"
+    dst="${dst_real%.mkv}.MUST_BE_VERIFIED.mkv"
+    dst_basename="$(basename "$dst")" || died_in "basename"
+    dst_dirname="$(dirname "$dst")"   || died_in "dirname"
+
+    tmp1="$(safe_make_tempfile)"
+    tmp2="$(safe_make_tempfile)"
+    trap cleanup_tmp SIGHUP SIGINT SIGTERM
+
+    if [[ -n "${LOCAL_JOBLIST}" ]] ; then
+        defer_sh="${dst_dirname}/.${dst_basename}.sh"
+
+        # base job ID from the filename?
+        jobfile="$(echo "${orig_basename%.*}" | cook_name)"
+        # OR, this is safer:
+        #jobfile="$(basename "$tmp2")" || died_in "basename"
+
+        jobfile="${jobfile%.mkv}.job"
+        jobfile="${LOCAL_JOBLIST}/${jobfile}"
+        jobfile="$(readlink -f "$jobfile")" || died_in "readlink"
+    fi
+}
+
+show_plan() {
+    echo ">>>"
+    echo ">>>  ChangeToMKV  *"
+    echo ">> \\             /"
+    echo ">   +-----------+"
+    echo ">   |           |"
+    echo "    |     input => $orig"
+    echo "    |    output => $dst_real"
+    echo ">   |           |"
+    echo "\\>  |    (tmp1) => $tmp1"
+    echo "--+ |    (tmp2) => $tmp2"
+    echo "/>  |           |"
+    echo ">   |   staging => ${dst}"
+    echo "    |  defer_sh => ${defer_sh}"
+    echo "    |   jobfile => ${jobfile}"
+    echo ">   |           |"
+    echo ">   +-----------+"
+    echo ">> /             \\"
+    echo ">>>               *"
+    echo ">>>"
 }
 
 diffver() {
-    grc diff -u <(minfo "$1") <(minfo "$2")
+    local infocmd="mkvmerge --identify"
+    if command hash mediainfo ; then
+        infocmd="mediainfo"
+    fi
+    prln "Extracting metadata with: ${infocmd}"
+
+    if command hash grc ; then
+        grc diff -u <($infocmd "$1") <($infocmd "$2")
+    else
+        diff -u <($infocmd "$1") <($infocmd "$2")
+    fi
 }
 
-remux_into_mkv() {
-    echo mkvmerge -o "$2" "$1"
-    mkvmerge -o "$2" "$1"
+
+run_the_conversion() {
+    prln "remuxing with mkvmerge"
+    echo mkvmerge -o "$tmp1" "$orig"
+    mkvmerge -o "$tmp1" "$orig"
+
+    echo mkclean --doctype 2 --remux --optimize "$tmp1" "$tmp2"
+    mkclean --doctype 2 --remux --optimize "$tmp1" "$tmp2" || died_in "mkclean"
+
+    diffver "$orig" "$tmp2"
+    prln "validating the results..."
+
+    local C=''
+    if mkvalidator --no-warn --quiet "$tmp2" ; then
+        $COLOR && C="\e[1;36m"
+        prln "validation: ${C}PASS!"
+    else
+        $COLOR && C="\e[1;31m"
+        prln "validation: ${C}FAIL!"
+        # from sysexits.h
+        #    #define EX_DATAERR 65  /* data format error */
+        die 65 "mkvalidator rejected the conversion"
+    fi
+
+    prln "moving '$tmp2' -> '$dst'"
+    mv -f -- "$tmp2" "$dst" || died_id "mv"
 }
+
+echo_exec() {
+    echo echo "$@"
+    echo "$@"
+}
+
+create_defered-finish_script() {
+    prln "creating the finisher script for after inspection..."
+
+    local pangodst="<span size='large' background='#000000' foreground='#08ff08' font_family='monospace'>${dst}</span>"
+
+    local vtxt="Need to verify:\n\n${pangodst}\n\n"
+    vtxt="${vtxt}In particular, check taht all tracks are present and correct,\n"
+    vtxt="${vtxt}and watch for A/V sync problems such as audio drift!\n\n"
+    vtxt="${vtxt}<i>Launch mplayer now?</i>"
+
+    local qtxt="<span size='x-large' style='italic'>Did you verify the generated MKV?</span>\n\n"
+    qtxt="${qtxt}${pangodst}\n\n"
+    qtxt="${qtxt}<span size='large'>If so, should we <span underline='single' style='italic'>Commit</span> the changes,\n"
+    qtxt="${qtxt}keeping the new MKV file by <b>OVERWRITING</b> the original?\n\n"
+    qtxt="${qtxt}Otherwise, choose <span underline='low' style='italic'>Rollback</span> to revert back to the original,"
+    qtxt="${qtxt} discarding all of the current changes.</span>"
+
+    cat <<EOF > ${defer_sh}
+#!/bin/bash
+
+delete_self() {
+    echo ">>>"
+    echo ">>> Removing our entry in the pending queue:"
+    $(echo_exec "rm" "-f" "${jobfile}")
+
+    echo ">>>"
+    echo ">>> Removing ourself so no trash is left laying around:"
+    $(echo_exec "rm" "-f" "${defer_sh}")
+
+    echo ">>>"
+    echo ">>> Finished succssefully!"
+    exit 0
+}
+
+case \$1 in
+    --gettext-commit)
+            echo "Keep the new MKV, replacing the existing ``${orig_basename}>''"
+            exit 0  ;;
+
+    --gettext-rollback)
+            echo "Undo all changes; keep origianl"
+            exit 0  ;;
+
+    --gettext-cancel)
+            echo "Nevermind, just exit, don't touch anything!"
+            exit 0  ;;
+
+    --gettext-question)
+            echo -e "$qtxt"
+            exit 0
+            ;;
+
+    -s | --setup)
+            if [[ -z "${MPLAYER}" ]] ; then
+                if command hash mplayer2 ; then
+                    MPLAYER="mplayer2"
+                elif command hash mplayer ; then
+                    MPLAYER="mplayer"
+                else
+                    echo "!!! ERROR - mplayer not found!"
+                    exit 1
+                fi
+            fi
+
+            if zenity --question --no-wrap --text="${vtxt}" --ok-label="Run MPlayer!" ; then
+                echo ">>> Handing off to mplayer..."
+                mplayer "${dst}"
+                echo ">>> ...back form mplayer!"
+                exit 0
+            else
+                echo "!!! No verification was done!"
+                exit 1
+            fi
+            ;;
+
+    -r | --rollback)
+            echo ">>> Rolling back our changes, and leaving"
+            echo ">>>     ${orig}"
+            echo ">>> alone as the untouched original."
+            $(echo_exec "rm" "-f" "${dst}")
+            delete_self
+            ;;
+
+    -c | --commit)
+            echo ">>> MKV should be verified and checked."
+            echo ">>>"
+            echo ">>> Overiting the original file!!!"
+            $(echo_exec "rm" "${orig}")
+            $(echo_exec "mv" "${dst}" "${dst_real}")
+            delete_self
+            ;;
+
+    *)
+            echo "usage: $0 [--rollback|--commit]"
+            exit 1
+            ;;
+esac
+
+
+EOF
+
+    chmod +x "${defer_sh}" || died_in "chmod"
+    prln "script is ready!"
+}
+
+enqueue_deferment_globally() {
+    mkdir -p "${LOCAL_JOBLIST}"
+
+    prln "add to the must-be-verified queue..."
+    cat <<EOF > ${jobfile}
+CATEGORY="ch2mkv-verify"
+SUMMARY="Needs manual check: ${dst}"
+JOB_NAME="ch2mkv/verify/${orig_basename}"
+JOB_EXEC="pendingjob_exec ${defer_sh}"
+CREATOR="${0}"
+ORIG_PWD="${PWD}"
+ORIG_USER_CMD="${SELFNAME} ${orig}"
+COMMIT_CMD="${defer_sh} --commit"
+ROLLBACK_CMD="${defer_sh} --rollback"
+TODO_DESC="Verify that\n    ${dst}\nwas properly generated from:\n    ${orig}\nNote things like A/V skew, missing tracks, etc"
+EOF
+
+    prln "successful logged this task at:"
+    prln "  BEGIN: ${jobfile}"
+    prln "----------------------------------------------------------"
+    cat  "${jobfile}"
+    prln "----------------------------------------------------------"
+    prln "    END: ${jobfile}"
+
+}
+
+finalize_now() {
+    prln "Commiting our changes permanently!"
+    if [[ "${CLOBBER_ORIGINAL}" == "allowed" ]] ; then
+        pwarn "Removing the original file!"
+        countdown_delay
+        rm "${orig}"              || died_in "rm"
+        mv "${dst}" "${dst_real}" || died_in "mv"
+        prln "Original file replaced, conversion is complete!"
+    else
+        perr "Both defered commands and unsafe overwrites are off"
+        perr "We ahve no choice but to leave the file as-is."
+        perr "You will need to verify and renameit manually!"
+        perr "    semi-final file"
+        perr "    -->  ${dst}"
+    fi
+}
+
+#######################################
+# entry-points from the command line
 
 convert_to_mkv() {
-    local file="$1" dst tmp1
-
-    if [[ ! -f "$1" ]] ; then
-        echo "ERROR: not a file: '$file'"
-        exit -1
-    fi
-
-    tmp1="$(tempfile --mode 0644 --prefix=ch2mkv_ --suffix=.mkv)"
-    tmp2="$(tempfile --mode 0644 --prefix=ch2mkv_ --suffix=.mkv)"
-
-    dst="${file%.*}.mkv"
-
-    cleanup_tmp() {
-        [ -f "$tmp1" ] && rm -f -- "$tmp1"
-        [ -f "$tmp2" ] && rm -f -- "$tmp2"
-    }
-    trap cleanup_tmp RETURN
-
-    echo ">>> *** change to MKV ***"
-    echo ">>>\\"
-    echo ">>> +"
-    echo ">>> |  input: '$file'"
-    echo ">>> | output: '$dst'"
-    echo ">>> | (tmp1): '$tmp1'"
-    echo ">>> | (tmp2): '$tmp2'"
-    echo ">>> +"
-    echo ">>>/"
-    echo ">>> remuxing with mkvmerge..."
-    remux_into_mkv "$file" "$tmp1"
-    cleanmkv "$tmp1" "$tmp2"
-
-    diffver "$file" "$tmp2"
-
-    echo ">>> validating the results..."
-    if chkmkv "$tmp2" ; then
-        echo ">>> moving '$tmp2' -> '$dst'"
-        mv -f -- "$tmp2" "$dst"
-
-        if [[ "$file" == "$dst" ]] ; then
-            echo ">>> original already overwritten"
-        else
-            echo ">>> removing original: '$file'"
-            rm -f -- "$file"
-        fi
+    prepare_filenames "$1"
+    show_plan
+    run_the_conversion
+    if [[ -n "${LOCAL_JOBLIST}" ]] ; then
+        create_defered-finish_script
+        enqueue_deferment_globally
     else
-        echo "ERROR: created mkv is invalid!"
-        rm -rf $tmp1 $tmp2
-        exit 0
+        finalize_now
     fi
 }
 
-
-if [[ $# -lt 1 ]] ; then
-    find . -type f -name '*.avi' -o -name '*.mp4' | xargs -n 1 ch2mkv
-else
+run_multiple_jobs() {
+    local final_retval=0
     for arg in "$@" ; do
-        convert_to_mkv "$arg"
+        "$SELF" "$arg"
+        ret=$?
+        case $ret in
+            0)  # success; continue
+                prln "Success!"
+                ;;
+            65) # validation error; we can
+                # still continue with other files
+                pwarn "A file failed to convert!"
+                pwarn "Continuing anyhway..."
+                final_retval=65
+                ;;
+            *)  # any other error, die
+                die $ret "Received error: $ret! Shutting down."
+        esac
     done
+    exit $final_retval
+}
+
+dwim_find_things_to_convert() {
+    pwarn "Received no files to convert!"
+    pwarn "Assuming you mean the local directory tree!"
+    pwarn "Kill it now if this is incorred!"
+    countdown_delay
+    prln "Searching with: find . -type f -name '*.avi' -o -name '*.mp4')"
+}
+
+#########################################
+# launch jobs one at a time, recursively,
+# so each one has it's own process, free
+# of changes
+
+jobcount=$#
+
+if   (( jobcount<1 )) ; then
+    dwim_find_things_to_convert
+elif (( jobcount>1 )) ; then
+    run_multiple_jobs "$ARGS"
+else
+    if [[ "$1" =~ ^/.* ]] ; then
+        convert_to_mkv "$1"
+    else
+        convert_to_mkv "${PWD}/$1"
+    fi
 fi
+
+
+# EOF
