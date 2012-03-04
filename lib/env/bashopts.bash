@@ -13,9 +13,16 @@ set -h # hashall
 set -m # monitor
 set -B # braceexpand
 
+set -o emacs
 
-shopt -u huponexit failglob mailwarn cdable_vars
+#shopt -u huponexit
+shopt -u failglob force_fignore
+shopt -u nocaseglob nocasematch
+shopt -u mailwarn sourcepath cdable_vars
+
 shopt -s checkhash checkwinsize cmdhist
-shopt -s dotglob extglob extquote
+shopt -s extquote hostcomplete
+shopt -s dotglob extglob globstar
 shopt -s histappend histreedit histverify
-shopt -s no_empty_cmd_completion promptvars
+shopt -s no_empty_cmd_completion progcomp
+shopt -s promptvars autocd

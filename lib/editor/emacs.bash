@@ -13,12 +13,25 @@ emacsclient_run() {
     echo command ${client} ${optauto} "$@"
     command ${client} ${optauto} "$@"
     unset AUTOSTART_EMACS_CMD
+
 }
 emacs_eval()         { emacsclient_run --eval                   "$@" ; }
 emacs_tty()          { emacsclient_run --tty                    "$@" ; }
 emacs_frame_wait()   { emacsclient_run --create-frame           "$@" ; }
 emacs_frame_nowait() { emacsclient_run --create-frame --no-wait "$@" ; }
 
+emacs_edit_as_root() {
+    SOUL_EDITOR="emacsclient -c -a me" sudoedit "$@"
+#    emacsclient -c -a emacs "/sudo:root@localhost:$1"
+}
+
+e() {
+#    if [[ -w "$1" ]] ; then
+        emacs_frame_nowait "$@"
+#    else
+#        emacs_edit_as_root "$@"
+#    fi
+}
 
 # now that we have these,. rewrite EDITOR to match
 # but backup the old versions first
@@ -31,9 +44,7 @@ export VISUAL="${EDITOR}"
 ###################################
 # Map it all to some easy shortcuts
 
-alias E="emacs_eval"
-#alias e="emacs_tty"
-alias e="emacs_frame_nowait"
+#alias E="emacs_edit_as_root"
 alias et="emacs_tty"
 alias ex="emacs_frame_nowait"
 

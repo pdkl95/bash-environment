@@ -68,3 +68,9 @@ cloc_compare_revision() {
         <(git archive --format=tar "HEAD")
 
 }
+
+
+
+list_dirs_containing_files_by_mtime() {
+    ls -ltr --directory $(find . -regex "./.*[^/]*\'" -type f | xargs -n 1 dirname | sort | uniq)
+}

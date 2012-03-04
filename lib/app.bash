@@ -4,16 +4,6 @@
 bashEV_include "app/git"
 bashEV_include "app/mplayer"
 
-
-fullenv() {
-    for _a in {A..Z} {a..z} ; do
-        _z=\${!${_a}*}
-        for _i in `eval echo "${_z}"` ; do
-            echo -e "$_i: ${!_i}"
-        done
-    done | cat -Tsv
-}
-
 # all man pages!
 man() {
     for i ; do
@@ -31,37 +21,70 @@ colorize() {
     pygmentize -f $mode -l $lang -O style=$style -F tokenmerge
 }
 
-
-# Repeat n times command.
-repeat() {
-    local i max
-    max=$1
-    shift
-    for ((i=1; i <= max ; i++)); do
-        eval "$@"
-    done
+ytdl-fixname() {
+    local name="$1"
+    local ext="${name##*.}"
+    local realname="${name%-???????????.*}.${ext}"
+    echo "***  /\\ Stripping off the youtube ID that youtube-dl appended:"
+    echo "*** / /  ORIG>> $name"
+    echo "*** \\/  FIXED>> $realname"
+    mv "$name" "$realname"
 }
 
-
-my_ip_from_outsie_prespective() {
-    curl ifconfig.me
+ytdl-opt() {
+    echo -n " --console-title"
+    echo -n " --continue"
+    echo -n " --title"
+    echo -n " --prefer-free-formats"
 }
-alias my_ip="my_ip_from_outside_prespective"
 
+yt-get-url() {
+    local url="$url"
+    local opt="$(ytdl-opt)"
+    local file ret
 
-sqlite_cleanup() {
-    if [[ -w "$1" ]] ; then
-        sqlite3 "$1" VACUUM
-        sqlite3 "$1" REINDEX
+    echo "*** Asking youtube-dl for the filename ***"
+    local fopt="$opt --get-filename"
+    echo youtube-dl $fopt "${url}"
+    file="$(youtube-dl $fopt "$url")"
+    echo "*** youtube-dl filename is: ${file}"
+
+    echo "*** Handing off to youtube-dl to fetch the file..."    
+    echo    youtube-dl $opt "$url"
+    command youtube-dl $opt "$url" ; ret=$?
+    echo "RETVAL WAS: $ret"
+    if [[ -e "$file" ]] && [[ ! -e "${file}.part" ]] ; then
+        echo "*** Download should be finished finished; fixing the filename"
+        ytdl-fixname "$file"
+    else
+        echo "*** ERROR! youtube-dl failed?!"
     fi
+    return $ret
 }
 
-vacuum_firefox() {
-    for db in "$HOME"/.mozilla/firefox/????????.*/*.sqlite ; do
-        echo "VACUUMING: ${db}"
-        sqlite_cleanup "$db"
+yt() {
+    echo "*** Attempting to download $# video URLs"
+    for url in "$@"; do
+        yt-get-url "$url"
     done
+    echo "*** Successfully fetched $# videos!"
 }
+
+
+
+# sqlite_cleanup() {
+#     if [[ -w "$1" ]] ; then
+#         sqlite3 "$1" VACUUM
+#         sqlite3 "$1" REINDEX
+#     fi
+# }
+
+# vacuum_firefox() {
+#     for db in "$HOME"/.mozilla/firefox/????????.*/*.sqlite ; do
+#         echo "VACUUMING: ${db}"
+#         sqlite_cleanup "$db"
+#     done
+# }
 
 
 #nuke_site() {

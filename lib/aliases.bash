@@ -47,7 +47,7 @@ fi
 
 if is_cmd nice ; then
     if is_cmd ionice ; then
-        alias verynice='xtpush "<ionice+nice>" ionice -c3 -n7 nice'
+        alias verynice='xtpush "<ionice+nice>" ionice -c3 nice'
     else
         alias verynice="nice"
     fi
@@ -85,7 +85,6 @@ alias igrep="pdklgrep --ignore-case"
 alias vgrep="pdklgrep --invert-match"
 alias ivgrep="pdklgrep --ignore-case --invert-match"
 alias gr="igrep"
-alias ff="find . -type f"
 
 
 [[ "$UNAME" != "Linux" ]] && is_cmd gsed && alias sed='gsed'
@@ -104,7 +103,7 @@ is_cmd h264enc    && alias    h2="h264enc -2p -p slow -pf high"
 is_cmd mpc        && alias   mpc="command mpc -h 127.0.0.1"
 is_cmd pwgen      && alias pwgen="command pwgen -v -n"
 is_cmd fixnames   && alias    fn="command fixnames -vvM"
-is_cmd youtube-dl && alias    yt="command youtube-dl --console-title -t -c --format 38/37/45/22/44/35/34/18/6/5/17/13"
+
 
 if is_cmd grc ; then
     alias colordiff="grc diff"

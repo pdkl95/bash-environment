@@ -9,6 +9,11 @@ has_socket() {
     [[ -e "${EMACS_SOCKET}" ]]
 }
 
+has_daemon() {
+    [[ -d "/tmp/emacs${$UID}" ]] && [[ -S "/tmp/emacs${UID}/server" ]]
+}
+
+
 launch_wrapper() {
     logfile=$(mktemp $HOME/.emacs.d/daemon.log.XXXXXX)
     trap "rm -f '${logfile}'" EXIT
@@ -43,17 +48,17 @@ launch_wrapper() {
 
 
 start() {
-    if has_socket ; then
-        echo "PID file found: ${EMACS_PIDFILE}"
-        if has_daemon ; then
-            echo "Emacs is already running! (PID=$(cat ${EMACS_PIDFILE}))"
-            exit 1
-        else
-            echo "But no daemon was running at PID=${pid}"
-            echo "Removing stale EMACS_PIDFILE..."
-            rm -f "${EMACS_PIDFILE}"
-        fi
-    fi
+#    if has_socket ; then
+#        echo "PID file found: ${EMACS_PIDFILE}"
+#        if has_daemon ; then
+#            echo "Emacs is already running! (PID=$(cat ${EMACS_PIDFILE}))"
+#            exit 1
+#        else
+#            echo "But no daemon was running at PID=${pid}"
+#            echo "Removing stale EMACS_PIDFILE..."
+#            rm -f "${EMACS_PIDFILE}"
+#        fi
+#    fi
 
     SHELL=${EMACS_SHELL:-$(awk -F: "\$1 == \"${USER}\" { print \$7 }" /etc/passwd)}
     export SHELL EMACS EMACS_TIMEOUT EMACS_DEBUG

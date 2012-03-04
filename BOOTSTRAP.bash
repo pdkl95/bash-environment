@@ -19,11 +19,15 @@ __FILE__() {
 
 ## enable compiled-C builtins for several
 ## common tools for speed
-plugsdir="/usr/lib64/bash"
-for plugname in finfo basename dirname cat cut pushd popd; do
+plugdir="/usr/lib64/bash"
+for plugname in finfo basename dirname cut pushd; do
     plug="${plugdir}/${plugname}"
-    [[ -r "${plug}" ]] && enable -f "${plug}" ${plugname}
-    # ??? should provide a fallback if they don't exist ???
+    if [[ -r "${plug}" ]] ; then
+        enable -f "${plug}" ${plugname}
+        #echo "enabled: ${plug}"
+    else
+        echo "missing bash extension: ${plug}"
+    fi
 done
 unset plug plugdir plugname
 
@@ -112,6 +116,7 @@ bashEV_load_standard() {
     bashEV_load "app"
     bashEV_load "autobackground"
     bashEV_load "aliases"
+    bashEV_load "util"
     bashEV_load "completion"
 }
 

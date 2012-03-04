@@ -243,11 +243,11 @@ function show_movielist {
     blankln
 }
 
-function run_mplayer_once {
+run_mplayer_once() {
     $*
 }
 
-function run_mplayer_once_in_color {
+run_mplayer_once_in_color() {
     col=$(expr $COLUMNS - 80)
     pad=''
     while [[ $col -gt 0 ]]; do
@@ -255,7 +255,6 @@ function run_mplayer_once_in_color {
         col=$(expr $col - 1)
     done
 
-    verbosity=$(echo "$*" | tr ' ' '\n' | grep -w -c -- '-v')
     echo "VERBOSITY=${verbosity}"
     echo
     echo "${MPHSTATIC[CMDLINE_MSG]}"
@@ -263,33 +262,7 @@ function run_mplayer_once_in_color {
     echo -n "${MPHSTATIC[HANDOFF_MSG]/MOVIEPLAYER/$MP_BIN}"
     pcolorln yellow "$MPNAMEPAD${MPHSTATIC[DIVIDER]/PAD/$pad}"
 
-    function filter_mp_output {
-        egrep --line-buffered \
-            -e '^\[aviheader|lavf]' \
-            -e '^Playing[[:space:]]+[^[:space:]]+(\.[[:alpha:]]+)\.' \
-            -e '^[[:upper:]]{5}:[[:space:]]+.+'
-    }
-
-    function colorize_filename {
-        sed -urn '/^Playing/! {; p; b; }; s/^(Playing[[:space:]]+)([^[:space:]]+[.][[:alpha:]]+)(\.)/\n\1\x1B[1;36m\2\x1B[0m/gp'
-    }
-
-    function strip_initial_blank_line {
-        sed -un '0,/^$/! p'
-    }
-
-    function strip_perframe_stats {
-        egrep --line-buffered \
-            -e 'A: *[[:digit:]]+.[[:digit:]] V: *[[:digit:]]+.[[:digit:]] A-V'
-    }
-
-    case "${VERBOSITY}" in
-        0)  run_mplayer_once $* 2> /dev/null | filter_mp_output | colorize_filename | strip_initial_blank_line
-            ;;
-        1)  run_mplayer_once $* | strip_perframe_stats | colorize_filename
-            ;;
-        *)  run_mplayer_once $* | colorize_filename
-    esac
+    run_mplayer_once "$@"
 
     echo "${MPHSTATIC[FINISH_MSG]/PAD/$pad}"
 }

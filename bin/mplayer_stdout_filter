@@ -1,0 +1,107 @@
+#!/bin/bash
+
+VERS='1.0'
+HELP="\
+usage: $0 [options] -- [mplayer_options]
+Wrap mplayer and trim the output down to something readable.
+"
+
+V=0
+MPBIN="mplayer2"
+
+while (( $# > 0 )) ; do
+    case $1 in
+        -h | --help)    echo -e "$USAGE"    ;  exit 0 ;;
+        -V | --version) echo -e "$VERSION"  ;  exit 0 ;;
+        -v | --verbose) (( V++ ))           ; shift   ;;
+        -s | --set-verbosity) V=$2          ; shift 2 ;;
+        -m | --mplayer)    MPBIN="$2"       ; shift 2 ;;
+        -1 | --original)   MPBIN="mplayer"  ; shift   ;;
+        -2 | --mplayer2)   MPBIN="mplayer2" ; shift   ;;
+        --) shift ; break ;;
+        -*) echo "bad opt: $1" ; exit 1 ;;
+        *)  break ;;
+    esac
+done
+
+if (( $#<1 )) ; then
+    echo "error: emptry command line"
+    echo "error: Must pass at least one param to mplayer!"
+    echo "try: \"$0 -- <some_filename>\""
+    exit 1
+fi
+
+# all remaining args are for mplayer
+MPARGS=( "$@" )
+if (( V>0 )) ; then
+    echo "VERBOSITY=$V"
+    echo "MPBIN=\"${MPBIN}\""
+    echo "MPARGS=( ${MPARGS[@]} )"
+    echo
+fi
+
+simplify() {
+    tr '\r' '\n'
+}
+
+grep_sel() {
+    ARGS=( "$@" )
+    ARGS=( ${ARGS[@]/#/-e } )
+    echo
+    echo command grep --extended-regexp --line-buffered "${ARGS[@]}"
+    echo
+    /bin/grep --extended-regexp --line-buffered "${ARGS[@]}"
+}
+grep_select() { grep_sel ''               "$@" ; }
+grep_filter() { grep_sel '--invert-match' "$@" ; }
+
+SP="[[:space:]]"
+UP="[[:upper:]]"
+LO="[[:lower:]]"
+DI="[[:digit:]]"
+AL="[[:alpha:]]"
+AN="[[:alnum:]]"
+
+re_float="${_DI_}+.${_DI_}"
+re_wrapflt=" *${re_float} "
+
+declare -a re_stripmin
+re_stripmin[0]="^\[aviheader|lavf]"
+re_stripmin[1]="^Playing${SP}+[^[:space:]]+(\.${AL}+)\."
+re_stripmin[2]="^${UP}{5}:${SP}+.+"
+
+declare -a re_statline
+re_statline[0]="A:${re_wrapflt}V:${re_wrapflt}A-V"
+
+
+strip_initial_blank()  { sed -un '0,/^$/! p'             ; }
+strip_to_minimum()     { grep_select "${re_stripmin[@]}" ; }
+strip_perframe_stats() { grep_filter "${re_statlin[@]}"  ; }
+
+
+mpEX() {
+    $MPBIN "${MPARGS[@]}" | simplify
+}
+
+exec_cooked() {
+    case "${V}" in
+        0)  mpEX | strip_to_minimum | strip_initial_blank ;;
+        1)  mpEX | strip_perframe_stats ;;
+        *)  mpEX
+    esac
+}
+
+
+colorize_filename() {
+    sed -urn "
+/^Playing/! {; p; b; }
+s/^(Playing[[:space:]]+)([^[:space:]]+[.][[:alpha:]]+)(\.)/\n\1\x1B[1;36m\2\x1B[0m/gp
+"
+}
+
+
+run_mplayer_with_filters() {
+    exec_cooked | colorize_filename
+}
+
+run_mplayer_with_filters
