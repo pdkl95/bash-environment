@@ -1,0 +1,65 @@
+#!/bin/bash
+
+VERSION="1.0"
+USAGE="\
+usage: $0 [options] <video_file> [<video_file> [...]]
+Generates a MKV file for each of the named video files.
+
+$(extract_usage_options.bash "$0")
+"
+
+verbose=true
+pretend=false
+
+while (( $# > 0 )) ; do
+    case $1 in
+# USEROPT+start
+# Print this help
+        -h | --help)    echo -e "$USAGE"    ;  exit 0 ;;
+# Print the script version
+        -V | --version) echo -e "$VERSION"  ;  exit 0 ;;
+
+# be noisy on output
+        -v | --verbose) verbose=true        ; shift   ;;
+# output nothing! (mkvmerge still generates output)
+        -q | --quiet)   verbose=false       ; shift   ;;
+
+# pretend to run mkvmerge; change nothing
+        -p | --pretend) pretend=true        ; shift   ;;
+# USEROPT+end
+        --) shift ; break ;;
+        -*) echo "bad opt: $1" ; exit 1 ;;
+        *)  break ;;
+    esac
+done
+
+
+
+to_mkv() {
+    local forig="$1"
+    local fmkv="${forig%.*}.mkv"
+    if ${verbose} ; then
+        echo
+        echo "    +--< * >---< * >--+"
+        echo "==> | ORIG NAME: ${forig}"
+        echo "==> |  MKV NAME: ${fmkv}"
+        echo "    +--< * >---< * >--+"
+        echo
+        echo mkvmerge -o "${fmkv}" "${forig}"
+        echo
+    fi
+    if ! ${pretend} ; then
+        mkvmerge -o "${fmkv}" "${forig}"
+    fi
+}
+
+for i in "$@" ; do
+    to_mkv "$i"
+done
+
+# Local Variables:
+# mode: sh
+# sh-basic-offset: 4
+# sh-shell: bash
+# coding: unix
+# End:

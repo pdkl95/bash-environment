@@ -2,7 +2,7 @@
 
 SELF="$0"
 SELFNAME="$(basename "$SELF")"
-ARGS="$@"
+
 
 #############################
 ### Customizable Settings ###
@@ -101,10 +101,18 @@ fi
 # lets give at least a *chance* to interrupt before the we do
 # destructive things like overitting the original files O.O
 countdown_delay() {
-    sleep 1 ; pwarn " (3)"
-    sleep 1 ; pwarn " (2)"
-    sleep 1 ; pwarn " (1)"
-    sleep 1 ; pwarn " (0)"
+    local -i x=4
+    pwarn " // DELAY\t(${x}s) //"
+    while (( x>0 )) ; do
+        if $color ; then
+            pwarn " //  \e[0;35m-* \e[1;36m$x\e[0;35m *-\e[1;34m\t     //"
+        else
+            pwarn " //  -* $x *-\t     //"
+        fi
+        sleep 1
+        (( x=x-1 ))
+    done
+    pwarn " //  -* 0 *-\tGO!! //"
 }
 
 safe_make_tempfile() {
@@ -188,6 +196,7 @@ run_the_conversion() {
 
     echo mkclean --doctype 2 --remux --optimize "$tmp1" "$tmp2"
     mkclean --doctype 2 --remux --optimize "$tmp1" "$tmp2" || died_in "mkclean"
+    touch -r "$orig" "$tmp2"
 
     diffver "$orig" "$tmp2"
     prln "validating the results..."
@@ -233,84 +242,153 @@ create_defered-finish_script() {
     cat <<EOF > ${defer_sh}
 #!/bin/bash
 
+JOBFILE="${jobfile}"
+SELF="${defer_sh}"
+ORIG_NAME="${orig_basename}"
+ORIGINAL="${orig}"
+STAGING="${dst}"
+TARGET="${dst_real}"
+
 delete_self() {
     echo ">>>"
     echo ">>> Removing our entry in the pending queue:"
-    $(echo_exec "rm" "-f" "${jobfile}")
+    $(echo_exec "rm" "-f" "\${JOBFILE}")
 
     echo ">>>"
     echo ">>> Removing ourself so no trash is left laying around:"
-    $(echo_exec "rm" "-f" "${defer_sh}")
+    $(echo_exec "rm" "-f" "\${SELF}")
 
     echo ">>>"
     echo ">>> Finished succssefully!"
     exit 0
 }
 
-case \$1 in
-    --gettext-commit)
-            echo "Keep the new MKV, replacing the existing ``${orig_basename}>''"
-            exit 0  ;;
-
-    --gettext-rollback)
-            echo "Undo all changes; keep origianl"
-            exit 0  ;;
-
-    --gettext-cancel)
-            echo "Nevermind, just exit, don't touch anything!"
-            exit 0  ;;
-
-    --gettext-question)
-            echo -e "$qtxt"
-            exit 0
-            ;;
-
-    -s | --setup)
-            if [[ -z "${MPLAYER}" ]] ; then
-                if command hash mplayer2 ; then
-                    MPLAYER="mplayer2"
-                elif command hash mplayer ; then
+setup() {
+    if [[ -z "\${MPLAYER}" ]] ; then
+        if command hash mplayer2 ; then
+            MPLAYER="mplayer2"
+        elif command hash mplayer ; then
                     MPLAYER="mplayer"
-                else
-                    echo "!!! ERROR - mplayer not found!"
-                    exit 1
-                fi
-            fi
-
-            if zenity --question --no-wrap --text="${vtxt}" --ok-label="Run MPlayer!" ; then
-                echo ">>> Handing off to mplayer..."
-                mplayer "${dst}"
-                echo ">>> ...back form mplayer!"
-                exit 0
-            else
-                echo "!!! No verification was done!"
-                exit 1
-            fi
-            ;;
-
-    -r | --rollback)
-            echo ">>> Rolling back our changes, and leaving"
-            echo ">>>     ${orig}"
-            echo ">>> alone as the untouched original."
-            $(echo_exec "rm" "-f" "${dst}")
-            delete_self
-            ;;
-
-    -c | --commit)
-            echo ">>> MKV should be verified and checked."
-            echo ">>>"
-            echo ">>> Overiting the original file!!!"
-            $(echo_exec "rm" "${orig}")
-            $(echo_exec "mv" "${dst}" "${dst_real}")
-            delete_self
-            ;;
-
-    *)
-            echo "usage: $0 [--rollback|--commit]"
+        else
+            echo "!!! ERROR - mplayer not found!"
             exit 1
-            ;;
-esac
+        fi
+    fi
 
+    if zenity --question --no-wrap --text="${vtxt}" --ok-label="Run MPlayer!" ; then
+        echo ">>> Handing off to mplayer..."
+        mplayer "\${STAGING}"
+        echo ">>> ...back form mplayer!"
+        exit 0
+    else
+        echo "!!! No verification was done!"
+        exit 1
+    fi
+}
+
+rollback() {
+    echo ">>> Rolling back our changes, and leaving"
+    echo ">>>     \${ORIGINAL}"
+    echo ">>> alone as the untouched original."
+    $(echo_exec "rm" "-f" "\${STAGING}")
+    delete_self
+}
+
+commit() {
+    echo ">>> MKV should be verified and checked."
+    echo ">>>"
+    echo ">>> Overiting the original file!!!"
+    $(echo_exec "rm" "\${ORIGINAL}")
+    $(echo_exec "mv" "\${STAGING}" "\${TARGET}")
+    delete_self
+}
+
+print_ans_commit() {
+    echo -e "Keep the new MKV, OVERWRITES the original"
+}
+
+print_ans_rollback() {
+    echo -e "Undo all changes; keep origianl"
+}
+
+print_ans_cancel() {
+    echo -e "Nevermind, just exit, no changes"
+}
+
+print_question() {
+    echo -e "$qtxt"
+}
+
+filter_pango() {
+    sed -re 's/<[^<>]+>//g'
+}
+
+usage_commands() {
+    echo "COMMANDS:"
+    cat "\$0" | sed -nre "\
+/USEROPT\Wstart/,/USEROPT\Wend/ {
+s/^\s*//
+s/\).*;;//
+s/^# USEROPT.*$//
+s/^-/        -/
+s/# /    /
+p
+}"
+}
+
+usage_job_specific() {
+    echo "This job asks, the flowing about the"
+    echo "initail --setup command:"
+    echo
+    print_question | filter_pango | fold -s -w 50 |  sed -re 's/^/    > /'
+}
+
+usage() {
+    echo "Usage: \$0 <command>"
+    echo
+    echo "This is a job-specific helper tool, to continue a job"
+    echo "that was suspended previously, and was created by:"
+    echo "    $0"
+    echo
+    echo "In most cases, you should run this with the --setup"
+    echo "command first and follow any instructions found there."
+    echo "Afterwords, one of the two commands --rollback "
+    echo "or --commit used be used to finalize everything."
+    echo
+    usage_job_specific
+    echo
+    usage_commands
+}
+
+
+parse_cmd() {
+case \$1 in
+    --gettext-commit)   print_ans_commit   ; exit 0 ;;
+    --gettext-rollback) print_ans_rollback ; exit 0 ;;
+    --gettext-cancel)   print_ans_cancel   ; exit 0 ;;
+    --gettext-question) print_question     ; exit 0 ;;
+
+# USEROPT+start
+# Launches the tasks internal setup tool.
+# Run this setu for this task; should ALWAYS
+# be run before --rollback or --commit are used!
+    -s | --setup) setup ;;
+
+# Finalize the task - either delete the new or
+# the old version, and then delete ourself to cleanup
+    -r | --rollback) rollback ;;
+    -c | --commit)   commit   ;;
+
+# Show this help message
+    -h | --help) usage ; exit 0 ;;
+# USEROPT+end
+    *)           usage ; exit 1 ;;
+esac
+}
+parse_cmd "\$@"
+
+# should never get here!!
+exit 1
 
 EOF
 
@@ -323,16 +401,19 @@ enqueue_deferment_globally() {
 
     prln "add to the must-be-verified queue..."
     cat <<EOF > ${jobfile}
-CATEGORY="ch2mkv-verify"
-SUMMARY="Needs manual check: ${dst}"
-JOB_NAME="ch2mkv/verify/${orig_basename}"
-JOB_EXEC="pendingjob_exec ${defer_sh}"
-CREATOR="${0}"
-ORIG_PWD="${PWD}"
-ORIG_USER_CMD="${SELFNAME} ${orig}"
-COMMIT_CMD="${defer_sh} --commit"
-ROLLBACK_CMD="${defer_sh} --rollback"
-TODO_DESC="Verify that\n    ${dst}\nwas properly generated from:\n    ${orig}\nNote things like A/V skew, missing tracks, etc"
+JOB_ID="${SELFNAME}/verify/${orig_basename}"
+JOB_BIN="${defer_sh}"
+JOB_REQ_FILES="${defer_sh} ${dst} ${orig}"
+JOB_CMD_SETUP="${defer_sh} --setup"
+JOB_CMD_COMMIT="${defer_sh} --commit"
+JOB_CMD_ROLLBACK="${defer_sh} --rollback"
+JOB_ORIG_CREATOR="${SELFNAME}"
+JOB_ORIG_PWD="${PWD}"
+JOB_ORIG_USER_CMD="${SELFNAME} ${orig}"
+JOB_DESC_NAME="${orig_basename}"
+JOB_DESC_CATEGORY="${SELFNAME}-verify"
+JOB_DESC_SHORT="Needs manual check: ${dst}"
+JOB_DESC_FULL="Verify that\n    ${dst}\nwas properly generated from:\n    ${orig}\nNote things like A/V skew, missing tracks, etc"
 EOF
 
     prln "successful logged this task at:"
@@ -378,6 +459,12 @@ convert_to_mkv() {
 
 run_multiple_jobs() {
     local final_retval=0
+    prln "Multiple conversions requested:"
+    for i in "$@"; do
+        prln "  -> $i"
+    done
+    countdown_delay 2
+
     for arg in "$@" ; do
         "$SELF" "$arg"
         ret=$?
@@ -404,6 +491,8 @@ dwim_find_things_to_convert() {
     pwarn "Kill it now if this is incorred!"
     countdown_delay
     prln "Searching with: find . -type f -name '*.avi' -o -name '*.mp4')"
+    list="$(find . -type f -name '*.avi' -o -name '*.mp4')"
+    run_multiple_jobs "$list"
 }
 
 #########################################
@@ -416,7 +505,7 @@ jobcount=$#
 if   (( jobcount<1 )) ; then
     dwim_find_things_to_convert
 elif (( jobcount>1 )) ; then
-    run_multiple_jobs "$ARGS"
+    run_multiple_jobs "$@"
 else
     if [[ "$1" =~ ^/.* ]] ; then
         convert_to_mkv "$1"

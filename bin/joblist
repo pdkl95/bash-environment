@@ -1,6 +1,7 @@
 #!/bin/bash
 
-JOBLIST="${HOME}/var/pending_jobs/"
+JOBLIST="${HOME}/var/pending_jobs"
+BADJOBS="${JOBLIST}/_bad"
 
 VERS='1.0'
 HELP="
@@ -9,6 +10,12 @@ usage: $0 [options] [<job-script>]
 
 JOB=""
 INTERACT=false
+
+YAD="$(which yad)"
+ZENITY="$(which zenity)"
+
+yad_p()    {  [[ -n "$YAD"    ]] ; }
+zenity_p() {  [[ -n "$ZENITY" ]] ; }
 
 die() {
     echo -e "$(basename "$0"): ERROR: $@" 1>&2
@@ -23,6 +30,8 @@ while (( $# > 0 )) ; do
         -P | --with-joblist-prefix) JOBLIST="$2"    ; shift 2 ;;
         -x | --exec)                JOB="$2"        ; shift 2 ;;
         -i | --interactive)         INTERACT=true   ; shift   ;;
+             --zenity)              YAD=""          ; shift   ;;
+             --yad)                 ZENITY=""       ; shift   ;;
         --) shift ; break ;;
         -*) echo "bad opt: $1" ; exit 1 ;;
         *)  break ;;
@@ -62,14 +71,45 @@ txt() {
     echo -e "$X"
 }
 
-ask_how_to_proceed() {
-    zenity --list                       \
-        --hide-header                   \
-        --text   "$(txt "$1" question)" \
-        --column "" --column "Option"   \
-        COMMIT   "$(txt "$1" commit)"   \
-        ROLLBACK "$(txt "$1" rollback)" \
+ask_how_to_proceed_yad() {
+    ${YAD}                                                              \
+        --image=gtk-dialog-warning                                      \
+        --window-icon=gtk-dialog-warning                                \
+        --title="how to proceed?"                                       \
+        --text "$(txt "$1" question)"                                   \
+        --center                                                        \
+        --on-top                                                        \
+        --selectable-labels                                             \
+        --button=gtk-apply:1                                            \
+        --button=gtk-undo:2                                             \
+        --button=gtk-cancel:0
+}
+
+ask_how_to_proceed_zenity() {
+    ${ZENITY} --list                                                    \
+        --hide-header                                                   \
+        --text   "$(txt "$1" question)"                                 \
+        --column "" --column "Option"                                   \
+        COMMIT   "$(txt "$1" commit)"                                   \
+        ROLLBACK "$(txt "$1" rollback)"                                 \
         CANCEL   "$(txt "$1" cancel)"
+}
+
+ask_how_to_proceed() {
+    if [[ -n "$YAD" ]] ; then
+        ask_how_to_proceed_yad "$1" ; local ret=$?
+        case "$ret" in
+            1) run_commit   "$1" ;;
+            2) run_rollback "$1" ;;
+            *) echo "Cancel"     ;;
+        esac
+    else
+        case $(ask_how_to_proceed_zenity "$1") in
+            COMMIT)   run_commit   "$1" ;;
+            ROLLBACK) run_rollback "$1" ;;
+            *)        echo "Cancel"     ;;
+        esac
+    fi
 }
 
 run_commit()   { exec "$1" --commit   ; }
@@ -80,12 +120,8 @@ exec_one_job() {
     local JOBDIR="$(dirname "$1")"
     cd "$JOBDIR"
 
-    setup_job
-    case $(ask_how_to_proceed) in
-        COMMIT)   run_commit   "$1" ;;
-        ROLLBACK) run_rollback "$1" ;;
-        *)        echo "Cancel"     ;;
-    esac
+    setup_job "$1"
+    ask_how_to_proceed "$1"
 }
 
 #############3
@@ -97,34 +133,130 @@ jobfield() {
 }
 
 
+rmsg() {
+    local MSG="$1"
+    local -i COL
+    let COL=$(tput cols)-${#MSG}
+    printf "%${COL}s" "$MSG"
+}
+
+job_has_prereqs() {
+    for i in $(jobfield JOB_REQ_FILES_) ; do
+        #echo -en "REQ_file/${jfile##*/} ${i} " 1>&2
+        echo -en "PREREQ/${jfile##*/} ${i} " 1>&2
+        if [[ -e "$i" ]] ; then
+            rmsg "OK!"
+        else
+            echo "MISSING!" 1>&2
+            echo "ERROR: job ${jfile} is requires the file: ${i}" 1>&2
+            return 1
+        fi
+    done
+    return 0
+}
+
 declare -a MENU=()
-select_job() {
-    zenity --list --checklist     \
-        --width=666 --height=420  \
-        --text "Select a job run" \
-        --column "Run?"           \
-        --column "Job Name"       \
-        --column "Original Cmd"   \
+
+select_job_yad() {
+    ${YAD} --list                                                       \
+        --multiple                                                      \
+        --checklist                                                     \
+        --separator=''                                                  \
+        --width 750 --height 280                                        \
+        --center                                                        \
+        --window-icon=media-video                                       \
+        --print-column=2                                                \
+        --hide-column=2                                                 \
+        --column="Run?":CHK                                             \
+        --column="hidden":TEXT                                          \
+        --column="Category":TEXT                                        \
+        --column="Job Name":TEXT                                        \
+        --column="Description":TEXT                                     \
         "${MENU[@]}"
 }
 
-show_and_select_jobs() {
-    local jlist=$(find $JOBLIST -type f -name '*.job')
+select_job_zenity() {
+    ${ZENITY} --list --multiple                                         \
+        --width=800 --height=420                                        \
+        --print-column=1                                                \
+        --hide-column=1                                                 \
+        --text "Select a job run"                                       \
+        --column "Run?"                                                 \
+        --column "Job Name"                                             \
+        --column "Original Cmd"                                         \
+        "${MENU[@]}"
+}
 
-    MENU=()
+job_categories() {
+    ls --directory "${JOBLIST}"/[^._]*
+}
+
+setup_jobselect_menu() {
+    local cat="$(job_categories)"
+    echo find $cat -type f -name '*.job'
+    local jlist=$(find $cat -type f -o -name '*.job')
+
     c=0
     for j in $jlist ; do
         jfile="$j"
-        MENU[$c]="$(basename "$j")"
-        (( c++ ))
-        MENU[$c]="$(jobfield JOB_NAME)"
-        (( c++ ))
-        MENU[$c]="$(jobfield SUMMARY)"
-        (( c++ ))
-        echo -e "MENU=( ${MENU[@]} )\n"
+
+        if job_has_prereqs; then
+            #echo "${jfile##*/}: adding to the menu!" 1>&2
+            if [[ -n "$YAD" ]] ; then
+                #MENU[$c]="TRUE"
+                MENU[$c]="FALSE"
+                (( c++ ))
+            fi
+            MENU[$c]="$(jobfield JOB_BIN)"
+            (( c++ ))
+            MENU[$c]="$(jobfield JOB_DESC_CATEGORY)"
+            (( c++ ))
+            MENU[$c]="$(jobfield JOB_DESC_NAME)"
+            (( c++ ))
+            MENU[$c]="$(jobfield JOB_DESC_SHORT)"
+            (( c++ ))
+            #echo -e "MENU=( ${MENU[@]} )\n"
+        else
+            echo "${jfile##*/}: moving BAD JOBFILE to: ${BADJOBS}" 1>&2
+            mkdir -p "${BADJOBS}"
+            mv "${jfile}" "${BADJOBS}"
+        fi
     done
-    job="$(select_job)"
-echo "job -> $job"
+}
+
+select_with_zenity() {
+    local job jobs="$(select_job_zenity)|"
+    #echo "$jobs"
+    while [[ -n "${jobs}" ]] ; do
+        job="${jobs%%|*}"
+        jobs="${jobs#*|}"
+        exec_one_job "$job"
+    done
+}
+
+select_with_yad() {
+    local job jobs="$(select_job_yad)"
+    IFS=$'\n'
+    for job in ${jobs} ; do
+        if [[ -n "$job" ]] ; then
+            echo "JOB -> [$job]"
+            exec_one_job "$job"
+        fi
+    done
+}
+
+show_and_select_jobs() {
+    MENU=()
+    setup_jobselect_menu "$@"
+    if [[ -n "$YAD" ]] ; then
+        select_with_yad
+    elif [[ -n "$ZENITY" ]] ; then
+        echo "USING ZENITY!"
+        select_with_zenity
+    else
+        echo "Mising: yad or zenity"
+        exit -1
+    fi
 }
 
 ##########

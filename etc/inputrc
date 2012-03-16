@@ -137,13 +137,13 @@ $if Bash
 
     ##### insert ALL possible completions into current line
     "\ei": insert-completions
-    
+
     ##### if a History Expansion is ready when you hit space
     ##### apropriate expansion wil execute *immediately* with the
     ##### results automagically replacing the current command as
     ##### if you hasd typed again it from scratch
     # <space>
-    Space: magic-space
+    #Space: magic-space
 
     ##### cd to whatever was named LAST in the previous command
     ##### for example, typing
