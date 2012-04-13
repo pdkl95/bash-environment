@@ -7,6 +7,9 @@ if [ -x "$(complete -p)" ]; then
 fi
 
 load_compdir() {
+    local file
+
+    #echo "LOADING COMPDIR: \"$1\""
     [[ -d "$1" ]] || return
     [[ -r "$1/base" ]] && source "$1/base"
     for file in "$1"/* ; do
@@ -22,17 +25,22 @@ compalias() {
 
 # load standard system-provided completions
 # WARNING: probably GENTOO specific?
-[ -z "$BASH_COMPLETION" ] && BASH_COMPLETION="/etc/bash_completion.d/base"
-bashEV_load "/usr/share/bash-completion/.pre"
-load_compdir "/etc/bash_completion.d"
-bashEV_load "/usr/share/bash-completion/.post"
+
+BCSYS_DB="/usr/share/bash-completion"
+BCSYS_ON="/etc/bash_completion.d"
+
+[ -z "$BASH_COMPLETION" ] && BASH_COMPLETION="${BCSYS_ON}/base"
+
+bashEV_load  "${BCSYS_DB}/.pre"
+load_compdir "${BCSYS_ON}"
+bashEV_load  "${BCSYS_DB}/.post"
 
 # finally, load our custom libs
-load_compdir "${bashEV[LIB]}/completion"
+load_compdir "${bashEV[COMPLOCAL]}"
 
 # and connect to any of the simple aliases, etc
 compalias _git -o default -o nospace g
 compalias _rake bake
 compalias _mplayer mplayer2
 
-unset load_compdir compalias
+unset load_compdir compalias BCSYS_ON BCSYS_DB

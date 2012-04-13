@@ -1,6 +1,15 @@
 #! /bin/bash
-# -*- mode: sh -*-
+# -!- bash -!-
 
+## START with the system environment
+source /etc/profile.env
+
+## trip out some usless junk
+unset CONFIG_PROTECT CONFIG_PROTECT_MASK HG OPENCL_PROFILE PACKAGE_MANAGER PRELINK_PATH_MASK ROOTPATH SSH_ASKPASS VBOX_APP_HOME
+
+## fix the path with the basics
+PATH="/usr/local/bin:/usr/bin:/bin:${PATH}"
+export PATH
 
 
 # these perl-isms are sometimes convenient
@@ -30,6 +39,7 @@ for plugname in finfo basename dirname cut pushd; do
     fi
 done
 unset plug plugdir plugname
+
 
 
 ############################################
@@ -66,6 +76,7 @@ bashEV[ETC]="${bashEV[ROOT]}/etc"
 bashEV[INIT]="${bashEV[LIB]}/_init.bash"
 bashEV[HOME]="${bashEV_HOME:-${HOME}}"
 bashEV[VERBOSE]="${bashEV_VERBOSE:-2}"
+bashEV[COMPLOCAL]="${bashEV[ETC]}/completion"
 
 bashEV_env_list() {
     for key in "${!bashEV[@]}" ; do
@@ -78,6 +89,8 @@ bashEV_env() {
     echo "declare -AX  bashEV"
     bashEV_env_list | sort
 }
+
+export bashEV
 
 ###################
 # loading helpers #
@@ -175,6 +188,3 @@ is_cmd() {
     #command command type $1 &>/dev/null || return 1
     command hash "$1" 2>&-
 }
-
-
-export bashEV

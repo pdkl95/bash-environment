@@ -5,6 +5,7 @@
 # select an editor fin order of preference
 
 select_prefered_editor() {
+    local e
     for e in "zile" "emacs" "nano" "vim" "vi" ; do
         if is_cmd $e ; then
             export EDITOR="$e"

@@ -3,7 +3,7 @@
 ##############################
 
 # option defaults
-: ${MPLAYERPROFILE:=m}
+: ${MPLAYERPROFILE:=m.default}
 : ${MPLAYEROPT:=}
 : ${GRATUITOUS_MPLAYER_HELPER_OUTPUT:=true}
 
@@ -255,10 +255,13 @@ run_mplayer_once_in_color() {
         col=$(expr $col - 1)
     done
 
-    echo "VERBOSITY=${verbosity}"
+    (echo "${MPHSTATIC[CMDLINE_MSG]}"
+        echo '- - -'
+        pcolorln DARK!white $@
+    ) | ~/build/boxes-1.1/src/boxes -d stone -p h2 -a hljl
     echo
-    echo "${MPHSTATIC[CMDLINE_MSG]}"
-    pcolorln DARK!white $@
+
+
     echo -n "${MPHSTATIC[HANDOFF_MSG]/MOVIEPLAYER/$MP_BIN}"
     pcolorln yellow "$MPNAMEPAD${MPHSTATIC[DIVIDER]/PAD/$pad}"
 
@@ -359,8 +362,9 @@ mplayer_launch_helper_wrap() {
 
 ### first, wrap the basic executables so they load binary-specific configs
 for x in mplayer mplayer2 ; do
-    eval "$x() { command $x -include \"${HOME}/.mplayer/$x/local.conf\" \"\$@\"; }"
+    eval "$x() { command ${x} -include \"${HOME}/.mplayer/${x}.d/config\" \"\$@\"; }"
 done
+unset x
 
 ### then, specify the actual user-interaction shortcuts
 
@@ -389,4 +393,13 @@ mdbg()   {
 
 mn() {
     mplayer_launch_helper_wrap mplayer '-' '-quiet' "$@"
+}
+
+
+m_recent_local() {
+    local CHOOSE_FILE_TITLE="mplayer_launch_listrecent"
+    local CHOOSE_FILE_ICON="video"
+    while file=$(choose_recent_local_file) ; do
+        m "$file"
+    done
 }

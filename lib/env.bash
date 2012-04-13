@@ -10,9 +10,12 @@ ${HOME}/bin:\
 ${HOME}/.rbenv/shims:\
 ${HOME}/node_modules/.bin:\
 ${HOME}/games/minecraft/bin:\
+${HOME}/.cw/bin:\
 ${PATH}"
 
-export TERM INPUTRC PATH
+NOCOLOR_PIPE=1
+
+export TERM INPUTRC PATH NOCOLOR_PIPE
 
 
 # guess color mode from the terminal name

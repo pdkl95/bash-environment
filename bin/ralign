@@ -1,5 +1,0 @@
-#!/bin/bash
-
-while read
-do printf "%${1:-$(tput cols)}s\n" "$REPLY"
-done

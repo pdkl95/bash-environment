@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
 case "$0" in
-    colorizeHTML) FMT=html        DSTYLE=native   ;;
-    colorize256)  FMT=terminal256 DSTYLE=friendly ;;
-    *)            FMT=terminal    DSTYLE=native   ;;
+    *HTML) FMT=html        DSTYLE=native   ;;
+#    colorize256)  FMT=terminal256 DSTYLE=friendly ;;
+    *256)  FMT=terminal256 DSTYLE=twilight ;;
+    *16)   FMT=terminal    DSTYLE=native   ;;
+    *)
+        if [[ "$TERM" =~ 256 ]] ; then
+            exec colorize256 "$@"
+        else
+            exec colorize16 "$@"
+        fi
 esac
-
 
 while (( $# > 0 )) ; do
     case $1 in

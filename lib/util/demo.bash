@@ -114,3 +114,38 @@ demo-figlet() {
         figlet -t -f "$r" "$1"
     done
 }
+
+demo-figlet-fonts() {
+    FIGDIR=/usr/share/figlet
+    local -i total=$(ls $FIGDIR/*.flf | wc -l)
+    local -i pos=0
+    for f in $FIGDIR/*.flf ; do
+        (( pos++ ))
+        f="${f%.flf}"
+        f="${f##*/}"
+
+        echo
+        echo "$pos/$total  ->  $f" | boxes -d stone -p h2
+        echo fooBar QUUX | figlet -d "$FIGDIR" -f $f
+    done
+}
+
+demo-toilet-fonts() {
+    unset NOCOLOR_PIPE
+
+    #FONTDIR=/usr/share/figlet
+    FONTDIR="${HOME}/.cw/fonts"
+    unset
+    local -i total=$(ls "$FONTDIR"/*.{tlf,flf} | wc -l)
+    local -i pos=0
+    for f in "$FONTDIR"/*.{tlf,flf} ; do
+        (( pos++ ))
+        f="${f%.flf}"
+        f="${f##*/}"
+
+        echo
+        echo "$pos/$total  ->  $f" | boxes -d stone -p h2
+        echo "[[ toilet -d $FONTDIR -f $f ]]"
+        echo fooBar QUUX | toilet -d "$FONTDIR" -f $f
+    done
+}

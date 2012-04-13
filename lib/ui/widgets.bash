@@ -83,3 +83,14 @@ countdown() {
     IFS="${OLD_IFS}"
     echo "        "
 }
+
+
+choose_single_file() {
+    local title="${CHOOSE_FILE_TITLE:-Choose - Single File}"
+    local icon="${CHOOSE_FILE_ICON:-unknown}"
+    yad --title="$title" --list --separator='' --window-icon="$icon" --image="$icon" --filter="$filter" --column 'File' "$@"
+}
+
+choose_recent_local_file() {
+    choose_single_file $(ls -t $@)
+}

@@ -1,9 +1,0 @@
-#!/bin/bash
-
-DISPLAY=:0.1
-export DISPLAY
-
-PID=`pgrep -f "conky -d"`
-kill ${PID}
-conky -d --display=${DISPLAY}
-

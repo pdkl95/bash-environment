@@ -1,5 +1,8 @@
 # -*- mode: sh -*-
 
+alias jl="joblist"
+alias toilet="command toilet -d ${HOME}/.cw/fonts"
+
 # shortcuts to projects
 alias lm="command cd $HOME/src/fanime/laughingman && xtpush '{LM}' git-sh"
 alias mc="command cd $HOME/games/minecraft/"
@@ -111,3 +114,11 @@ if is_cmd grc ; then
     alias diffw="colordiff -u --ignore-all-space"
     alias diff2col="command diff --side-by-side --ignore-all-space"
 fi
+
+
+# Local Variables:
+# mode: sh
+# sh-basic-offset: 4
+# sh-shell: bash
+# coding: unix
+# End:

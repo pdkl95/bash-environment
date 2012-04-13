@@ -38,52 +38,6 @@ dircmp() {
 }
 
 
-fmt_tree() {
-    fix_tree_fmt() {
-        while read line ; do
-            local -a a=(`echo ${line/ / }`)
-            local h="${a[1]}"
-            while [ ${#h} -lt 7 ] ; do
-                h=" ${h}"
-            done
-            a[1]="$h"
-            unset a[0]
-            echo ${a[@]}
-        done
-    }
-
-    fix_tree_fmt | tr ' ' "\t" | column -t
-}
-
-declare LTREE_FINDOPTS LTREE_TIMEFMT
-LTREE_FINDOPTS="-type f"
-LTREE_TIMEFMT="%Tb-%Td,%TH:%TM"
-list_tree_data() {
-    local COL1="$1"
-    shift
-    find "${@:-${PWD}}" ${LTREE_FINDOPTS} -printf "${COL1} %s %M %u ${LTREE_TIMEFMT} %p\n"
-}
-
-list_sorted_tree() {
-    local SORTCOL="$1" SORTOPT="$2"
-    shift 2
-
-    list_tree_data "$SORTCOL" "$@" | sort ${SORTOPT} | fmt_tree
-}
-
-list_globbed_tree() {
-    local PREVOPT="${LTREE_FINDOPT}" GLOB="$1"
-    shift
-    LTREE_FINDOPTS="${PREVOPT} -iname '${GLOB}'"
-    list_sorted_tree "%P"  '-i'    "$@"
-    LTREE_FINDOPTS="${PREVOPT}"
-}
-list_tree_mtime_asc()  { list_sorted_tree '%T@' '-n'    "$@"; }
-list_tree_mtime_desc() { list_sorted_tree '%T@' '-n -r' "$@"; }
-list_tree_size_asc()   { list_sorted_tree '%s'  '-n'    "$@"; }
-list_tree_size_desc()  { list_sorted_tree '%s'  '-n -r' "$@"; }
-
-
 ########################################
 # eXpand File shortcuts and protection #
 ########################################

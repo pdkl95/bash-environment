@@ -5,8 +5,8 @@ emacsclient_run() {
     local client="emacsclient-emacs-24"
     local autostart="${bashEV[BIN]}/emacs_daemon-autostart"
     local startfail="${bashEV[BIN]}/emacs_daemon-startfail"
-    local optauto="--alternate-editor=\"$autostart\""
-    local optfail="--alternate-editor=\"$startfail\""
+    local optauto="--alternate-editor=$autostart"
+    local optfail="--alternate-editor=$startfail"
 
     prepare_for_editing "$@"
     export AUTOSTART_EMACS_CMD="${client} ${optfail} $@"
@@ -21,8 +21,7 @@ emacs_frame_wait()   { emacsclient_run --create-frame           "$@" ; }
 emacs_frame_nowait() { emacsclient_run --create-frame --no-wait "$@" ; }
 
 emacs_edit_as_root() {
-    SOUL_EDITOR="emacsclient -c -a me" sudoedit "$@"
-#    emacsclient -c -a emacs "/sudo:root@localhost:$1"
+    emacsclient -c -a emacs "/sudo:root@localhost:$1"
 }
 
 e() {
