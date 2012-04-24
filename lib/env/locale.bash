@@ -32,7 +32,13 @@ export LC_COLLATE="C"
 # default to 1-octet-per-"charcter" strings as well
 # as that affects the formating, layout, etc, of pretty
 # much all formatting everywehere...
-export LC_CTYPE="C"
+#export LC_CTYPE="C"
+
+#unset LC_CTYPE LC_COLLATE
+  #nevermind, screws up urxvt :/
+  # ... or not? trying forcing LC_CTYPE=en_US.utf8 in
+  # the wrapper scritp that launches urxvt/urxvtd
+
 #
 # <div class="rant">
 #   <h3>fix your software!</h3>

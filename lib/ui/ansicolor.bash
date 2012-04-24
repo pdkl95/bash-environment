@@ -98,7 +98,12 @@ if ${USE_ANSI_COLOR} ; then
     }
 
     # ok, not a color, but it does use ANSI codes
-    if [[ "$TERM" =~ (xterm|rxvt|gnome)-(256)?color ]] ; then
+    if   [[ "$TERM" =~ rxvt-imocpde.* ]] ; then
+        xtitle() {
+             local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
+             printf '\33]2;%s\007' "${title}"
+        }
+    elif [[ "$TERM" =~ (xterm|rxvt|gnome)-(256)?color ]] ; then
         xtitle() {
             local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
             echo -ne "\033]0;${title}\007"

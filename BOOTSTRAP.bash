@@ -184,7 +184,10 @@ is_undef() {
     ! is_defined "$@"
 }
 
+have() {
+    unset -v have; command command type $1 &>/dev/null && have="yes" || return 1;
+}
+
 is_cmd() {
-    #command command type $1 &>/dev/null || return 1
     command hash "$1" 2>&-
 }

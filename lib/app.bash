@@ -129,16 +129,9 @@ ytdl-fixname() {
     fi
 }
 
-ytdl-opt() {
-    echo -n " --console-title"
-    echo -n " --continue"
-    echo -n " --title"
-    echo -n " --prefer-free-formats"
-}
-
 yt-get-url() {
     local url="$url"
-    local opt="$(ytdl-opt)"
+    local opt="--continue --retries 42 --console-title --title --prefer-free-formats"
     local file ret
 
     echo "*** Asking youtube-dl for the filename ***"

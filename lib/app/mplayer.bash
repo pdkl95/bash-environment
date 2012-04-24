@@ -247,6 +247,11 @@ run_mplayer_once() {
     $*
 }
 
+boxwrap() {
+    local style=${1:-stone} pad="${2:-h3v1}" align=${3:-hljl}
+    ${BOXES:-${HOME}/build/boxes-1.1/src/boxes} -d ${style} -p ${pad} -a ${align}
+}
+
 run_mplayer_once_in_color() {
     col=$(expr $COLUMNS - 80)
     pad=''
@@ -255,12 +260,13 @@ run_mplayer_once_in_color() {
         col=$(expr $col - 1)
     done
 
-    (echo "${MPHSTATIC[CMDLINE_MSG]}"
+    infolines() {
+        echo "${MPHSTATIC[CMDLINE_MSG]}"
         echo '- - -'
         pcolorln DARK!white $@
-    ) | ~/build/boxes-1.1/src/boxes -d stone -p h2 -a hljl
+    }
+    infolines "$@" #| boxwrap
     echo
-
 
     echo -n "${MPHSTATIC[HANDOFF_MSG]/MOVIEPLAYER/$MP_BIN}"
     pcolorln yellow "$MPNAMEPAD${MPHSTATIC[DIVIDER]/PAD/$pad}"

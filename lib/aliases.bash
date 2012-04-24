@@ -4,6 +4,7 @@ alias jl="joblist"
 alias toilet="command toilet -d ${HOME}/.cw/fonts"
 
 # shortcuts to projects
+alias nv="command cd $HOME/src/fanime/navi && xtpush '{NAVI}' git-sh"
 alias lm="command cd $HOME/src/fanime/laughingman && xtpush '{LM}' git-sh"
 alias mc="command cd $HOME/games/minecraft/"
 alias mcu="command launch_minecraft --select"

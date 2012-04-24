@@ -14,6 +14,8 @@ byte2si() {
     done
     echo "magnitude=$magnitude"
     echo "${size}${LABELS[${magnitue}]}"
+
+    #awk ‘{split(“k m g”,v); s=1; while($1>1024){$1/=1024; s++} print int($1)” “v[s]“\t”
 }
 
 
@@ -38,7 +40,7 @@ _debug_msg() {
     local NAME="" ID="" MK="" C="" FROM=""
     local TXT=""
 
-    while getopts "a" ; do
+    while (( $# > 0 )) ; do
         case "$1" in
             -o|--stdout)  _PR="_dmsg" ; shift ;;
             -e|--stderr)  _PR="_derr" ; shift ;;
@@ -57,10 +59,10 @@ _debug_msg() {
     local MK="$3" C="$4" FROM="$5" ; shift 5
 
     _PR_from() {
-        if (( $bashVERBOSE > 4 )) ; then
+        if (( ${bashEV[VERBOSE]} > 4 )) ; then
             ${_PR} "\e[0;${C}m${NAME}"
             ${_PR} "\e[2;${C}m${MK}"
-        elif (( $bashVERBOSE > 3 )) ; then
+        elif (( ${bashEV[VERBOSE]} > 3 )) ; then
             ${_PR} "\e[1;${C}m${ID}"
             #${_PR} "\e[0;${C}m${MK}"
             ${_PR} "\e[2;${C}m${MK}"
@@ -80,7 +82,7 @@ _debug_msg() {
     }
 
     _PR_MK() {
-        (( $bashVERBOSE == 2 )) && _PR_mkmk || _PR_mkpr
+        (( ${bashEV[VERBOSE]} == 2 )) && _PR_mkmk || _PR_mkpr
         ${_PR} "\e[1;${C}m> "
     }
 
@@ -107,32 +109,32 @@ _debug_msg() {
 }
 
 _debug() {
-    if (( $bashVERBOSE > 2 )) ; then
+    if (( ${bashEV[VERBOSE]} > 2 )) ; then
         _debug_msg --no-from --stderr --name=DEBUG --id=D '--marker=~' --color=36 "--from=${FUNCNAME[1]}" "$@"
     fi
 }
 
 echo_debug() {
-    if (( $bashVERBOSE > 2 )) ; then
+    if (( ${bashEV[VERBOSE]} > 2 )) ; then
         _debug_msg --stderr 'DEBUG' 'D' '~' 36 "${FUNCNAME[1]}" "$@"
     fi
 }
 
 
 echo_info() {
-    if (( $bashVERBOSE > 1 )) ; then
+    if (( ${bashEV[VERBOSE]} > 1 )) ; then
         _debug_msg --stderr 'INFO'  'I' '-' 32 "${FUNCNAME[1]}" "$@"
     fi
 }
 
 echo_error() {
-    if (( $bashVERBOSE > 0 )) ; then
+    if (( ${bashEV[VERBOSE]} > 0 )) ; then
         _debug_msg --stdout 'ERROR' 'E' '*' 31 "${FUNCNAME[1]}" "$@"
     fi
 }
 
 echo_and_run() {
-    if (( $bashVERBOSE > 1 )) ; then
+    if (( ${bashEV[VERBOSE]} > 1 )) ; then
         _debug_msg --stdout 'EXEC'  'X' '!' 35 "${FUNCNAME[1]}" "$@"
     fi
     "$@"
@@ -162,7 +164,7 @@ cmderror() {
         cmd=""
     fi
 
-    if (( $bashVERBOSE > 1 )) ; then
+    if (( ${bashEV[VERBOSE]} > 1 )) ; then
         X="${X}$(pcolor DARK!red '-')$(pcolor red '=')$(pcolor BOLD!red '<') "
         X="${X}$(pcolor YELLOW/red "COMMAND ERROR")"
         [[ -n "${type}" ]] && X="${X}$(pcolor RED ' - ')$(pcolor YELLOW/red "${type}")"
@@ -182,7 +184,7 @@ cmderror() {
         }
         drawline 'CMD' 'black/green' "${cmd}"
         drawline 'MSG' 'YELLOW'      "${msg}"
-    elif (( $bashVERBOSE > 0 )) ; then
+    elif (( ${bashEV[VERBOSE]} > 0 )) ; then
         echo_error --no-from "ERROR: ${cmd:-(unknown command)}: ${msg}"
     else
         echo_error --no-from "${msg}"
@@ -218,14 +220,14 @@ cmdwarn() {
 
     [[ -z "$msg" ]] && msg="(unspecified?!)"
 
-    if (( $bashVERBOSE > 1 )) ; then
+    if (( ${bashEV[VERBOSE]} > 1 )) ; then
         local X="${X}$(pcolor BOLD:yellow "WARNING")"
 
         [[ -n "${type}" ]] && X="${X}$(pcolor_wrap_angle BOLD:yellow YELLOW/yellow "$type")"
         [[ -n "${cmd}"  ]] && X="${X}$(pcolor_wrap_square YELLOW black/green "$cmd")"
 
         echo_info --no-from "${X}$(pcolor DIM:yellow ':') $(pcolor BOLD:white "$msg")"
-    elif (( $bashVERBOSE > 0 )) ; then
+    elif (( ${bashEV[VERBOSE]}! > 0 )) ; then
         echo_info --no-from "WARNING: ${msg}"
     else
         : # suppress WARNINGs when in minimal-verbosity mode
