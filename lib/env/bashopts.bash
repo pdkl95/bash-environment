@@ -19,10 +19,11 @@ set -o emacs
 shopt -u failglob force_fignore
 shopt -u nocaseglob nocasematch
 shopt -u mailwarn sourcepath cdable_vars
+shopt -u dotglob
 
 shopt -s checkhash checkwinsize cmdhist
 shopt -s extquote hostcomplete
-shopt -s dotglob extglob globstar
+shopt -s extglob globstar
 shopt -s histappend histreedit histverify
 shopt -s no_empty_cmd_completion progcomp
 shopt -s promptvars autocd

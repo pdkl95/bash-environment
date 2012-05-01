@@ -108,6 +108,11 @@ if ${USE_ANSI_COLOR} ; then
             local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
             echo -ne "\033]0;${title}\007"
         }
+    elif [[ "$TERM" =~ screen.* ]] ; then
+        xtitle() {
+            local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
+            echo -ne "\e]2;${title}\007"
+        }
     else
         xtitle() {
             echo -n ''

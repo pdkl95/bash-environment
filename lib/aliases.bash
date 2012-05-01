@@ -80,7 +80,6 @@ alias path='echo -e ${PATH//:/\\n)'
 alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 
 alias free="free -m"
-alias duh="command du -khs * | sort -h"
 alias du="command du -kh"
 alias df="command df -kTh"
 alias diff='diff -up'

@@ -1,6 +1,35 @@
 #!/bin/bash
 # -*- mode: sh -*-
 
+yn() {
+    local ret=$?
+    # print the results from a previous command, or...
+    if (( $# > 0 )) ; then
+        # ...run a given command and save it's results
+        local cmd="$1" ; shift
+        $cmd "$@"
+        ret=$?
+    fi
+
+    #tput el1
+    col=$(tput cols)
+    (( col = col - 5 ))
+    tput cuf $col
+    tput cuu1
+
+    if (( ret == 0 )) ; then
+        echo -en "$(pcolor bold:WHITE/green '<')"
+        echo -en "$(pcolor bold:GREEN 'YES')"
+        echo -e  "$(pcolor bold:WHITE/green '>')"
+    else
+        # length must match 'YES' !!!
+        echo -en " $(pcolor bold:WHITE/red '*')"
+        echo -en "$(pcolor bold:YELLOW/red 'NO')"
+        echo -e  "$(pcolor bold:WHITE/red '*')"
+    fi
+    return $ret
+}
+
 ask_yn() {
     if (( $# < 1 )) ; then
         echo "Usage: $FUNCNAME <question>"

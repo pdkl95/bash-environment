@@ -18,16 +18,19 @@ emacs_edit_as_root() {
 }
 
 e() {
-    if [[ -e "$1" ]] ; then
-        if prepare_file_for_editing "$1" ; then
-            emacs_frame_nowait "$@"
-        else
+    if [[ -e "$1" ]] && can_edit "$1" ; then
+        emacs_frame_nowait "$@"
+    else
+        if [[ -e "$1" ]] ; then
             yad --image=gtk-dialog-warning --window-icon=gtk-dialog-warning --title="read-only file: $file" --text "Trying to open a read-only file:\n    $file\nShould we OPEN it as root?\nOr should be simply view a read-only COPY?" --center --on-top --selectable-labels --button=gtk-open:1 --button=gtk-copy:2 --button=gtk-cancel:0
             case $? in
                 1) emacs_edit_as_root "$@" ;;
                 2) emacs_frame_nowait "$@" ;;
                 *) echo "NOT opening \"$1\"!" ;;
-            esac    
+            esac
+        else
+            create_empty_file "$1"
+            emacs_frame_nowait "$@"
         fi
     fi
 }
