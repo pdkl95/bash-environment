@@ -1,5 +1,16 @@
 #!/bin/bash
 
+ls_format() {
+    # value for "-n 1024" found by experimatation ; may need
+    # to change for optimal speed...
+    xargs -n 1024 ls -1 -U -L --directory --color "$@"
+}
+
+ls_format_long() {
+    ls_format -l --human-readable
+}
+
+
 urxvt-set_font() {
     local font="${1:-xft:Terminus:pixelsize=14}"
     printf '\e]710;%s\007' "${font}"
@@ -82,12 +93,57 @@ oddeven_rows() {
 1~2 ! s/^(.*)$/${eB}\\1${E}/g"
 }
 
-
-tree_most_recent() {
-    SRC=( "$@" )
-    [[ ${#SRC} -lt 1 ]] && SRC+=( '.' )
-    find "$@" -type f -printf "%A@ %Am/%Ad %AH:%AM %p\n" | sort -n | cut -d' ' -f2-
+du_sort() {
+    local SRC=( "$@" )
+    [[ ${#SRC} -lt 1 ]] && SRC+=( * )
+    command du --block-size=1k --human-readable --summarize "${SRC[@]}" | sort -h
 }
+alias dus="du_sort"
+
+
+_lstree_find() {
+    local pr="$1" ; shift
+    find -L "${@}" -type f -printf "${pr}%p\n"
+}
+_lstree_sort() {
+    local sort="$1" ; shift
+    _lstree_find "${sort} " "${@}" | sort -n | cut -d' ' -f2-
+}
+
+lstree() {
+    local sort="%p" long=false
+    while (( $# > 0 )) ; do
+        case $1 in
+            -l) long=true  ; shift 1 ;;
+            -S) sort="%s"  ; shift 1 ;;
+            -c) sort="%C@" ; shift 1 ;;
+            -t) sort="%T@" ; shift 1 ;;
+            -u) sort="%A@" ; shift 1 ;;
+            --) shift ; break ;;
+            -*) echo "unknown option: $1" 1>&2 ; return 1 ;;
+            *)  break ;;
+        esac
+    done
+
+    local SRC=( "$@" )
+    [[ ${#SRC} -lt 1 ]] && SRC+=( '.' )
+
+    if $long ; then
+        _lstree_sort "${sort}" "${SRC[@]}" | ls_format_long
+    else
+        _lstree_sort "${sort}" "${SRC[@]}" | ls_format
+    fi
+}
+alias lstree_size="lstree -S"
+alias lstree_atime="lstree -u"
+alias lstree_ctime="lstree -c"
+alias lstree_mtime="lstree -t"
+alias lst="lstree"
+alias lsts="lstree -S -l"
+alias lstt="lstree -t -l"
+
+cfind()     { find "$@" -printf "%p\n" | ls_format      ; }
+cfindlong() { find "$@" -printf "%p\n" | ls_format_long ; }
 
 
 
