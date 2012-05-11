@@ -83,10 +83,10 @@ alias free="free -m"
 alias du="command du -kh"
 alias df="command df -kTh"
 alias diff='diff -up'
-alias pdklgrep="command grep --extended-regexp --color=auto"
-alias igrep="pdklgrep --ignore-case"
-alias vgrep="pdklgrep --invert-match"
-alias ivgrep="pdklgrep --ignore-case --invert-match"
+alias _pdkl_grep="command grep --extended-regexp --color=auto"
+alias igrep="_pdkl_grep --ignore-case"
+alias vgrep="_pdkl_grep --invert-match"
+alias ivgrep="_pdkl_grep --ignore-case --invert-match"
 alias gr="igrep"
 
 

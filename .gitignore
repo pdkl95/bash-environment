@@ -1,3 +1,5 @@
 etc/system_bashrc-ENABLED
 etc/system_bashrc-DISABLED
+history.list
+var/history.list
 

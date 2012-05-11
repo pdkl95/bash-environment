@@ -14,11 +14,15 @@ set enable-meta-key on
 set expand-tilde off
 set input-meta on
 set mark-symlinked-directories on
+set match-hidden-files off
+set menu-complete-display-prefix off
 set meta-flag on
 set output-meta on
 set page-completions off
+set revert-all-at-newline on
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
+set skip-completed-text on
 set visible-stats off
 
 ### KEY BINDINGS ###

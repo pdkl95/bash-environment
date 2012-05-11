@@ -184,12 +184,3 @@ as_root() {
         *)     sudo_or_su "$@" ;;
     esac
 }
-
-
-# Pull in autoenv from the standard gem checkout location
-source "${HOME}/.autoenv/activate.sh"
-source "${HOME}/src/autoenv_helpers/init.bash"
-
-
-# tmux experiment
-#[[ -s $HOME/.tmuxinator/scripts/tmuxinator ]] && source $HOME/.tmuxinator/scripts/tmuxinator
