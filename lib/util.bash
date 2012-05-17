@@ -1,5 +1,40 @@
 #!/bin/bash
 
+vid_enc_commit() {
+    reenc="${1}"
+    orig="${reenc%.NEW_ENCODING.*}"
+    base="${orig%.*}"
+    new="${base}.mkv"
+    if [[ -e "${new}" ]] ; then
+        echo_error "would clobber: ${new}" ; return 1
+    elif ! [[ -e "${reenc}" ]] ; then
+        echo_error "missing reencoded version: ${reenc}" ; return 1
+    elif ! [[ -e "${orig}" ]] ; then
+        echo_error "(???) original version is missing: ${orig} (???)" ; return 1
+    else
+        echo mv -i "${reenc}" "${new}"
+        mv -i "${reenc}" "${new}"
+        echo rm -v "${orig}"
+        rm -v "${orig}"
+    fi
+}
+alias venc="verynice vid_enc"
+alias vok="vid_enc_commit"
+
+mkdir_cd() {
+    if [[ -e "$1" ]] ; then
+        if [[ -d "$1" ]] ; then
+            echo_info 'mkdir_cd' "dir already exists: $1"
+        else
+            echo_error 'mkdir_cd' "blocked by: $1" ; return $?
+        fi
+    else
+        mkdir -p "$1"
+    fi
+    cd "$1"
+}
+alias CD="mkdir_cd"
+
 ls_format() {
     # value for "-n 1024" found by experimatation ; may need
     # to change for optimal speed...
@@ -145,13 +180,18 @@ alias lstt="lstree -t -l"
 cfind()     { find "$@" -printf "%p\n" | ls_format      ; }
 cfindlong() { find "$@" -printf "%p\n" | ls_format_long ; }
 
+escape_newlines() {
+    sed -e :a -e N -e 's/\n/\\n/' -e ta
+}
 
-
-fullenv() {
+lsenv() {
+    local _a _z _i
     for _a in {A..Z} {a..z} ; do
         _z=\${!${_a}*}
         for _i in `eval echo "${_z}"` ; do
-            echo -e "$_i: ${!_i}"
+            echo -ne "$_i="
+            printf '%q' "${!_i}"
+            echo
         done
     done | /bin/cat -Tsv
 }

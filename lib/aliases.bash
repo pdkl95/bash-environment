@@ -1,5 +1,32 @@
 # -*- mode: sh -*-
 
+###################################################
+## OPTIONAL COLOR
+
+if [[ "${TERM}" =~ color ]] ; then
+    alias _pdkl_ls="command ls --human-readable --color=auto"
+    alias _pdkl_grep="command grep --extended-regexp --color=auto"
+    if is_cmd grc ; then
+        alias _pdkl_diff="command grc diff"
+    else
+        alias _pdkl_diff="command diff"
+    fi
+else
+    alias _pdkl_ls="command ls --human-readable --color=auto"
+    alias _pdkl_grep="command grep --extended-regexp"
+    alias _pdkl_diff="command diff"
+fi
+
+###################################################
+## General Aliases
+
+alias env='command env | sort'
+alias lspath='echo -e ${PATH//:/\\n}'
+alias lsldpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
+alias lsinfopath='echo -e ${INFOPATH//:/\\n}'
+alias lsmanpath='echo -e ${MANPATH//:/\\n}'
+
+
 alias jl="joblist"
 alias toilet="command toilet -d ${HOME}/.cw/fonts"
 
@@ -16,9 +43,6 @@ alias z="zile"
 xtitle_for nano "nano "
 alias n="nano"
 
-alias path='echo -e ${PATH//:/\\n}'
-alias env='command env | sort'
-
 xtitle_for cp "cp "
 xtitle_for mv "mv "
 
@@ -28,8 +52,8 @@ alias chmod='command chmod -c'
 
 alias ret="cd \"$OLDPWD\""
 
-alias ls="command ls ${AUTOCOLOR} --human-readable"
-alias ll="ls -l"                   # maybe most commonn shorthand
+alias ls="_pdkl_ls"
+alias ll="_pdkl_ls -l"             # maybe most commonn shorthand
 alias la='ll --almost-all'         # show hidden, skip . and ..
 alias lx='ll -X --ignore-backups'  # ort by extension, ignoring traling ~
 alias lk='ll -S  --reverse'        # sort by file size, biggest last
@@ -52,8 +76,9 @@ fi
 if is_cmd nice ; then
     if is_cmd ionice ; then
         alias verynice='xtpush "<ionice+nice>" ionice -c3 nice'
+        #alias verynice='ionice -c3 nice -n 19'
     else
-        alias verynice="nice"
+        alias verynice="nice -n 19"
     fi
 else
     nice="noop"
@@ -76,14 +101,12 @@ alias   ...='cd ../..'
 alias  ....='cd ../../..'
 alias .....='cd ../../../..'
 
-alias path='echo -e ${PATH//:/\\n)'
-alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
-
 alias free="free -m"
 alias du="command du -kh"
 alias df="command df -kTh"
-alias diff='diff -up'
-alias _pdkl_grep="command grep --extended-regexp --color=auto"
+alias diff2col="command diff --side-by-side --ignore-all-space"
+alias diff='_pdkl_diff -up'
+alias diffw="_pdkl_diff -u --ignore-all-space"
 alias igrep="_pdkl_grep --ignore-case"
 alias vgrep="_pdkl_grep --invert-match"
 alias ivgrep="_pdkl_grep --ignore-case --invert-match"
@@ -106,15 +129,6 @@ is_cmd h264enc    && alias    h2="h264enc -2p -p slow -pf high"
 is_cmd mpc        && alias   mpc="command mpc -h 127.0.0.1"
 is_cmd pwgen      && alias pwgen="command pwgen -v -n"
 is_cmd fixnames   && alias    fn="command fixnames -vvM"
-
-
-if is_cmd grc ; then
-    alias colordiff="grc diff"
-    alias diff="colordiff -u"
-    alias diffw="colordiff -u --ignore-all-space"
-    alias diff2col="command diff --side-by-side --ignore-all-space"
-fi
-
 
 # Local Variables:
 # mode: sh

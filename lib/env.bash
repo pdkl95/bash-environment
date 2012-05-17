@@ -4,13 +4,12 @@
 : ${TERM:=xterm-256color}
 : ${INPUTRC:=$HOME/.inputrc}
 
+# ${bashEV[HOME]}/.bash/bin:
 PATH="\
-${bashEV[HOME]}/.bash/bin:\
 ${HOME}/bin:\
-${HOME}/.rbenv/shims:\
-${HOME}/node_modules/.bin:\
 ${HOME}/games/minecraft/bin:\
 ${HOME}/.cw/bin:\
+${HOME}/.rbenv/shims:\
 ${PATH}"
 
 NOCOLOR_PIPE=1
@@ -22,26 +21,6 @@ export TERM INPUTRC PATH NOCOLOR_PIPE
 # if it's not set already
 [[ "$TERM" =~ xterm ]] && TERM="xterm-256color"
 
-if is_undef USE_ANSI_COLOR ; then
-    case ${TERM:-dummy} in
-        linux*|con80*|con132*|console|xterm*|vt*|screen*|putty|Eterm|dtterm|ansi|rxvt|gnome*|*color*)
-            USE_ANSI_COLOR=true
-            [[ -z "${COLOR_MODE}" ]] && COLOR_MODE="ansi-16color"
-            ;;
-        *)  USE_ANSI_COLOR=false ;;
-    esac
-fi
-
-if is_undef USE_ANSI_256COLOR ; then
-    if [[ $TERM =~ -256color$ ]] ; then
-        USE_ANSI_256COLOR=true
-        COLOR_MODE="ansi-256color"
-    else
-        USE_ANSI_256COLOR=false
-    fi
-fi
-
-export USE_ANSI_COLOR USE_ANSI_256COLOR COLOR_ON
 
 # macro to generate a standard "xtitle"
 # wrapper around a command
@@ -57,21 +36,29 @@ xtitle_for() {
     eval "alias $cmd=_$cmd"
 }
 
+declare xtitlePFX=""
+
+xtpop() {
+    #echo "xtpop: \"${xtitlePFX}\" -> \"$1\""
+    xtitlePFX="$1"
+    set +o pipefail
+}
+
 xtpush() {
     local t="$1" ; shift
     local cmd="$1" ; shift
 
     local old="$xtitlePFX"
-    restore_xtitle_prefix() {
-        export xtitlePFX="$old"
-    }
-    trap restore_xtitle_prefix RETURN
+    set -o pipefail
+    trap "trap - INT TERM ; xtpop \"${old}\"" INT TERM
 
-    export xtitlePFX="${xtitlePFX}${t} - "
+    xtitlePFX="${xtitlePFX}${t} - "
     xtitle ''
+
     $cmd "$@"
 
-    restore_xtitle_prefix
+    trap - INT TERM
+    xtpop "${old}"
 }
 
 # load other major env sections...

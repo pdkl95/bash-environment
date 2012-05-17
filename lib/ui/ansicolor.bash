@@ -7,7 +7,7 @@
 # Defne the base color values and helpers
 # iff color is enabled. otherwise, pass things
 # though unchanged with empty-strings
-if ${USE_ANSI_COLOR} ; then
+if [[ "${TERM}" =~ color ]] ; then
     AUTOCOLOR='--color=auto'
 
     attr_name_to_ansi() {
@@ -98,12 +98,13 @@ if ${USE_ANSI_COLOR} ; then
     }
 
     # ok, not a color, but it does use ANSI codes
+
     if   [[ "$TERM" =~ rxvt-imocpde.* ]] ; then
         xtitle() {
              local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
              printf '\33]2;%s\007' "${title}"
         }
-    elif [[ "$TERM" =~ (xterm|rxvt|gnome)-(256)?color ]] ; then
+    elif [[ "$TERM" =~ (xterm|rxvt|rxvt-unicode|gnome)-(256)?color ]] ; then
         xtitle() {
             local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
             echo -ne "\033]0;${title}\007"
@@ -169,7 +170,7 @@ pcolor_wrap_curly()  { pcolor_wrap '{' '}' "$@" ; }
 # "256 colors" style #
 ######################
 
-if ${USE_ANSI_256COLOR} ; then
+if [[ "${TERM}" =~ 256color ]] ; then
     _Cff() { tput setaf $1 ; }  # foreground
     _Cbb() { tput setab $1 ; }  # background
     _C00() { tput sgr0     ; }  # reset

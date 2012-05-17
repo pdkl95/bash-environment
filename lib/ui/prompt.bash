@@ -46,7 +46,7 @@ _gitsh_cur_branch() {
     echo "$br"
 }
 
-if ${USE_ANSI_256COLOR} ; then
+if [[ "${TERM}" =~ 256color ]] ; then
     prompt_whoami() {
         echo -ne "\[\e[38;5;28m\]${USER}"
         echo -ne "\[\e[38;5;40m\]@"
@@ -59,32 +59,31 @@ if ${USE_ANSI_256COLOR} ; then
         echo -ne "\[\e[48;5;18;38;5;63m\]\$"
         echo -ne "\[\e[0m\]"
     }
+elif [[ "${TERM}" =~ color ]] ; then
+    prompt_whoami() {
+        echo -ne "\[\e[32m\]${USER}"
+        echo -ne "\[\e[92m\]@"
+        echo -ne "\[\e[32m\]${HOSTNAME}"
+    }
+    prompt_pwd() {
+        echo -ne "\[\e[36m\]${PWD/$HOME/~}"
+    }
+    prompt_mark() {
+        echo -ne "\[\e[94m\]\$"
+        echo -ne "\[\e[0m\]"
+    }
 else
-    if ${USE_ANSI_COLOR} ; then
-        prompt_whoami() {
-            echo -ne "\[\e[32m\]${USER}"
-            echo -ne "\[\e[92m\]@"
-            echo -ne "\[\e[32m\]${HOSTNAME}"
-        }
-        prompt_pwd() {
-            echo -ne "\[\e[36m\]${PWD/$HOME/~}"
-        }
-        prompt_mark() {
-            echo -ne "\[\e[94m\]\$"
-            echo -ne "\[\e[0m\]"
-        }
-    else
-        prompt_whoami() {
-            echo -ne "${USER}@${HOSTNAME}"
-        }
-        prompt_pwd() {
-            echo -ne "${PWD/$HOME/~}"
-        }
-        prompt_mark() {
-            echo -ne "\$"
-        }
-    fi
+    prompt_whoami() {
+        echo -ne "${USER}@${HOSTNAME}"
+    }
+    prompt_pwd() {
+        echo -ne "${PWD/$HOME/~}"
+    }
+    prompt_mark() {
+        echo -ne "\$"
+    }
 fi
+
 
 prompt_cmdstatus() {
     local S fst=true EVAL="$1"
