@@ -40,7 +40,6 @@ load_compdir "${bashEV[COMPLOCAL]}"
 
 # and connect to any of the simple aliases, etc
 compalias _git -o default -o nospace g
-compalias _rake bake
 compalias _mplayer mplayer2
 
-unset load_compdir compalias BCSYS_ON BCSYS_DB
+unset load_compdir BCSYS_ON BCSYS_DB

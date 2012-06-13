@@ -1,21 +1,33 @@
 #!/bin/bash
 
+current_ruby_Version() {
+    rbenv version | cut -d\  -f 1
+}
+
+current_rbenv_base() {
+    echo "~/.rbenv/versions/${current_ruby_version}/"
+}
+
+current_gemdir() {
+    echo "$(gem env gemdir)"
+}
+
+alias cdgemdir="cd \$(current_gemdir)/gems"
+
 vid_enc_commit() {
     reenc="${1}"
     orig="${reenc%.NEW_ENCODING.*}"
     base="${orig%.*}"
     new="${base}.mkv"
     if [[ -e "${new}" ]] ; then
-        echo_error "would clobber: ${new}" ; return 1
+        derror "would clobber: ${new}" ; return 1
     elif ! [[ -e "${reenc}" ]] ; then
-        echo_error "missing reencoded version: ${reenc}" ; return 1
+        derror "missing reencoded version: ${reenc}" ; return 1
     elif ! [[ -e "${orig}" ]] ; then
-        echo_error "(???) original version is missing: ${orig} (???)" ; return 1
+        derror "(???) original version is missing: ${orig} (???)" ; return 1
     else
-        echo mv -i "${reenc}" "${new}"
-        mv -i "${reenc}" "${new}"
-        echo rm -v "${orig}"
-        rm -v "${orig}"
+        dshowexec rm -v "${orig}"
+        dshowexec mv -i "${reenc}" "${new}"
     fi
 }
 alias venc="verynice vid_enc"
@@ -24,12 +36,12 @@ alias vok="vid_enc_commit"
 mkdir_cd() {
     if [[ -e "$1" ]] ; then
         if [[ -d "$1" ]] ; then
-            echo_info 'mkdir_cd' "dir already exists: $1"
+            dinfo 'mkdir_cd' "dir already exists: $1"
         else
-            echo_error 'mkdir_cd' "blocked by: $1" ; return $?
+            derror 'mkdir_cd' "blocked by: $1" ; return $?
         fi
     else
-        mkdir -p "$1"
+        dshowexec mkdir -p "$1"
     fi
     cd "$1"
 }
@@ -109,9 +121,9 @@ _wget() {
 }
 
 dl() {
-    if have ${CURL:-curl} ; then
+    if is_cmd ${CURL:-curl} ; then
         _curl "$@"
-    elif have ${WGET:-wget} ; then
+    elif is_cmd ${WGET:-wget} ; then
         _wget "$@"
     else
         echo "cannot dl files; missing 'curl' or 'wget'!" 1>&2 /de

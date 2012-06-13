@@ -113,56 +113,6 @@ autoopen() {
 #     pygmentize -f $mode -l $lang -O style=$style -F tokenmerge
 # }
 
-ytdl-fixname() {
-    local name="$1"
-    local ext="${name##*.}"
-    local realname="${name%-???????????.*}.${ext}"
-    echo "***  /\\ Stripping off the youtube ID that youtube-dl appended:"
-    echo "*** / /  ORIG>> $name"
-    echo "*** \\/  FIXED>> $realname"
-    if [[ -f "$realname" ]] ; then
-        echo "ERROR - exisitng file at ${trslnsmr}"
-        echo "SKIPPING FINAL 'mv'!"
-    else
-        echo mv --no-clobber "$name" "$realname"
-        mv --no-clobber "$name" "$realname"
-    fi
-}
-
-yt-get-url() {
-    local url="$url"
-    local opt="--continue --retries 42 --console-title --title --prefer-free-formats"
-    local file ret
-
-    echo "*** Asking youtube-dl for the filename ***"
-    local fopt="$opt --get-filename"
-    echo youtube-dl $fopt "${url}"
-    file="$(youtube-dl $fopt "$url")"
-    echo "*** youtube-dl filename is: ${file}"
-
-    echo "*** Handing off to youtube-dl to fetch the file..."
-    echo    youtube-dl $opt "$url"
-    command youtube-dl $opt "$url" ; ret=$?
-    echo "RETVAL WAS: $ret"
-    if [[ -e "$file" ]] && [[ ! -e "${file}.part" ]] ; then
-        echo "*** Download should be finished finished; fixing the filename"
-        ytdl-fixname "$file"
-    else
-        echo "*** ERROR! youtube-dl failed?!"
-    fi
-    return $ret
-}
-
-yt() {
-    echo "*** Attempting to download $# video URLs"
-    for url in "$@"; do
-        yt-get-url "$url"
-    done
-    echo "*** Successfully fetched $# videos!"
-}
-
-
-
 # sqlite_cleanup() {
 #     if [[ -w "$1" ]] ; then
 #         sqlite3 "$1" VACUUM

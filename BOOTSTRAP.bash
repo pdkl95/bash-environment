@@ -12,20 +12,6 @@ PATH="/usr/local/bin:/usr/bin:/bin:${PATH}"
 export PATH
 
 
-# these perl-isms are sometimes convenient
-# durring the init process,...
-__DIR__() {
-    local SRC="${BASH_SOURCE[0]}"
-    while [ -h "$SRC" ] ; do
-        SRC="$(readlink "$SRC")"
-    done
-    cd -P "$(dirname "$SRC")" && pwd
-}
-
-__FILE__() {
-    echo "$(__DIR__)/${BASH_SOURCE[0]}"
-}
-
 ## enable compiled-C builtins for several
 ## common tools for speed
 plugdir="/usr/lib64/bash"
@@ -40,20 +26,24 @@ for plugname in finfo basename dirname cut pushd; do
 done
 unset plug plugdir plugname
 
+is_cmd() {
+    command hash "$1" 2>&-
+}
 
+# store most bashEV local vars in a hash, so
+# we aren't polluting the global namespace with
+# a huge amount of junk
 
-############################################
-###  DEFINE THE BASH-ENVIRONMENT LAYOUT  ###
-############################################
-
-# put a bunch of it on this hash to try and reduce
-# clutter in teh main namespace
 declare -A bashEV
 
 # save what we were launched as so
 # we can run the correct bootup
 # sequence later on
 bashEV[bootAS]="${0##*/}"
+
+############################################
+###  DEFINE THE BASH-ENVIRONMENT LAYOUT  ###
+############################################
 
 # save the launch conditions
 bashEV[bootCMD]="$0"
@@ -78,29 +68,18 @@ bashEV[HOME]="${bashEV_HOME:-${HOME}}"
 bashEV[VERBOSE]="${bashEV_VERBOSE:-2}"
 bashEV[COMPLOCAL]="${bashEV[ETC]}/completion"
 
-bashEV_env_list() {
-    for key in "${!bashEV[@]}" ; do
-        local val="${bashEV["$key"]}"
-        echo "bashEV[$key]=$val"
-    done
-}
-
-bashEV_env() {
-    echo "declare -AX  bashEV"
-    bashEV_env_list | sort
-}
-
-export bashEV
+bashEV[envDIR]="${bashEV[LIB]}/env.d"
+bashEV[envDEFAULT]="general"
 
 ###################
 # loading helpers #
 ###################
 
-bashEV_safe_load() {
+_bashEV_safe_load() {
     [ -f "$1" ] && source "$1"
 }
 
-bashEV_find_lib() {
+_bashEV_find_lib() {
     if [[ "$1" =~ ^/ ]] ; then
         echo "$1"
     elif [[ "$1" =~ .sh$ ]] ; then
@@ -111,7 +90,7 @@ bashEV_find_lib() {
 }
 
 bashEV_load() {
-    bashEV_safe_load "$(bashEV_find_lib "$1")"
+    _bashEV_safe_load "$(_bashEV_find_lib "$1")"
 }
 
 # like load in all way, but is a mark for caching
@@ -120,14 +99,14 @@ bashEV_include() {
 }
 
 bashEV_load_minimal() {
-    bashEV_load "env"
+    bashEV_load "_base"
 }
 
 bashEV_load_standard() {
+    bashEV_load "switchenv"
     bashEV_load "ui"
     bashEV_load "editor"
     bashEV_load "app"
-    bashEV_load "autobackground"
     bashEV_load "aliases"
     bashEV_load "util"
     bashEV_load "completion"
@@ -174,20 +153,4 @@ bashEV_autostart() {
         *)             bashEV_boot_as_command "$name" ;;
     esac
 
-}
-
-is_defined() {
-    declare -p $1 >/dev/null 2>&1
-}
-
-is_undef() {
-    ! is_defined "$@"
-}
-
-have() {
-    unset -v have; command command type $1 &>/dev/null && have="yes" || return 1;
-}
-
-is_cmd() {
-    command hash "$1" 2>&-
 }

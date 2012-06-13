@@ -36,10 +36,10 @@ stat1() {
 }
 
 list_open_ports() {
-    as_root lsof -Pi | grep LISTEN
+    sudo lsof -Pi | grep LISTEN
 }
 
 list_sockets_by_user() {
     local U="${1:${USER}}"
-    as_root lsof -P -i -a -u "$U"
+    sudo lsof -P -i -a -u "$U"
 }

@@ -31,21 +31,17 @@ alias jl="joblist"
 alias toilet="command toilet -d ${HOME}/.cw/fonts"
 
 # shortcuts to projects
-alias nv="command cd $HOME/src/fanime/navi && xtpush '{NAVI}' git-sh"
-alias lm="command cd $HOME/src/fanime/laughingman && xtpush '{LM}' git-sh"
+alias nv="command cd $HOME/src/fanime/navi && git-sh"
+alias lm="command cd $HOME/src/fanime/laughingman && git-sh"
 alias mc="command cd $HOME/games/minecraft/"
 alias mcu="command launch_minecraft --select"
 
 
 # not-commonly-used editors
-xtitle_for zile "zile "
 alias z="zile"
-xtitle_for nano "nano "
 alias n="nano"
 
-xtitle_for cp "cp "
-xtitle_for mv "mv "
-
+# destructive things should always be verbose
 alias rm='command rm -v'
 alias ln="command ln -v"
 alias chmod='command chmod -c'
@@ -75,7 +71,7 @@ fi
 
 if is_cmd nice ; then
     if is_cmd ionice ; then
-        alias verynice='xtpush "<ionice+nice>" ionice -c3 nice'
+        alias verynice='ionice -c3 nice'
         #alias verynice='ionice -c3 nice -n 19'
     else
         alias verynice="nice -n 19"
@@ -117,8 +113,6 @@ alias gr="igrep"
 
 alias g="git"
 alias gg="git status"
-alias be="xtpush '{BUNDLER}' bundle exec"
-alias bake="be rake"
 alias gitlog="git --no-pager log --oneline --graph -n 18 --decorate"
 
 alias irb="command irb --readline -r irb/completion"
