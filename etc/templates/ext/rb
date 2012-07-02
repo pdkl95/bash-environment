@@ -11,9 +11,3 @@ class Foo
 
   end
 end
-
-
-# Local Variables:
-# mode: ruby
-# coding: utf-8-unix
-# End:

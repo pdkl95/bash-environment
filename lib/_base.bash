@@ -6,6 +6,7 @@
 
 bashEV_include "_base/bashopts"
 bashEV_include "_base/misc"
+bashEV_include "_base/font"
 bashEV_include "_base/locale"
 bashEV_include "_base/pager"
 bashEV_include "_base/history"
