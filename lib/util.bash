@@ -30,7 +30,6 @@ vid_enc_commit() {
         dshowexec mv -i "${reenc}" "${new}"
     fi
 }
-alias venc="verynice vid_enc"
 alias vok="vid_enc_commit"
 
 mkdir_cd() {

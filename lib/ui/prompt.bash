@@ -1,5 +1,9 @@
-##################################################
-# PROMPT
+#!/bin/bash
+# -*- mode: sh -*-
+
+################
+###  PROMPT  ###
+################
 
 current_ruby_version() {
     local OPT="$1"
@@ -7,8 +11,8 @@ current_ruby_version() {
     local T="$V"
 
     case ${V} in
-        1.8.7-p???)    T='1.8.7' ;;
-        1.9.3-p0-perf) T='1.9.3' ;;
+        1.8.7-p???) T='1.8.7' ;;
+        1.9.3-*)    T='1.9.3' ;;
     esac
 
     cmark() {
@@ -40,47 +44,54 @@ current_ruby_version() {
 _gitsh_is_active() {
     [ "$(type -t gitalias)" ]
 }
-_gitsh_cur_branch() {
-    local br=`git symbolic-ref -q HEAD 2>/dev/null`;
-    [ -n "$br" ] && br=${br#refs/heads/} || br=`git rev-parse --short HEAD 2>/dev/null`;
-    echo "$br"
-}
 
 if [[ "${TERM}" =~ 256color ]] ; then
-    prompt_whoami() {
-        echo -ne "\[\e[38;5;28m\]${USER}"
-        echo -ne "\[\e[38;5;40m\]@"
-        echo -ne "\[\e[38;5;28m\]${HOSTNAME}"
-    }
-    prompt_pwd() {
-        echo -ne "\[\e[38;5;44m\]${PWD/$HOME/~}"
-    }
-    prompt_mark() {
-        echo -ne "\[\e[48;5;18;38;5;63m\]\$"
-        echo -ne "\[\e[0m\]"
+    _prompt() {
+        case $1 in
+            whoami)
+                echo -ne "\[\e[38;5;28m\]${USER}"
+                echo -ne "\[\e[38;5;40m\]@"
+                echo -ne "\[\e[38;5;28m\]${HOSTNAME}"
+                ;;
+            dir)
+                echo -ne "\[\e[38;5;44m\]${PWD/$HOME/~}"
+                ;;
+            mark)
+                echo -ne "\[\e[48;5;18;38;5;63m\]\$"
+                echo -ne "\[\e[0m\]"
+                ;;
+        esac
     }
 elif [[ "${TERM}" =~ color ]] ; then
-    prompt_whoami() {
-        echo -ne "\[\e[32m\]${USER}"
-        echo -ne "\[\e[92m\]@"
-        echo -ne "\[\e[32m\]${HOSTNAME}"
-    }
-    prompt_pwd() {
-        echo -ne "\[\e[36m\]${PWD/$HOME/~}"
-    }
-    prompt_mark() {
-        echo -ne "\[\e[94m\]\$"
-        echo -ne "\[\e[0m\]"
+    _prompt() {
+        case $1 in
+            whoami)
+                echo -ne "\[\e[32m\]${USER}"
+                echo -ne "\[\e[92m\]@"
+                echo -ne "\[\e[32m\]${HOSTNAME}"
+                ;;
+            dir)
+                echo -ne "\[\e[36m\]${PWD/$HOME/~}"
+                ;;
+            mark)
+                echo -ne "\[\e[94m\]\$"
+                echo -ne "\[\e[0m\]"
+                ;;
+        esac
     }
 else
-    prompt_whoami() {
-        echo -ne "${USER}@${HOSTNAME}"
-    }
-    prompt_pwd() {
-        echo -ne "${PWD/$HOME/~}"
-    }
-    prompt_mark() {
-        echo -ne "\$"
+    _prompt() {
+        case $1 in
+            whoami)
+                echo -ne "${USER}@${HOSTNAME}"
+                ;;
+            dir)
+                echo -ne "${PWD/$HOME/~}"
+                ;;
+            mark)
+                echo -ne "\$"
+                ;;
+        esac
     }
 fi
 
@@ -106,28 +117,20 @@ prompt_cmdstatus() {
     fi
 }
 
-print_current_prompt() {
-    local EVAL="$?" CSTATUS WHOAMI PDIR MARK
-
-    history -a
-    history -n
-
-    CSTATUS="$(prompt_cmdstatus $EVAL)"
-    WHOAMI="$(prompt_whoami)"
-    PDIR="$(prompt_pwd)"
-    MARK="$(prompt_mark)"
-
+_print_current_prompt() {
+    local RV="$LASTCMD_RETVAL"
+    local CSTATUS="$(prompt_cmdstatus $RV)"
 
     if _gitsh_is_active ; then
-        xtitle "<$(_gitsh_cur_branch)> $CSTATUS ${PWD/$HOME/~}"
+        xtitle "<$(git-current-branch)> $CSTATUS ${PWD/$HOME/~}"
         # this has to be backticks, not $(), or bash munges up
         # the ANSI escape codes. probably a better way to do this...
         export PS1='`_git_headname`!`_git_workdir``_git_dirty`> '
     else
         xtitle "$CSTATUS ${PWD/$HOME/~}/"
-        export PS1="$WHOAMI $PDIR $MARK "
+        export PS1="$(_prompt whoami) $(_prompt dir) $(_prompt mark) "
     fi
 }
 
-PROMPT_COMMAND="print_current_prompt"
+_bashEV_add_prompt_command _print_current_prompt
 export PS1="\u@\h \w \$ "

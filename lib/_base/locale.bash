@@ -27,8 +27,8 @@ fi
 # default sort order to the ASCII-order sort that
 # is still so common.
 # but not recommended unless you kno how all the
-export LC_COLLATE="C"
-#
+#export LC_COLLATE="C"
+
 # default to 1-octet-per-"charcter" strings as well
 # as that affects the formating, layout, etc, of pretty
 # much all formatting everywehere...
