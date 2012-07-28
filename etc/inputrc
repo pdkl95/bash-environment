@@ -67,19 +67,19 @@ Control-d: unix-filename-rubout
 ##### word-by-word horizontal movement in the shell
 ##### So important, it's mount more than once
 # <control>+RIGHT
-"\e[1;5C": shell-forward-word
+"\eOc": shell-forward-word
 # <control>+LEFT
-"\e[1;5D": shell-backward-word
+"\eOd": shell-backward-word
 # <shift>+RIGHT
-"\e[1;2C": shell-forward-word
+"\e[c": forward-word
 # <shift>+LEFT
-"\e[1;2D": shell-backward-word
+"\e[d": backward-word
 
 ##### basic L/R still do the standard single-char move
 # <alt>+RIGHT
-"\e[1;3C": forward-word
+#"\e[1;3C": forward-word
 # <alt>+LEFT
-"\e[1;3D": backward-word
+#"\e[1;3D": backward-word
 
 ##### If you've scrolled up in history, this
 ##### accepts the command ilke normal NEWLINE (return)
@@ -87,7 +87,12 @@ Control-d: unix-filename-rubout
 ##### This lets you repeat an entire _sequence_ of commands
 ##### from the history by find teh first command, holding
 ##### down <control>,, and hitting <newline> a bunch of times.
-Control-NEWLINE: operate-and-get-next
+Shift-Return: operate-and-get-next
+#Control-Newline: operate-and-get-next
+
+Return: accept-line
+#Newline: accept-line
+
 
 ##### <delete> - makes sure it's still bound to the correct
 ##### comman as it gets rewritten fairly eaisily
@@ -95,7 +100,7 @@ Control-NEWLINE: operate-and-get-next
 
 ##### Needed to be a known command for other, complex commands
 ##### below that entire more than one command
-"\C-x\C-k": kill-whole-line
+#"\C-x\C-k": kill-whole-line
 
 ##### go to kust before the first option of THIS command
 ##### that is, if you had alread typed
@@ -108,7 +113,7 @@ Control-NEWLINE: operate-and-get-next
 ##### within the current command only, without touching
 ##### the history
 # <alt>+2
-"\e2": "[1;5C "
+#"\e2": "[1;5C "
 
 ##### load the previous comand, and edit
 ##### move to enter the FIRST option
@@ -122,15 +127,16 @@ Control-NEWLINE: operate-and-get-next
 ##### is now _between_ spaces and is read for something else
 ##### to be entered.
 # <control>+f
-"\C-f": "[1;5C "
+#"\C-f": "[1;5C "
 
 ### ----- Bash-specific macros ----- ###
 $if Bash
     ##### remap keyboard macro recording to modern emacs style
     # <F3>
-    "\eOR": start-kbd-macro
+    #"\eOR": start-kbd-macro
+    "\e[13~": start-kbd-macro
     # <F4>
-    "\eOS": end-kbd-macro
+    "\e[14~": end-kbd-macro
     # <F5>
     "\e[15~": call-last-kbd-macro
 
@@ -173,17 +179,8 @@ $if Bash
 $endif
 
 
-
-#######################
-# bash isn't /exactly/
-# the right mode here,
-# but at least it get
-# the colors right...
-#       |
-#       |
-#      \ /
-#       V
-
 # Local Variables:
 # mode: sh
+# sh-basic-offset: 4
+# sh-shell: bash
 # End:

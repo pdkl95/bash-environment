@@ -48,7 +48,7 @@ export VISUAL="${EDITOR}"
 
 alias er="emacs_edit_as_root"
 alias et="emacs_tty"
-alias ex="emacs_frame_nowait"
+alias ef="emacs_frame_nowait"
 
 # trap emacs itself so it goes through
 # the emacsclient wrapper

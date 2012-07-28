@@ -1,7 +1,6 @@
 #! /bin/bash
 # -*- mode: sh -*-
 
-bashEV_include "app/git"
 bashEV_include "app/mplayer"
 
 # all man pages!

@@ -99,7 +99,7 @@ if [[ "${TERM}" =~ color ]] ; then
 
     # ok, not a color, but it does use ANSI codes
 
-    if   [[ "$TERM" =~ rxvt-imocpde.* ]] ; then
+    if   [[ "$TERM" =~ rxvt-unicode.* ]] ; then
         xtitle() {
              local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
              printf '\33]2;%s\007' "${title}"

@@ -1,7 +1,24 @@
 # -*- mode: sh -*-
 
+# rst() {
+#     case _$(type -t "$1") in
+#         _alias)  unalias "$1" ;;
+#         _function) unset "$1" ;;
+#     esac
+# }
+
+# awrap() {
+#     local X="$1" ; shift
+#     if is_cmd $X ; then
+#         rst $X
+#         alias _pdkl_$X="command $X $@"
+#     else
+#         alias _pdkl_$X="noop"
+#     fi
+# }
+
 ###################################################
-## OPTIONAL COLOR
+## OPTIONAL COLOR AND OTHER FOUNDATIONAL MACROS
 
 if [[ "${TERM}" =~ color ]] ; then
     alias _pdkl_ls="command ls --human-readable --color=auto"
@@ -36,7 +53,6 @@ alias lm="command cd $HOME/src/fanime/laughingman && git-sh"
 alias mc="command cd $HOME/games/minecraft/"
 alias mcu="command launch_minecraft --select"
 
-
 # not-commonly-used editors
 alias z="zile"
 alias n="nano"
@@ -68,18 +84,7 @@ if is_cmd tree ; then
 else
     alias tree="command ls -FR"
 fi
-
-if is_cmd nice ; then
-    if is_cmd ionice ; then
-        alias verynice='ionice -c3 nice'
-        #alias verynice='ionice -c3 nice -n 19'
-    else
-        alias verynice="nice -n 19"
-    fi
-else
-    nice="noop"
-    nerynice="noop"
-fi
+alias pstree='pstree -U'
 
 alias iftop='xtitle Network Activity on eth1; sudo iftop -i eth1 -P'
 alias  htop='xtitle Processes on $HOST ; sudo htop'
@@ -89,7 +94,6 @@ alias   top="htop"
 alias make='xtitle Making $(basename $PWD) ; make'
 
 alias more="less"
-alias j="jobs -l"
 is_cmd which || alias which="command type -path"
 
 alias    ..="cd .."
@@ -103,6 +107,7 @@ alias df="command df -kTh"
 alias diff2col="command diff --side-by-side --ignore-all-space"
 alias diff='_pdkl_diff -up'
 alias diffw="_pdkl_diff -u --ignore-all-space"
+
 alias igrep="_pdkl_grep --ignore-case"
 alias vgrep="_pdkl_grep --invert-match"
 alias ivgrep="_pdkl_grep --ignore-case --invert-match"
@@ -123,6 +128,13 @@ is_cmd h264enc    && alias    h2="h264enc -2p -p slow -pf high"
 is_cmd mpc        && alias   mpc="command mpc -h 127.0.0.1"
 is_cmd pwgen      && alias pwgen="command pwgen -v -n"
 is_cmd fixnames   && alias    fn="command fixnames -vvM"
+
+if is_cmd atool ; then
+    alias xx="command atool -x"
+    alias xl="command atool -l"
+fi
+
+#unset awrap rst
 
 # Local Variables:
 # mode: sh

@@ -11,6 +11,27 @@ m_recent_local() {
 }
 
 _mplayer_launcher() {
+    local -a opts args
+    local i last=""
+
+    for i in "$@" ; do
+        if [[ -n "${last}" ]] ; then
+            opts+=( "${i}" )
+            if [[ "${i}" =~ ^- ]] ; then
+                last="${i}"
+            else
+                last=""
+            fi
+        elif [[ "$i" =~ ^- ]] ; then
+            opts+=( "${i}" )
+            last="${i}"
+        else
+            args+=( "${i}" )
+        fi
+    done
+
+    #declare -p last opts args
+
     : ${MP_BIN:=mplayer2}
     MP_BIN="$(which "${MP_BIN}")"
 
@@ -19,8 +40,12 @@ _mplayer_launcher() {
         return 1
     fi
 
+    export MPLAYEROPT="${opts[@]}"
+    : ${MP_NAMEPAD:=}
+    : ${MP_BINOPT:=}
     # serialize the settings onto the command line
-    dshowexec mplayer_launcher "${MP_BIN}" "${MP_NAMEPAD}" "${MP_BINOPT}" "$@"
+    export MP_BIN MP_NAMEPAD MP_BINOPT
+    dshowexec mplayer_launcher "${args[@]}"
 }
 
 #######################################################################

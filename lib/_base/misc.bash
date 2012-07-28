@@ -6,9 +6,9 @@
 # ${bashEV[HOME]}/.bash/bin:
 PATH="\
 ${HOME}/bin:\
-${HOME}/games/minecraft/bin:\
-${HOME}/.cw/bin:\
+${HOME}/bin/elf:\
 ${HOME}/.rbenv/shims:\
+${HOME}/.cw/bin:\
 ${PATH}"
 
 export TERM INPUTRC PATH

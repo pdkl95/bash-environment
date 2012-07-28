@@ -26,6 +26,13 @@ for plugname in finfo basename dirname cut pushd; do
 done
 unset plug plugdir plugname
 
+noop() {
+    # Just run whawt we were passed unchanged.
+    # A replacment for 'nice' and similar,
+    # without actually affectig anything.
+    "$@"
+}
+
 is_cmd() {
     command hash "$1" 2>&-
 }
@@ -65,15 +72,51 @@ bashEV[ETC]="${bashEV[ROOT]}/etc"
 
 bashEV[INIT]="${bashEV[LIB]}/_init.bash"
 bashEV[HOME]="${bashEV_HOME:-${HOME}}"
+bashEV[VAR]="${bashEV[HOME]}/var"
+
 bashEV[VERBOSE]="${bashEV_VERBOSE:-2}"
 bashEV[COMPLOCAL]="${bashEV[ETC]}/completion"
 
 bashEV[envDIR]="${bashEV[LIB]}/env.d"
 bashEV[envDEFAULT]="general"
 
+PROMPT_COMMAND=""
+
+###############################################
+### for compatability with the XDG          ###
+### desktop-app spec that is fairly copmmon ###
+###############################################
+
+
+XDG_CONFIG_HOME=${bashEV[VAR]}/config
+XDG_DATA_HOME=${bashEV[VAR]}/share
+XDG_CACHE_HOME=${bashEV[VAR]}/cache
+XDG_RUNTIME_DIR=${bashEV[VAR]}/run
+export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_RUNTIME_DIR
+
+: ${XDG_CONFIG_DIRS=/etc/xdg}
+: ${XDG_DATA_DIRS:=/usr/share/gnome:/usr/local/share:/usr/share}
+export XDG_CONFIG_DIRS XDG_DATA_DIRS
+
+
 ###################
 # loading helpers #
 ###################
+
+declare LASTCMD_RETVAL=""
+_lastcmd_save_retval() {
+    LASTCMD_RETVAL="$?"
+}
+PROMPT_COMMAND="_lastcmd_save_retval"
+
+
+_bashEV_add_prompt_command() {
+    if [[ "${PROMPT_COMMAND}" =~ ${1} ]] ; then
+        echo "PROMPT_COMMAND already containes \"${1}\"" 1>&2
+    else
+        PROMPT_COMMAND="${PROMPT_COMMAND}; $@"
+    fi
+}
 
 _bashEV_safe_load() {
     [ -f "$1" ] && source "$1"
@@ -110,6 +153,7 @@ bashEV_load_standard() {
     bashEV_load "aliases"
     bashEV_load "util"
     bashEV_load "completion"
+    bashEV_load "autojump"
 }
 
 bashEV_boot_as_script() {
