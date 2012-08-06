@@ -146,7 +146,6 @@ bashEV_load_minimal() {
 }
 
 bashEV_load_standard() {
-    bashEV_load "switchenv"
     bashEV_load "ui"
     bashEV_load "editor"
     bashEV_load "app"
