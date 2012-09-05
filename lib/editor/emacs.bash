@@ -29,7 +29,7 @@ e() {
                 *) echo "NOT opening \"$1\"!" ;;
             esac
         else
-            create_empty_file "$1"
+            create_from_template "$1"
             emacs_frame_nowait "$@"
         fi
     fi

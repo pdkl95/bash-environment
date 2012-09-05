@@ -48,6 +48,11 @@ _gitsh_is_active() {
 if [[ "${TERM}" =~ 256color ]] ; then
     _prompt() {
         case $1 in
+            prefix)
+                if [[ -n "${PROMPT_PREFIX}" ]] ; then
+                    echo -ne "\[\e[38;5;39m\]<\[\e[0;38;5;105m\]${PROMPT_PREFIX}\[\e[38;5;39m\]> "
+                fi
+                ;;
             whoami)
                 echo -ne "\[\e[38;5;28m\]${USER}"
                 echo -ne "\[\e[38;5;40m\]@"
@@ -65,6 +70,11 @@ if [[ "${TERM}" =~ 256color ]] ; then
 elif [[ "${TERM}" =~ color ]] ; then
     _prompt() {
         case $1 in
+            prefix)
+                if [[ -n "${PROMPT_PREFIX}" ]] ; then
+                    echo -ne "\[\e[34;1m\]<\[\e[0;36m\]${PROMPT_PREFIX}\[\e[34;1m\]> "
+                fi
+                ;;
             whoami)
                 echo -ne "\[\e[32m\]${USER}"
                 echo -ne "\[\e[92m\]@"
@@ -82,6 +92,11 @@ elif [[ "${TERM}" =~ color ]] ; then
 else
     _prompt() {
         case $1 in
+            prefix)
+                if [[ -n "${PROMPT_PREFIX}" ]] ; then
+                    echo -ne "<${PROMPT_PREFIX}> "
+                fi
+                ;;
             whoami)
                 echo -ne "${USER}@${HOSTNAME}"
                 ;;
@@ -128,9 +143,10 @@ _print_current_prompt() {
         export PS1='`_git_headname`!`_git_workdir``_git_dirty`> '
     else
         xtitle "$CSTATUS ${PWD/$HOME/~}/"
-        export PS1="$(_prompt whoami) $(_prompt dir) $(_prompt mark) "
+        export PS1="$(_prompt prefix)$(_prompt whoami) $(_prompt dir) $(_prompt mark) "
     fi
 }
 
 _bashEV_add_prompt_command _print_current_prompt
-export PS1="\u@\h \w \$ "
+export PS1ORIG="\u@\h \w \$ "
+export PS1="${PS1ORIG}"

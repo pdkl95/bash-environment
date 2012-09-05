@@ -8,7 +8,7 @@ export QT_XFT=true
 #source /usr/lib/ft-settings.sh default
 #source /usr/lib/ft-settings.sh infinality
 
-source /usr/lib/ft-settings.sh sharpened
+#source /usr/lib/ft-settings.sh sharpened
 # export INFINALITY_FT_GLOBAL_EMBOLDEN_Y_VALUE=45
 # export INFINALITY_FT_GAMMA_CORRECTION="1000 110"
 # export INFINALITY_FT_FRINGE_FILTER_STRENGTH=10

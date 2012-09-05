@@ -125,7 +125,7 @@ demo-figlet-fonts() {
         f="${f##*/}"
 
         echo
-        echo "$pos/$total  ->  $f" | boxes -d stone -p h2
+        echo "$pos/$total  ->  $f" | boxes -p h2
         echo fooBar QUUX | figlet -d "$FIGDIR" -f $f
     done
 }
@@ -144,7 +144,7 @@ demo-toilet-fonts() {
         f="${f##*/}"
 
         echo
-        echo "$pos/$total  ->  $f" | boxes -d stone -p h2
+        echo "$pos/$total  ->  $f" | boxes -p h2
         echo "[[ toilet -d $FONTDIR -f $f ]]"
         echo fooBar QUUX | toilet -d "$FONTDIR" -f $f
     done

@@ -1,5 +1,19 @@
 #!/bin/bash
 
+bashEV_include "util/mplayer"
+#bashEV_include "util/autooppen"
+
+loadenv() {
+    source "${bashEV[ROOT]}/env/${1}"
+}
+
+_loadenv() {
+    COMPREPLY=($(compgen -W "$(ls ${bashEV[ROOT]}/env)" -- "${COMP_WORDS[COMP_CWORD]}"))
+    return 0
+}
+complete -F _loadenv loadenv
+
+# all man pages!
 current_ruby_Version() {
     rbenv version | cut -d\  -f 1
 }
@@ -190,7 +204,10 @@ could_become_mkv() {
     find . -type f -not -name *.wmv -not -name *.mkv
 }
 
-
+bc_autoscale() {
+    echo "scale=2; $@" | bc
+}
+alias c="bc_autoscale"
 
 # Local Variables:
 # mode: sh

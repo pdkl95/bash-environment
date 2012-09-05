@@ -1,0 +1,22 @@
+#!/bin/sh
+# Tcl ignores the next line -*- tcl -*- \
+exec wish "$0" -- "$@"
+
+package require Tk
+
+
+
+# First check that Tcl/Tk is recent enough
+if {[catch {package require Tk 8.4} err]} {
+    show_error {} . "Sorry, gitk cannot run with this version of Tcl/Tk.\n\
+                     Gitk requires at least Tcl/Tk 8.4." list
+    exit 1
+}
+
+
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: t
+# tab-width: 4
+# End:

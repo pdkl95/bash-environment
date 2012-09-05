@@ -1,0 +1,31 @@
+#!/bin/bash
+
+_ORIGENV_PYTHONPATH="${PYTHONPATH}"
+_ORIGENV_PATH="${PATH}"
+
+VIRTUAL_ENV="${HOME}/build/firefox/addon-sdk-1.9"
+
+CUDDLEFISH_ROOT="${VIRTUAL_ENV}"
+PYTHONPATH="${VIRTUAL_ENV}/python-lib:${PYTHONPATH}"
+PATH="${VIRTUAL_ENV}/bin:${PATH}"
+
+export CUDDLEFISH_ROOT PYTHONPATH PATH
+
+PROMPT_PREFIX="$(basename "${VIRTUAL_ENV}")"
+
+clearenv() {
+    PYTHONPATH="${_ORIGENV_PYTHONPATH}"
+    PATH="${_ORIGENV_PATH}"
+    export PATH PYTHONPATH
+
+    unset CUDDLEFISH_ROOT PROMPT_PREFIX VIRTUAL_ENV
+    unset _ORIGENV_PATH _ORIGENV_PYTHONPATH
+}
+
+
+# Local Variables:
+# mode: sh
+# sh-basic-offset: 4
+# sh-shell: bash
+# coding: unix
+# End:

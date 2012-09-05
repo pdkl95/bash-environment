@@ -47,13 +47,7 @@ alias lsmanpath='echo -e ${MANPATH//:/\\n}'
 alias jl="joblist"
 alias toilet="command toilet -d ${HOME}/.cw/fonts"
 
-# shortcuts to projects
-alias nv="command cd $HOME/src/fanime/navi && git-sh"
-alias lm="command cd $HOME/src/fanime/laughingman && git-sh"
-alias mc="command cd $HOME/games/minecraft/"
-alias mcu="command launch_minecraft --select"
-
-# not-commonly-used editors
+alias d="display"
 alias z="zile"
 alias n="nano"
 
@@ -132,6 +126,11 @@ is_cmd fixnames   && alias    fn="command fixnames -vvM"
 if is_cmd atool ; then
     alias xx="command atool -x"
     alias xl="command atool -l"
+fi
+
+if is_cmd strace ; then
+    alias strace="command strace-color"
+    alias strace-file="strace -e trace=file"
 fi
 
 #unset awrap rst

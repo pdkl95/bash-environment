@@ -71,3 +71,5 @@ mn() {
     local MP_BIN="mplayer" MP_NAMEPAD="-" MP_BINOPT="-quiet"
     _mplayer_launcher "$@"
 }
+
+alias mp="mplayer2"
