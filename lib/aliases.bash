@@ -56,7 +56,7 @@ alias rm='command rm -v'
 alias ln="command ln -v"
 alias chmod='command chmod -c'
 
-alias ret="cd \"$OLDPWD\""
+alias ret='cd "$OLDPWD"'
 
 alias ls="_pdkl_ls"
 alias ll="_pdkl_ls -l"             # maybe most commonn shorthand
@@ -114,7 +114,7 @@ alias g="git"
 alias gg="git status"
 alias gitlog="git --no-pager log --oneline --graph -n 18 --decorate"
 
-alias irb="command irb --readline -r irb/completion"
+alias irb="command irb --readline"
 is_cmd nautilus   && alias nautilus="command nautilus --no-desktop"
 is_cmd mediainfo  && alias    mi="mediainfo"
 is_cmd mkvmerge   && alias   mii="mkvmerge --identify-verbose"

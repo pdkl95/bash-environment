@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# kill XON/XOFF (^s/^q) flow control
+stty -ixon
+
 bashEV_include "ui/ansicolor"
 bashEV_include "ui/messages"
 bashEV_include "ui/widgets"

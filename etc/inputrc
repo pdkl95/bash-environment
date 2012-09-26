@@ -6,6 +6,8 @@ set bell-style none
 set bind-tty-special-chars off
 set blink-matching-paren on
 set completion-ignore-case off
+#set completion-prefix-display-length 8
+set completion-prefix-display-length 0
 set completion-query-items 350
 set convert-meta off
 set echo-control-characters off
@@ -13,12 +15,14 @@ set editing-mode emacs
 set enable-meta-key on
 set expand-tilde off
 set input-meta on
+set keymap emacs
+set mark-directories on
 set mark-symlinked-directories on
 set match-hidden-files off
 set menu-complete-display-prefix off
-set meta-flag on
 set output-meta on
 set page-completions off
+set print-completions-horizontally off
 set revert-all-at-newline on
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
@@ -30,8 +34,30 @@ set visible-stats off
 # DEBUG THESE BINGINGS EASILY
 # JUST DUMP THE TABLE
 "\edf": dump-functions
-"\edv": dump-variablesm
+"\edv": dump-variables
 "\edm": dump-macros
+
+Return: accept-line
+#Newline: accept-line
+
+### HACK: using vertical tab as a 2nd ESC (HACKED URXVT ONLY!)
+#  non-working:
+#    "\033\001\011": "S-tab"
+#    "\033\006\011": "M-tab"
+#
+# <shfit>+RETURN
+"\033\001\015": edit-and-execute-command
+# <control>-RETURN
+"\033\002\015": operate-and-get-next
+# <control>-TAB
+"\033\002\011": insert-completions
+# <shift>-SPACE
+"\033\001\040": yank-nth-arg
+# <control>-SPACE
+"\033\002\040": yank-last-arg
+# <meta>-SPACE
+"\033\006\040": set-mark
+
 
 # for alias debugging
 "\ea": alias-expand-line
@@ -39,8 +65,10 @@ set visible-stats off
 Control-d: unix-filename-rubout
 "\ed": shell-backword-kill-word
 "\ek": shell-kill-word
+"\ew": copy-region-as-kill
 
-"C-_": undo
+#"C-_": undo
+#"<control>+_": echo 'foo'
 
 ##### Search-as-you-go is much vaster
 # UP
@@ -80,19 +108,6 @@ Control-d: unix-filename-rubout
 #"\e[1;3C": forward-word
 # <alt>+LEFT
 #"\e[1;3D": backward-word
-
-##### If you've scrolled up in history, this
-##### accepts the command ilke normal NEWLINE (return)
-##### but *stays* at that point in the history, plus one line
-##### This lets you repeat an entire _sequence_ of commands
-##### from the history by find teh first command, holding
-##### down <control>,, and hitting <newline> a bunch of times.
-Shift-Return: operate-and-get-next
-#Control-Newline: operate-and-get-next
-
-Return: accept-line
-#Newline: accept-line
-
 
 ##### <delete> - makes sure it's still bound to the correct
 ##### comman as it gets rewritten fairly eaisily
@@ -144,10 +159,10 @@ $if Bash
     # shift+<TAB>
     "\e[Z": dynamic-complete-history
     # META+h
-    "\eh": dabbrev-expand
+    #"\eh": dabbrev-expand
 
     ##### insert ALL possible completions into current line
-    "\ei": insert-completions
+    #"\ei": insert-completions
 
     ##### if a History Expansion is ready when you hit space
     ##### apropriate expansion wil execute *immediately* with the

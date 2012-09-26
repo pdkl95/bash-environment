@@ -3,6 +3,11 @@
 bashEV_include "util/mplayer"
 #bashEV_include "util/autooppen"
 
+cs() {
+    cd "$1"
+    l
+}
+
 loadenv() {
     source "${bashEV[ROOT]}/env/${1}"
 }

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+_ORIGENV_RIP_RUBYLIB="${RUBYLIB}"
+_ORIGENV_RIP_MANPATH="${MANPATH}"
+_ORIGENV_RIP_PATH="${PATH}"
+
+RIPDIR="${HOME}/.rip"
+RIPROOT="${HOME}/build/rip"
+
+if [[ -n "${RUBYLIB}" ]] ; then
+    RUBYLIB="${RUBYLIB}:${RIPROOT}/lib"
+else
+    RUBYLIB="${RIPROOT}/lib"
+fi
+
+PATH="${PATH}:${RIPROOT}/bin"
+
+export PATH RUBYLIB RIPDIR
+
+eval $(rip-config)
+
+PROMPT_PREFIX="rip"
+
+unloadenv_rip() {
+    RUBYLIB="${_ORIGENV_RIP_RUBYLIB}"
+    MANPATH="${_ORIGENV_RIP_MANPATH}"
+    PATH="${_ORIGENV_RIP_PATH}"
+    export PATH MANPATH RUBYLIB
+
+    unset _ORIGENV_RIP_RUBYLIB _ORIGENV_RIP_MANPATH _ORIGENV_RIP_PATH
+    unset RIPDIR RIPROOT PROMPT_PREFIX
+
+    unset RIPHELPERS RIPVERBOSE
+    unset -f rip rip-helpers rip-pop rip-push rip-use
+
+    unset -f unloadenv_rip
+}
+
+
+# Local Variables:
+# mode: sh
+# sh-basic-offset: 4
+# sh-shell: bash
+# coding: unix
+# End:
