@@ -1,0 +1,361 @@
+Xft.antialias:  1
+Xft.autohint:   0
+Xft.dpi:        96
+Xft.hinting:    1
+Xft.hintstyle:  hintfull
+!Xft.hintstyle:  hintmedium
+!Xft.lcdfilter:  lcdlegacy
+Xft.lcdfilter:  lcddefault
+Xft.rgba:       rgb
+
+! *font: -xos4-terminus-medium-r-normal--14-140-72-72-c-80-iso10646-1
+! *foreground: light grey
+! *background: black
+
+! Tomoroww Night theme
+! *.foreground:   #c5c8c6
+! *.background:   #1d1f21
+! *.cursorColor:  #aeafad
+! *.color0:       #000000
+! *.color1:       #912226
+! *.color2:       #778900
+! *.color3:       #ae7b00
+! *.color4:       #1d2594
+! *.color5:       #682a9b
+! *.color6:       #2b6651
+! *.color7:       #929593
+! *.color8:       #666666
+! *.color9:       #cc6666
+! *.color10:      #b5bd68
+! *.color11:      #f0c674
+! *.color12:      #81a2be
+! *.color13:      #b294bb
+! *.color14:      #8abeb7
+! *.color15:      #ecebec
+
+
+
+!Xcursor.theme: Neutral_Plus
+
+XTerm*metaSendsEscape: true
+Xterm*eightBitInput: false
+
+
+Rxvt*foreground: white
+Rxvt*background: black
+Rxvt*scrollBar: false
+
+URxvt*altSendsEscape: true
+!URxvt*meta8: true
+
+URxvt*modifier: meta
+!URxvt*modifier: super
+
+!URxvt*keysym.S-Return: \033\033\001\015
+URxvt*keysym.C-Return: \033\033\002\015
+!URxvt*keysym.S-C-Return: \033\033\003\015
+!URxvt*keysym.M-Return: \033\033\004\015
+!S-M-Return sensds as M-Return
+URxvt*keysym.S-M-Return: \033\033\004\015
+!URxvt*keysym.C-M-Return: \033\033\006\015
+URxvt*keysym.S-C-M-Return: \033\033\007\015
+URxvt*keysym.3-Return: \033\033\012\015
+URxvt*keysym.4-Return: \033\033\013\015
+URxvt*keysym.5-Return: \033\033\014\015
+
+!URxvt*keysym.S-Tab: \033\033\001\011
+URxvt*keysym.C-Tab: \033\033\002\011
+!URxvt*keysym.M-Tab: \033\033\006\011
+
+URxvt*keysym.S-0x20: \033\033\001\040
+URxvt*keysym.C-0x20: \033\033\002\040
+URxvt*keysym.M-0x20: \033\033\004\040
+URxvt*keysym.3-0x20: \033\033\012\040
+URxvt*keysym.4-0x20: \033\033\013\040
+URxvt*keysym.5-0x20: \033\033\014\040
+
+
+
+URxvt*keysym.3-Left: \033\033\012\077\001
+URxvt*keysym.4-Left: \033\033\013\077\001
+URxvt*keysym.5-Left: \033\033\014\077\001
+URxvt*keysym.3-Right: \033\033\012\077\002
+URxvt*keysym.4-Right: \033\033\013\077\002
+URxvt*keysym.5-Right: \033\033\014\077\002
+
+! xft:terminus:pixelsize=14
+! xft:Code2000:antialias=false
+URxvt*font: -xos4-terminus-medium-r-normal--14-140-72-72-c-80-iso10646-1,
+            [codeset=JISX0208]xft:Kochi Gothic:antialias=false
+
+URxvt*depth: 32
+URxvt*background: rgba:0000/0200/0400/c8f4
+
+URxvt*color0:  #000000000000
+URxvt*color1:  #AAAA00000000
+URxvt*color2:  #0000AAAA0000
+URxvt*color3:  #AAAA55550000
+URxvt*color4:  #224975D2F50C
+URxvt*color5:  #A1A12626A1A1
+URxvt*color6:  #2222C0C0C0C0
+URxvt*color7:  #AAAAAAAAAAAA
+URxvt*color8:  #555555555555
+URxvt*color9:  #FFFF1B1B1B1B
+URxvt*color10: #5555ffff5555
+URxvt*color11: #FFFFFFFF5555
+URxvt*color12: #6050672EFFFF
+URxvt*color13: #DCDC0202F0F0
+URxvt*color14: #5555FFFFFFFF
+URxvt*color15: #FFFFFFFFFFFF
+
+URxvt*buffered: true
+URxvt*fading: 7
+URxvt*fadeColor: rgba:0000/0000/0000/0000
+
+URxvt*scrollBar: false
+URxvt*jumpScroll: true
+URxvt*skipScroll: true
+URxvt*scrollTtyOutput: false
+URxvt*scrollTtyKeypress: true
+URxvt*scrollWithBuffer: true
+URxvt*saveLines: 65535
+URxvt*insecure: true
+URxvt*visualBell: false
+URxvt*pointerBlank: true
+URxvt*pointerBlankDelay: 4
+URxvt*pastableTabs: false
+
+URxvt*intensityStyles: true
+URxvt*iso14755: false
+URxvt*iso14755_52: false
+
+URxvt*urlLauncher: /home/endymion/bin/pdkl_open_url
+URxvt*chdir: /home/endymion
+URxvt*perl-ext-common: default,matcher,searchable-scrollback,-url-select
+URxvt*matcher.button: 1
+URxvt*matcher.pattern.1: \\bwww\\.[\\w-]\\.[\\w./?&@#-]*[\\w/-]
+
+
+yeahconsole*term: urxvt
+yeahconsole*toggleKey: Alt+grave
+yeahconsole*aniDelay: 0
+yeahconsole*stepSize: 0
+yeahconsole*screenWidth: 1352
+yeahconsole*consoleHeight: 1
+yeahconsole*handleWidth: 1
+yeahconsole*handleColor: #A47BFF
+
+
+
+
+!xpdf*font: -lfp-lucidaterminal-medium-r-normal--10-100-75-75-c-90-iso10646-1
+!xpdf*enableFreetype: yes
+!xpdf*antialias: yes
+!xpdf*foreground: black
+!xpdf*background: white
+!xpdf*urlCommand: /usr/bin/firefox %s
+
+
+
+!XFontSel*menu*showUnselectable: false
+!XFontSel*MenuButton.shadowWidth: 0
+!XFontsel*Toggle*ToggleStyle: check
+!XFontsel*MenuButton*Justify: left
+!XFontsel*MenuButton*MenuButtonStyle: select
+!xfontsel.pane.commandBox.quitButton.background: #777777
+!xfontsel.pane.commandBox.quitButton.foreground: snow
+!xfontsel.pane.commandBox.ownButton.background: cyan3
+!xfontsel.pane.commandBox.ownButton.foreground: snow
+!xfontsel.pane.commandBox.countLabel.background: snow
+!xfontsel.pane.viewPort.sampleText.background: #777777
+!xfontsel.pane.viewPort.sampleText.foreground: snow
+!xfontsel.pane.fieldBox.field0.background: #777777
+!xfontsel.pane.fieldBox.field0.foreground: snow
+!xfontsel.pane.fieldBox.field1.background: #777777
+!xfontsel.pane.fieldBox.field1.foreground: snow
+!xfontsel.pane.fieldBox.field2.background: #777777
+!xfontsel.pane.fieldBox.field2.foreground: snow
+!xfontsel.pane.fieldBox.field3.background: #777777
+!xfontsel.pane.fieldBox.field3.foreground: snow
+!xfontsel.pane.fieldBox.field4.background: #777777
+!xfontsel.pane.fieldBox.field4.foreground: snow
+!xfontsel.pane.fieldBox.field5.background: #777777
+!xfontsel.pane.fieldBox.field5.foreground: snow
+!xfontsel.pane.fieldBox.field6.background: #777777
+!xfontsel.pane.fieldBox.field6.foreground: snow
+!xfontsel.pane.fieldBox.field7.background: #777777
+!xfontsel.pane.fieldBox.field7.foreground: snow
+!xfontsel.pane.fieldBox.field8.background: #777777
+!xfontsel.pane.fieldBox.field8.foreground: snow
+!xfontsel.pane.fieldBox.field9.background: #777777
+!xfontsel.pane.fieldBox.field9.foreground: snow
+!xfontsel.pane.fieldBox.field10.background: #777777
+!xfontsel.pane.fieldBox.field10.foreground: snow
+!xfontsel.pane.fieldBox.field11.background: #777777
+!xfontsel.pane.fieldBox.field11.foreground: snow
+!xfontsel.pane.fieldBox.field12.background: #777777
+!xfontsel.pane.fieldBox.field12.foreground: snow
+!xfontsel.pane.fieldBox.field13.background: #777777
+!xfontsel.pane.fieldBox.field13.foreground: snow
+!xfontsel.pane.fieldBox*foreground: #000000
+!xfontsel.pane.fieldBox.MenuButton.borderWidth: 1
+!xfontsel.pane.fieldBox.MenuButton.internalHeight:1
+!xfontsel.pane.fieldBox.MenuButton.internalWidth: 2
+!xfontsel.pane.fieldBox.MenuButton.shapeStyle: rectangle
+
+
+xclock*Foreground:      light grey
+xclock*Background:      black
+xclock*Border:          navy blue
+xclock*Highlight:       cornflower blue
+xclock*Hands:           slate blue
+xclock*Mode:            analog
+
+xmessage*form.okay.shapeStyle:          roundedRectangle
+xmessage*form.okay.background:          forest green
+xmessage*form.okay.foreground:          black
+xmessage*message*background:            black
+xmessage*background:                    #002000
+xmessage*foreground:                    green
+xmessage*Scrollbar.width:               1
+xmessage*Scrollbar.borderWidth:         0
+xmessage*Text.?.cursorColor:            cyan
+xmessage*Text.borderColor:              green
+xmessage*Text*background:               gray95
+xmessage*Command.highlightThickness:    1
+xmessage*Command.internalWidth:         5
+xmessage*Command.internalHeight:        3
+xmessage*Command.borderColor:           green
+xmessage*Command.shapeStyle:            Rectangle
+xmessage*Command.background:            gray80
+xmessage*font: -*-dina-medium-r-*-*-*-100-*-*-*-*-*-*
+
+! xscreensaver ---------------------------------------------------------------
+
+!font settings
+xscreensaver.Dialog.headingFont:        -*-dina-bold-r-*-*-12-*-*-*-*-*-*-*
+xscreensaver.Dialog.bodyFont:           -*-dina-medium-r-*-*-12-*-*-*-*-*-*-*
+xscreensaver.Dialog.labelFont:          -*-dina-medium-r-*-*-12-*-*-*-*-*-*-*
+xscreensaver.Dialog.unameFont:          -*-dina-medium-r-*-*-12-*-*-*-*-*-*-*
+xscreensaver.Dialog.buttonFont:         -*-dina-bold-r-*-*-12-*-*-*-*-*-*-*
+xscreensaver.Dialog.dateFont:           -*-dina-medium-r-*-*-12-*-*-*-*-*-*-*
+xscreensaver.passwd.passwdFont:         -*-dina-bold-r-*-*-12-*-*-*-*-*-*-*
+!general dialog box (affects main hostname, username, password text)
+xscreensaver.Dialog.foreground:         #ffffff
+xscreensaver.Dialog.background:         #111111
+xscreensaver.Dialog.topShadowColor:     #111111
+xscreensaver.Dialog.bottomShadowColor:  #111111
+xscreensaver.Dialog.Button.foreground:  #666666
+xscreensaver.Dialog.Button.background:  #ffffff
+!username/password input box and date text colour
+xscreensaver.Dialog.text.foreground:    #666666
+xscreensaver.Dialog.text.background:    #ffffff
+xscreensaver.Dialog.internalBorderWidth:24
+xscreensaver.Dialog.borderWidth:        20
+xscreensaver.Dialog.shadowThickness:    2
+!timeout bar (background is actually determined by Dialog.text.background)
+xscreensaver.passwd.thermometer.foreground:  #ff0000
+xscreensaver.passwd.thermometer.background:  #000000
+xscreensaver.passwd.thermometer.width:       8
+!datestamp format--see the strftime(3) manual page for details
+xscreensaver.dateFormat:    %I:%M%P %a %b %d, %Y
+
+
+! x11-ssh-askpass ------------------------------------------------------------
+
+x11-ssh-askpass*font:                   -*-dina-medium-r-*-*-12-*-*-*-*-*-*-*
+x11-ssh-askpass*background:             #000000
+x11-ssh-askpass*foreground:             #ffffff
+x11-ssh-askpass.Button*background:      #000000
+x11-ssh-askpass.Indicator*foreground:   #ff9900
+x11-ssh-askpass.Indicator*background:   #090909
+x11-ssh-askpass*topShadowColor:         #000000
+x11-ssh-askpass*bottomShadowColor:      #000000
+x11-ssh-askpass.*borderWidth:           1
+
+
+
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+! These tkInfo settings are annoying on purpose, just to demonstrate 
+! what harm an evil mind can do.
+!
+! Specify the size in characters, the position in dots. You can also
+! leave the position out. Default geometry is 80x28 to fit on 640x480
+! screens.
+!Tkinfo.geometry:                80x40+10+10
+Tkinfo.geometry:                80x40
+! How many entries to keep in the info node history list.
+! Default is 20.
+Tkinfo*history:                 28
+! How many entries to keep in the history list for the prompt window.
+! Defaults to 35.
+Tkinfo*prompthistory:           20
+! Whether to jump to the successor node when attempting to scroll at the
+! bottom of a node. Can be 1 (default) or 0.
+Tkinfo*scrollthrough:           1
+! Whether to show the directory of the displayed node. Can be 0 (default)
+! or 1.
+Tkinfo*showdir:                 1
+! Whether to insert page separators when scrolling. Defaults to 1.
+Tkinfo*pagesep:                 0
+! How the links are displayed. Can be one of "color" (default),
+! "underline" (default on b&w terminals), or "font".
+Tkinfo*linklook:                color
+! The following is only used if linklook is set to "color"
+Tkinfo*linkcolor:               #1e90ff
+! The following is only used if linklook is set to "font".
+!Tkinfo*linkfont:                -*-courier-bold-o-normal-*-16-*-*-*-*-*-*-*
+! How a link is highlighted. Can be one of "inverse" (default), "underline",
+! or "color".
+Tkinfo*highlight:               color
+! Set this if highlight = color:
+Tkinfo*highlightcolor:          #115544
+! Set this if highlight = font:
+!Tkinfo*highlightfont:           -*-courier-bold-o-normal-*-16-*-*-*-*-*-*-*
+! How to display the matches after a search. Can be "color", "font", or 
+! "inverse" (default).
+Tkinfo*searchlook:              color
+!Tkinfo*searchfont:              -*-courier-bold-o-normal-*-16-*-*-*-*-*-*-*
+Tkinfo*searchcolor:             deeppink
+! To switch off the lower row of buttons. (The default is "1" which means 
+! display the buttons.)
+Tkinfo*showbuttons:             1
+! To switch off balloonhelp for the buttons. (Default is "1" which means
+! display balloonhelp.)
+Tkinfo*showballoons:            0
+! Delay after which balloonhelp appears, in thousands of a second.
+! Default: 400
+Tkinfo*balloondelay:            300
+! To switch off display of the full info file headers. (The default is "1" 
+! which means show the info headers).
+Tkinfo*showheaders:             0
+! You can specify colors either as names (on my system, they are defined in 
+! /usr/lib/X11/rgb.txt), or in the format #C0F1DD as a sequence of three 
+! hex numbers giving the red-green-blue components.
+Tkinfo*background:              grey20
+Tkinfo*Text.background:         #0b0b0b
+! The "trough" is the area where the scrollbar moves.
+Tkinfo*troughColor:             #140726
+! This is for disabled menuentries and buttons.
+Tkinfo*disabledForeground:      #473c8b
+Tkinfo*activeBackground:        #6a5acd
+Tkinfo*foreground:              #92b6f4
+! Backgroundcolor of balloons (default: LightGoldenrodYellow)
+Tkinfo*balloonbackground:       #8a2be2
+! Font for the buttons and messages. You can find nice fonts with the program
+! xfontsel.
+Tkinfo*font:                    -*-feynman-medium-r-normal-*-*-*-*-*-*-*-*-*
+Tkinfo*Text.font:               -xos4-terminus-medium-r-normal--14-140-72-72-c-80-iso10646-1,
+! If you dont like that the window which owns the focus is highlighted:
+Tkinfo*highlightThickness:      0
+! Change the different mouse pointers here; the available cursornames
+! are contained in the file /usr/include/X11/cursorfont.h on my system.
+!Tkinfo*linkcursor:              "double_arrow"
+!Tkinfo*normcursor:              "fleur"
+!Tkinfo*waitcursor:              "heart"
+! This one appears on Button-2:
+!Tkinfo*handcursor:              "double_arrow"

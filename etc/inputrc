@@ -40,57 +40,98 @@ set visible-stats off
 Return: accept-line
 #Newline: accept-line
 
+# <MENU> button
+"\e[29~": menu-complete
+"\e[29$": menu-complete-backward
+
 ### HACK: using vertical tab as a 2nd ESC (HACKED URXVT ONLY!)
 #  non-working:
-#    "\033\001\011": "S-tab"
-#    "\033\006\011": "M-tab"
+#    "\033\033\001\015": "S-Return"
+#    "\033\033\003\015": "S-C-Return"
+#    "\033\033\004\015": "M-Return"
+#    "\033\033\006\015": "C-M-Return"
+#    "\033\033\001\011": "S-tab"
+#    "\033\033\006\011": "M-tab"
 #
+#### RETURN ####
 # <shfit>+RETURN
-"\033\001\015": edit-and-execute-command
+#"\033\001\015": edit-and-execute-command
+"\033\033\001\015": accept-line
 # <control>-RETURN
-"\033\002\015": operate-and-get-next
-# <control>-TAB
-"\033\002\011": insert-completions
-# <shift>-SPACE
-"\033\001\040": yank-nth-arg
-# <control>-SPACE
-"\033\002\040": yank-last-arg
-# <meta>-SPACE
-"\033\006\040": set-mark
+"\033\033\002\015": operate-and-get-next
 
+# <shift>+<meta>+RETURN  ***WARNING: the shfit ends up lost! ***
+"\033\033\004\015": accept-line
+"\033\033\007\015": edit-and-execute-command
+# <super>-RETURN
+"\033\033\012\015": operate-and-get-next
+# <alt>-RETURN
+"\033\033\013\015": edit-and-execute-command
+# <hyper>-RETURN
+"\033\033\014\015": "' >> echo '"
+#
+#### TAB ####
+# <control>-TAB
+"\033\033\002\011": insert-completions
+#
+#### SPACE ####
+# <shift>-SPACE
+"\033\033\001\040": set-mark
+# <control>-SPACE
+"\033\033\002\040": yank-last-arg
+# <meta>-SPACE
+"\033\033\006\040": yank-nth-arg
+
+"\033\033\012\040": set-mark
+"\033\033\013\040": set-mark
+"\033\033\014\040": magic-space
+
+"\033\033\012\077\001": "'\e[3~'\e[3~"
+"\033\033\013\077\001": "\"\eOd\e\\ \"\eOD\eOD"
+"\033\033\014\077\001": "'\eOd\e\\ '\eOD\eOD"
+"\033\033\012\077\002": "'\e[3~'\e[3~"
+"\033\033\013\077\002": "\e \eOc\"\eOC\"\eOC"
+"\033\033\014\077\002": "\e \eOc'\eOC'\eOC"
 
 # for alias debugging
-"\ea": alias-expand-line
-
+Control-_: undo
 Control-d: unix-filename-rubout
+
 "\ed": shell-backword-kill-word
 "\ek": shell-kill-word
 "\ew": copy-region-as-kill
+"\er": redraw-current-line
 
-#"C-_": undo
-#"<control>+_": echo 'foo'
+"\et": transpose-chars
+Control-t: transpose-words
+Control-s: character-search-backward
+Control-r: character-search
 
 ##### Search-as-you-go is much vaster
 # UP
 "\e[A": history-search-backward
 # DOWN
 "\e[B": history-search-forward
-
-##### standard search tools moved to <shift>+ or PGUP/PGDOWN
+##### but keepe the standard prev/next version on <shift>+
 # <shift>+UP
-"\e[1;2A": previous-history
+"\e[a": previous-history
 # <shift>+DOWN
-"\e[1;2B": next-history
-# PAGEUP
-"\e[5~": previous-history
-# PAGEDOWN
-"\e[6~": next-history
+"\e[b": next-history
+##### incremental search of history
+# <control>+UP
+"\eOa": reverse-search-history
+# <control>+DOWN
+"\eOb": forward-search-history
 
-##### a different, interactive kind of search
+#####
+# PAGEUP
+"\e[5~": menu-complete-backward
+# PAGEDOWN
+"\e[6~": menu-complete
 # <control>+PAGEUP
-"\e[5;5~": reverse-history-search
+"\e[5^": non-incremental-reverse-search-history
 # <control>+PAGEDOWN
-"\e[6;5~": forward-history-search
+"\e[6^": non-incremental-forward-search-history
 
 ##### word-by-word horizontal movement in the shell
 ##### So important, it's mount more than once
@@ -103,19 +144,10 @@ Control-d: unix-filename-rubout
 # <shift>+LEFT
 "\e[d": backward-word
 
-##### basic L/R still do the standard single-char move
-# <alt>+RIGHT
-#"\e[1;3C": forward-word
-# <alt>+LEFT
-#"\e[1;3D": backward-word
 
 ##### <delete> - makes sure it's still bound to the correct
 ##### comman as it gets rewritten fairly eaisily
 "\e[3~": delete-char
-
-##### Needed to be a known command for other, complex commands
-##### below that entire more than one command
-#"\C-x\C-k": kill-whole-line
 
 ##### go to kust before the first option of THIS command
 ##### that is, if you had alread typed
@@ -127,8 +159,8 @@ Control-d: unix-filename-rubout
 ##### This is very similar to the next macro, but stays
 ##### within the current command only, without touching
 ##### the history
-# <alt>+2
-#"\e2": "[1;5C "
+# <meta>+a
+"\ea": "Oc "
 
 ##### load the previous comand, and edit
 ##### move to enter the FIRST option
@@ -141,14 +173,12 @@ Control-d: unix-filename-rubout
 ##### A single extra space is also added such that the point
 ##### is now _between_ spaces and is read for something else
 ##### to be entered.
-# <control>+f
-#"\C-f": "[1;5C "
+Control-f: "[AOc "
 
 ### ----- Bash-specific macros ----- ###
 $if Bash
     ##### remap keyboard macro recording to modern emacs style
     # <F3>
-    #"\eOR": start-kbd-macro
     "\e[13~": start-kbd-macro
     # <F4>
     "\e[14~": end-kbd-macro
@@ -191,6 +221,10 @@ $if Bash
     ##### This compliments the builting C-xC-r to relaod *THIS* file
     # <control>+x <control>+b
     #"\C-x\C-b": ". ~/.bashrc"
+
+    # cd up to the parent directory
+    # <control>+p
+    Control-p: "cd .."
 $endif
 
 
