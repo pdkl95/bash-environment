@@ -209,11 +209,6 @@ could_become_mkv() {
     find . -type f -not -name *.wmv -not -name *.mkv
 }
 
-bc_autoscale() {
-    echo "scale=2; $@" | bc
-}
-alias c="bc_autoscale"
-
 # Local Variables:
 # mode: sh
 # sh-basic-offset: 4

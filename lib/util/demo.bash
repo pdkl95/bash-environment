@@ -1,12 +1,20 @@
 
 demo-ansi-raw-escapes() {
-    for a in 0 1 4 5 7; do
-        echo "a=$a "
-        for (( f=0; f<=9; f++ )) ; do
-            for (( b=0; b<=9; b++ )) ; do
+    local outerstyle="$1"
+    #local -a styles=( 0 1 4 5 7 )
+    local -a styles=( 0 1 2 3 4 5 6 7 )
+
+    for a in "${styles[@]}" ; do
+        if [[ "${outerstyle}" == "${a}" ]] ; then
+            echo "(redundant style)"
+        fi
+        a="${outerstyle};${a}"
+        echo "(style: \"$a\") "
+        for (( f=0; f<8; f++ )) ; do
+            for (( b=0; b<8; b++ )) ; do
                 #echo -ne "f=$f b=$b"
                 echo -ne "\\033[${a};3${f};4${b}m"
-                echo -ne "\\\\\\\\033[${a};3${f};4${b}m"
+                echo -ne "\\\\033[${a};3${f};4${b}m"
                 echo -ne "\\033[0m "
             done
             echo
@@ -14,6 +22,17 @@ demo-ansi-raw-escapes() {
         echo
     done
     echo
+}
+
+demo-ansi-raw-pair-escapes() {
+    local -a styles=( 0 1 2 3 4 5 6 7 )
+
+    for s in "${styles[@]}" ; do
+        echo "    ---==*==---  Style Pairs: ${s};\${0..7}  ---==*==---"
+        echo
+        demo-ansi-raw-escapes "$s"
+        echo
+    done
 }
 
 demo-color-macros() {

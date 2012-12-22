@@ -9,6 +9,7 @@ ${HOME}/bin:\
 ${HOME}/bin/elf:\
 ${HOME}/.rbenv/shims:\
 ${HOME}/.cw/bin:\
+${HOME}/opt/bin:\
 ${PATH}"
 
 export TERM INPUTRC PATH

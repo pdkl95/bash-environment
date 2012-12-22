@@ -7,6 +7,7 @@ bashEV_include "ui/ansicolor"
 bashEV_include "ui/messages"
 bashEV_include "ui/widgets"
 bashEV_include "ui/prompt"
+bashEV_include "ui/cd"
 
 # Local Variables:
 # mode: sh

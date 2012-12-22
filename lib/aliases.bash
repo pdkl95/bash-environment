@@ -47,7 +47,10 @@ alias lsmanpath='echo -e ${MANPATH//:/\\n}'
 alias jl="joblist"
 alias toilet="command toilet -d ${HOME}/.cw/fonts"
 
-alias d="display"
+alias d="$(first_available_cmd display xli xdg-open)"
+# old habbit; sigh
+alias xli="d"
+
 alias z="zile"
 alias n="nano"
 
@@ -132,6 +135,7 @@ if is_cmd strace ; then
     alias strace="command strace-color"
     alias strace-file="strace -e trace=file"
 fi
+
 
 #unset awrap rst
 

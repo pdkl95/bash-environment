@@ -1,0 +1,1 @@
+/home/endymion/.rbenv/completions/rbenv.bash
