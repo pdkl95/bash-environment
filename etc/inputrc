@@ -1,12 +1,17 @@
-# make sure th basic distro settings are what we start with
+###################################
+###  -=-  generic options  -=-  ###
+###################################
+
+##### first make sure the basic distro settings are loaded,
+##### so we start with the current-OS's bindings
+
 $include /etc/inputrc
 
-### OPTIONS ###
+##### options that are good everywhere
 set bell-style none
 set bind-tty-special-chars off
 set blink-matching-paren on
 set completion-ignore-case off
-#set completion-prefix-display-length 8
 set completion-prefix-display-length 0
 set completion-query-items 350
 set convert-meta off
@@ -29,127 +34,134 @@ set show-all-if-unmodified on
 set skip-completed-text on
 set visible-stats off
 
-### KEY BINDINGS ###
 
-# DEBUG THESE BINGINGS EASILY
-# JUST DUMP THE TABLE
+#############################
+###  -=-  debugging  -=-  ###
+#############################
+
+##### dump binding tables
+# <META>-d f
 "\edf": dump-functions
+# <META>-d v
 "\edv": dump-variables
+# <META>-d m
 "\edm": dump-macros
 
-Return: accept-line
-#Newline: accept-line
-
-# <MENU> button
-"\e[29~": menu-complete
-"\e[29$": menu-complete-backward
-
-### HACK: using vertical tab as a 2nd ESC (HACKED URXVT ONLY!)
-#  non-working:
-#    "\033\033\001\015": "S-Return"
-#    "\033\033\003\015": "S-C-Return"
-#    "\033\033\004\015": "M-Return"
-#    "\033\033\006\015": "C-M-Return"
-#    "\033\033\001\011": "S-tab"
-#    "\033\033\006\011": "M-tab"
-#
-#### RETURN ####
-# <shfit>+RETURN
-#"\033\001\015": edit-and-execute-command
-"\033\033\001\015": accept-line
-# <control>-RETURN
-"\033\033\002\015": operate-and-get-next
-
-# <shift>+<meta>+RETURN  ***WARNING: the shfit ends up lost! ***
-"\033\033\004\015": accept-line
-"\033\033\007\015": edit-and-execute-command
-# <super>-RETURN
-"\033\033\012\015": operate-and-get-next
-# <alt>-RETURN
-"\033\033\013\015": edit-and-execute-command
-# <hyper>-RETURN
-"\033\033\014\015": "' >> echo '"
-#
-#### TAB ####
-# <control>-TAB
-"\033\033\002\011": insert-completions
-#
-#### SPACE ####
-# <shift>-SPACE
-"\033\033\001\040": set-mark
-# <control>-SPACE
-"\033\033\002\040": yank-last-arg
-# <meta>-SPACE
-"\033\033\006\040": yank-nth-arg
-
-"\033\033\012\040": set-mark
-"\033\033\013\040": set-mark
-"\033\033\014\040": magic-space
-
-"\033\033\012\077\001": "'\e[3~'\e[3~"
-"\033\033\013\077\001": "\"\eOd\e\\ \"\eOD\eOD"
-"\033\033\014\077\001": "'\eOd\e\\ '\eOD\eOD"
-"\033\033\012\077\002": "'\e[3~'\e[3~"
-"\033\033\013\077\002": "\e \eOc\"\eOC\"\eOC"
-"\033\033\014\077\002": "\e \eOc'\eOC'\eOC"
-
-# for alias debugging
-Control-_: undo
-Control-d: unix-filename-rubout
-
-"\ed": shell-backword-kill-word
-"\ek": shell-kill-word
-"\ew": copy-region-as-kill
+##### ...and a way to fix drawing problems
+# <META>-r
 "\er": redraw-current-line
 
-"\et": transpose-chars
-Control-t: transpose-words
-Control-s: character-search-backward
-Control-r: character-search
+##### as a (probably redundant) sanity-check,
+##### make sure some basic bindings are set properly
+Return: accept-line
+Control-_: undo
+Control-u: universal-argument
 
-##### Search-as-you-go is much vaster
+
+################################
+###  -==  text-killing  -=-  ###
+################################
+
+##### MUCH nicer than C-w and extends to "exit"
+##### on an empty prompt like usual
+Control-d: unix-filename-rubout
+##### replace the old version with an alternate
+##### form that only deletes word-characters
+Control-w: unix-word-rubout
+##### and give the meta variant yet another variation
+# <META>-d
+"\ed": shell-backword-kill-word
+
+##### emacs-style line killing
+Control-k: kill-line
+##### with a shell-boundary version with meta
+# <META>-k
+"\ek": shell-kill-word
+##### or on word-boundaries similar to forward-word
+# <SHIFT>-<META>-k
+"\eK": kill-word
+
+##### put text on the kill buffer, without actually removing it
+# <META>-w
+"\ew": copy-region-as-kill
+
+"\eW":
+
+###########################
+###  -=-  HISTORY  -=-  ###
+###########################
+
+##### prefix-search-as-you-go is much nicer, as it is often
+##### the previous version of a given command that you want
+##### to find in the history, even if it's not recent to the
+##### current session. (works best with a VERY large and global
+##### history log, so you can even pull commands from months
+##### earlier, by just entering the prefix)
 # UP
 "\e[A": history-search-backward
 # DOWN
 "\e[B": history-search-forward
-##### but keepe the standard prev/next version on <shift>+
-# <shift>+UP
+##### but keepe the standard prev/next version on <SHIFT>-
+# <SHIFT>-UP
 "\e[a": previous-history
-# <shift>+DOWN
+# <SHIFT>-DOWN
 "\e[b": next-history
 ##### incremental search of history
-# <control>+UP
+# <CONTROL>-UP
 "\eOa": reverse-search-history
-# <control>+DOWN
+# <CONTROL>-DOWN
 "\eOb": forward-search-history
 
-#####
+##### the rest of the search tools are placed on page{up,down}
+##### mainly because the keys aren't being used for anything else
 # PAGEUP
 "\e[5~": menu-complete-backward
 # PAGEDOWN
 "\e[6~": menu-complete
-# <control>+PAGEUP
+# <CONTROL>-PAGEUP
 "\e[5^": non-incremental-reverse-search-history
-# <control>+PAGEDOWN
+# <CONTROL>-PAGEDOWN
 "\e[6^": non-incremental-forward-search-history
 
+
+###################################
+###  -=-  cursor movement  -=-  ###
+###################################
+
+##### transposing words is far more useful, and therefore gets
+##### the easier/nicer modifier key
+Control-t: transpose-words
+# <META>-t
+"\et": transpose-chars
+
+##### Searching like emacs
+Control-s: character-search-backward
+Control-r: character-search
+
 ##### word-by-word horizontal movement in the shell
-##### So important, it's mount more than once
-# <control>+RIGHT
-"\eOc": shell-forward-word
-# <control>+LEFT
-"\eOd": shell-backward-word
-# <shift>+RIGHT
-"\e[c": forward-word
-# <shift>+LEFT
-"\e[d": backward-word
+##### by contiguous-letter/number segments
+# <CONTROL>-RIGHT
+"\eOc": forward-word
+# <CONTROL>-LEFT
+"\eOd": backward-word
+##### by shell-argument boundaries
+# <SHIFT>-RIGHT
+"\e[c": shell-forward-word
+# <SHIFT>-LEFT
+"\e[d": shell-backward-word
 
 
-##### <delete> - makes sure it's still bound to the correct
-##### comman as it gets rewritten fairly eaisily
-"\e[3~": delete-char
+#######################
+###  -=-  etc  -=-  ###
+#######################
 
-##### go to kust before the first option of THIS command
+##### make the menu button useful
+# MENU
+"\e[29~": menu-complete
+# <SHIFT>-MENU
+"\e[29$": menu-complete-backward
+
+##### go to just before the first option of THIS command
 ##### that is, if you had alread typed
 #####    echo foo bar baz
 ##### no matter the point is now, you end here
@@ -159,7 +171,7 @@ Control-r: character-search
 ##### This is very similar to the next macro, but stays
 ##### within the current command only, without touching
 ##### the history
-# <meta>+a
+# <META>-a
 "\ea": "Oc "
 
 ##### load the previous comand, and edit
@@ -175,8 +187,123 @@ Control-r: character-search
 ##### to be entered.
 Control-f: "[AOc "
 
-### ----- Bash-specific macros ----- ###
+
+#########################
+###  -=-  urxvt  -=-  ###
+#########################
+
+$if term=rxvt
+    ##### HACK: using vertical tab as a 2nd ESC (HACKED URXVT ONLY!)
+    #  non-working:
+    #    "\033\033\001\015": "S-Return"
+    #    "\033\033\003\015": "S-C-Return"
+    #    "\033\033\004\015": "M-Return"
+    #    "\033\033\006\015": "C-M-Return"
+    #    "\033\033\001\011": "S-tab"
+    #    "\033\033\006\011": "M-tab"
+
+    #### RETURN ####
+    # <shfit>-RETURN
+    "\033\033\001\015": accept-line
+    # <CONTROL>-RETURN
+    "\033\033\002\015": operate-and-get-next
+    # <SHIFT>-<META>-RETURN  ***WARNING: the shift ends up lost! ***
+    "\033\033\004\015": accept-line
+    # <SHIFT>-<CONTROL>-<META>-RETURN
+    "\033\033\007\015": edit-and-execute-command
+    # <SUPER>-RETURN
+    "\033\033\012\015": operate-and-get-next
+    # <ALT>-RETURN
+    "\033\033\013\015": edit-and-execute-command
+    # <HYPER>-RETURN
+    "\033\033\014\015": "' >> echo '"
+
+    #### TAB ####
+    # <CONTROL>-TAB
+    "\033\033\002\011": insert-completions
+
+    #### 'k' ####
+    # <SUPER>-k
+    "\033\033\012\153": kill-region
+
+    #### SPACE ####
+    # <SHIFT>-SPACE
+    "\033\033\001\040": " "
+    # <CONTROL>-SPACE
+    "\033\033\002\040": set-mark
+    # <META>-SPACE
+    "\033\033\004\040": " "
+    # <SUPER>-SPACE
+    "\033\033\012\040": magic-space
+    # <ALT>-SPACE
+    "\033\033\013\040": yank-last-arg
+    # <HYPER>-SPACE
+    "\033\033\014\040": yank-nth-arg
+
+    #### ARROW KEYS ####
+
+    ### transposing by shell-arg boundary
+    # <META>-LEFT
+    "\033\033\004\077\001": "\eOc\e[C\e \eOd\033\033\012\153\eOd\eOd"
+    # <META>-RIGHT
+    "\033\033\004\077\002": "\eOc\e \eOd\e[D\033\033\012\153\eOc"
+
+    ### transposing by shell-arg boundary
+    # <SUPER>-LEFT
+    "\033\033\012\077\001": "\e[d\ek\e[d"
+    # <SUPER>-RIGHT
+    "\033\033\012\077\002": "\e[d\ek\e[c"
+
+    ### double-quote wrapping/unwrapping ###
+    # <ALT>-LEFT
+    "\033\033\013\077\001": "\"\e[d\e\\ \"\eOD\eOD"
+    # <ALT>-RIGHT
+    "\033\033\013\077\002": "\e \e[c\"\eOC\"\eOC"
+    # <SHIFT>-<ALT>-LEFT
+    "\033\033\015\077\001": "\e\"\e[3~\e\"\e[3~"
+    # <SHIFT>-<ALT>-RIGHT
+    "\033\033\015\077\002": "\"\e[3~\"\e[3~"
+
+    ### single-quote wrapping/unwrapping ###
+    # <HYPER>-LEFT
+    "\033\033\014\077\001": "'\e[d\e\\ '\eOD\eOD"
+    # <HYPER>-RIGHT
+    "\033\033\014\077\002": "\e \e[c'\eOC'\eOC"
+    # <SHIFT>-<HYPER>-LEFT
+    "\033\033\016\077\001": "\e'\e[3~\e'\e[3~"
+    # <SHIFT>-<HYPER>-RIGHT
+    "\033\033\016\077\002": "'\e[3~'\e[3~"
+
+    #### DELETE ####
+
+    # <SHIFT>-DELETE
+    "\033\033\001\063\176": "\e[c\e[3~"
+    # <CONTROL>-DELETE
+    "\033\033\002\063\176": "\eOc\e[3~"
+    # <SHIFT>-<CONTROL>-DELETE
+    "\033\033\004\063\176": "\e[c\e[3~"
+    # <SHIFT>-<META>-DELETE
+    "\033\033\005\063\176": "\eOc\e[3~"
+    # <SHIFT>-<CONTROL>-<META>-DELETE
+    "\033\033\007\063\176": kill-whole-line
+    # <SUPER>-DELETE
+    "\033\033\012\063\176": delete-horizontal-space
+    # <ALT>-DELETE
+    "\033\033\013\063\176": copy-region-as-kill
+    # <HYPER>-DELETE
+    "\033\033\014\063\176": kill-region
+$endif
+
+
+########################
+###  -=-  bash  -=-  ###
+########################
+
 $if Bash
+    ##### cd up to the parent directory
+    # <CONTROL>-p
+    Control-p: "cd .."
+
     ##### remap keyboard macro recording to modern emacs style
     # <F3>
     "\e[13~": start-kbd-macro
@@ -186,9 +313,9 @@ $if Bash
     "\e[15~": call-last-kbd-macro
 
     ##### dabbrev expansion experiment
-    # shift+<TAB>
+    # <SHIFT>-<TAB>
     "\e[Z": dynamic-complete-history
-    # META+h
+    # <META>+h
     #"\eh": dabbrev-expand
 
     ##### insert ALL possible completions into current line
@@ -203,30 +330,30 @@ $if Bash
 
     ##### cd to whatever was named LAST in the previous command
     ##### for example, typing
-    #####     cp -r /some/other/dir/ foo<RETURN><ALT>+l
+    #####     cp -r /some/other/dir/ foo<RETURN><ALT>-l
     ##### will, after the copy is done, have you end up
     ##### in the newly copied "foo/" directory. It does an
     ##### 'ls' for you as ell once it gets there, as thhat's alost
     ##### certainly what you want to see first.
-    # <alt>+l
+    # <ALT>-l
     #"\el": 'cd !$ ls -lh'
 
     ##### A shortcut for the previos shortcut, that presses
     ##### the <return> in the middle for your
-    # <alt>+L
+    # <ALT>-L
     #"\eL": 'l'
 
     ##### reload the entire bash enviroment by running your
     ##### ~/.bashrc script again from the top
     ##### This compliments the builting C-xC-r to relaod *THIS* file
-    # <control>+x <control>+b
+    # <CONTROL>-x <CONTROL>-b
     #"\C-x\C-b": ". ~/.bashrc"
-
-    # cd up to the parent directory
-    # <control>+p
-    Control-p: "cd .."
 $endif
 
+
+######################
+###  -=-  END  -=- ###
+######################
 
 # Local Variables:
 # mode: sh

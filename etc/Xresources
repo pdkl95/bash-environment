@@ -45,12 +45,17 @@ Rxvt*foreground: white
 Rxvt*background: black
 Rxvt*scrollBar: false
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 URxvt*altSendsEscape: true
 !URxvt*meta8: true
 
 URxvt*modifier: meta
 !URxvt*modifier: super
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! <RETURN>
 !URxvt*keysym.S-Return: \033\033\001\015
 URxvt*keysym.C-Return: \033\033\002\015
 !URxvt*keysym.S-C-Return: \033\033\003\015
@@ -63,10 +68,15 @@ URxvt*keysym.3-Return: \033\033\012\015
 URxvt*keysym.4-Return: \033\033\013\015
 URxvt*keysym.5-Return: \033\033\014\015
 
+! <TAB>
 !URxvt*keysym.S-Tab: \033\033\001\011
 URxvt*keysym.C-Tab: \033\033\002\011
 !URxvt*keysym.M-Tab: \033\033\006\011
 
+! 'k' - 0x6B
+URxvt*keysym.3-0x6B: \033\033\012\153
+
+! <SPACE> - 0x20
 URxvt*keysym.S-0x20: \033\033\001\040
 URxvt*keysym.C-0x20: \033\033\002\040
 URxvt*keysym.M-0x20: \033\033\004\040
@@ -74,14 +84,36 @@ URxvt*keysym.3-0x20: \033\033\012\040
 URxvt*keysym.4-0x20: \033\033\013\040
 URxvt*keysym.5-0x20: \033\033\014\040
 
-
-
+! <arrow Keys>
+URxvt*keysym.M-Left: \033\033\004\077\001
 URxvt*keysym.3-Left: \033\033\012\077\001
 URxvt*keysym.4-Left: \033\033\013\077\001
 URxvt*keysym.5-Left: \033\033\014\077\001
+URxvt*keysym.S-4-Left: \033\033\015\077\001
+URxvt*keysym.S-5-Left: \033\033\016\077\001
+URxvt*keysym.M-Right: \033\033\004\077\002
 URxvt*keysym.3-Right: \033\033\012\077\002
 URxvt*keysym.4-Right: \033\033\013\077\002
 URxvt*keysym.5-Right: \033\033\014\077\002
+URxvt*keysym.S-4-Right: \033\033\015\077\002
+URxvt*keysym.S-5-Right: \033\033\016\077\002
+
+! <backspace> - 0x7F
+
+! <delete> - ESC [ 0x33 0x7E
+URxvt*keysym.S-Delete: \033\033\001\063\176
+URxvt*keysym.C-Delete: \033\033\002\063\176
+!URxvt*keysym.M-Delete: \033\033\003\063\176  !! does not work
+URxvt*keysym.S-C-Delete: \033\033\004\063\176
+URxvt*keysym.S-M-Delete: \033\033\005\063\176
+URxvt*keysym.C-M-Delete: \033\033\006\063\176
+URxvt*keysym.S-C-M-Delete: \033\033\007\063\176
+URxvt*keysym.3-Delete: \033\033\012\063\176
+URxvt*keysym.4-Delete: \033\033\013\063\176
+URxvt*keysym.5-Delete: \033\033\014\063\176
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 ! xft:terminus:pixelsize=14
 ! xft:Code2000:antialias=false
