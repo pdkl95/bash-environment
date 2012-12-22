@@ -1,0 +1,72 @@
+#!/bin/bash
+
+_ORIGENV_JDK_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
+_ORIGENV_JDK_LDPATH="${LDPATH}"
+_ORIGENV_JDK_MANPATH="${MANPATH}"
+_ORIGENV_JDK_PATH="${PATH}"
+
+PROMPT_PREFIX="jdk"
+
+
+CURRENT_JAVA_VM="$(java-config --show-active-vm)"
+if [[ -z "${CURRENT_JAVA_VM}" ]] ; then
+    echo "ERROR: No current java VM has been set!" 1>&2
+else
+    eval "$(java-config --print=${CURRENT_JAVA_VM})"
+
+    [[ -n "${_ORIGENV_JDK_LD_LIBRARY_PATH}" ]] && \
+        LD_LIBRARY_PATH="${PATH}:${_ORIGENV_JDK_LD_LIBRARY_PATH}"
+
+    [[ -n "${_ORIGENV_JDK_LDPATH}" ]] && \
+        LDPATH="${PATH}:${_ORIGENV_JDK_LDPATH}"
+
+    [[ -n "${_ORIGENV_JDK_MANPATH}" ]] && \
+        MANPATH="${MANPATH}:${_ORIGENV_JDK_MANPATH}"
+
+    [[ -n "${_ORIGENV_JDK_PATH}" ]] && \
+        PATH="${PATH}:${_ORIGENV_JDK_PATH}"
+
+    if [[ -z "${JAVA_HOME}" ]] ; then
+        echo "ERROR: JAVA_HOME is blank - no JDK found."
+    elif [[ -z "${JDK_HOME}" ]] ; then
+        echo "ERROR: JDK_HOME is blank - no JDK found. (maybe JRE-only?)"
+    else
+        # proceeding
+        export JAVA_HOME JDK_HOME JAVAC ROOTPATH MANPATH PATH LDPATH
+        if [[ -n "${LDPATH}" ]] ; then
+            if [[ -n "${LD_LIBRARY_PATH}" ]] ; then
+                LD_LIBRARY_PATH="${LDPATH}:${LD_LIBRARY_PATH}"
+            else
+                LD_LIBRARY_PATH="${LDPATH}"
+            fi
+            export LD_LIBRARY_PATH
+        fi
+    fi
+fi
+
+unloadenv_jdk() {
+    unset CURRENT_JAVA_VM
+    unset JAVA_HOME JDK_HOME JAVAC ROOTPATH
+
+    LD_LIBRARY_PATH="${_ORIGENV_JDK_LD_LIBRARY_PATH}"
+    LDPATH="${_ORIGENV_JDK_LDPATH}"
+
+    [[ -n "${LD_LIBRAYR_PATH}" ]] \
+        && export LD_LIBARY_PATH \
+        ||  unset LD_LIBRARY_PATH
+
+    [[ -n "${LDPATH}" ]] \
+        && export LDPATH \
+        ||  unset LDPATH
+
+    MANPATH="${_ORIGENV_JDK_MANPATH}"
+    PATH="${_ORIGENV_JDK_PATH}"
+    export PATH MANPATH
+
+    unset _ORIGENV_JDK_LD_LIBRARY_PATH
+    unset _ORIGENV_JDK_LDPATH
+    unset _ORIGENV_JDK_MANPATH
+    unset _ORIGENV_JDK_PATH
+
+    unset -f unloadenv_jdk
+}
