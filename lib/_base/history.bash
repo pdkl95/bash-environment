@@ -39,7 +39,7 @@ export HISTLASTCMD=""
 LOCAL_HISTDIR="${HISTFILE}.d"
 LOCAL_LOADTIME="$(date "+%Y%m%d-%H%M.%3N")"
 
-_history_merge_lastcmd() {
+_prompt_command__history_lastcmd() {
     # save the last command to the history log
     history -a
 
@@ -81,4 +81,4 @@ _history_merge_lastcmd() {
     fi
 }
 
-_bashEV_add_prompt_command _history_merge_lastcmd
+#_add_prompt_command history_lastcmd

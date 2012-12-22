@@ -132,7 +132,7 @@ prompt_cmdstatus() {
     fi
 }
 
-_print_current_prompt() {
+_prompt_command__current_prompt() {
     local RV="$LASTCMD_RETVAL"
     local CSTATUS="$(prompt_cmdstatus $RV)"
 
@@ -147,6 +147,6 @@ _print_current_prompt() {
     fi
 }
 
-_bashEV_add_prompt_command _print_current_prompt
+#_add_prompt_command current_prompt
 export PS1ORIG="\u@\h \w \$ "
 export PS1="${PS1ORIG}"

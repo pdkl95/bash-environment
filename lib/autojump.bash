@@ -46,13 +46,13 @@ _autojump_update_cwd() {
     _autojump_add "${PWD}" >/dev/null 2>"${AUTOJUMP_DATA_DIR}/errors"
 }
 
-_autojump_inprompt() {
+_prompt_command__autojump_update() {
     (_autojump_update_cwd & )> /dev/null
 }
 
-_bashEV_add_prompt_command _autojump_inprompt
+#_add_prompt_command autojump_update
 
-function j {
+j() {
     if [[ ${@} =~ -.* ]]; then
         autojump ${@}
         return

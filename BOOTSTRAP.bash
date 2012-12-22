@@ -37,6 +37,16 @@ is_cmd() {
     command hash "$1" 2>&-
 }
 
+first_available_cmd() {
+    for cmd in "$@" ; do
+        if $(is_cmd "${cmd}") ; then
+            echo "${cmd}"
+            return 0
+        fi
+    done
+    return 1
+}
+
 # store most bashEV local vars in a hash, so
 # we aren't polluting the global namespace with
 # a huge amount of junk
@@ -104,19 +114,18 @@ export XDG_CONFIG_DIRS XDG_DATA_DIRS
 ###################
 
 declare LASTCMD_RETVAL=""
-_lastcmd_save_retval() {
+
+_run_prompt_commands() {
     LASTCMD_RETVAL="$?"
-}
-PROMPT_COMMAND="_lastcmd_save_retval"
-
-
-_bashEV_add_prompt_command() {
-    if [[ "${PROMPT_COMMAND}" =~ ${1} ]] ; then
-        echo "PROMPT_COMMAND already containes \"${1}\"" 1>&2
-    else
-        PROMPT_COMMAND="${PROMPT_COMMAND}; $@"
+    if ! [[ -v PROMPT_COMMAND_FUNCTIONS ]] ; then
+        PROMPT_COMMAND_FUNCTIONS=$(compgen -A function _prompt_command__)
     fi
+    for func in ${PROMPT_COMMAND_FUNCTIONS} ; do
+        ${func}
+    done
 }
+
+PROMPT_COMMAND="_run_prompt_commands"
 
 _bashEV_safe_load() {
     [ -f "$1" ] && source "$1"
