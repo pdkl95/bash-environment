@@ -7,7 +7,7 @@ yn() {
     if (( $# > 0 )) ; then
         # ...run a given command and save it's results
         local cmd="$1" ; shift
-        $cmd "$@"
+        eval "$cmd $*"
         ret=$?
     fi
 
