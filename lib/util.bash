@@ -2,6 +2,7 @@
 
 bashEV_include "util/mplayer"
 #bashEV_include "util/autooppen"
+bashEV_include "util/homegit"
 
 cs() {
     cd "$1"
