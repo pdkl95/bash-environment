@@ -30,8 +30,6 @@ _mplayer_launcher() {
         fi
     done
 
-    #declare -p last opts args
-
     : ${MP_BIN:=mplayer2}
     MP_BIN="$(which "${MP_BIN}")"
 
@@ -71,5 +69,24 @@ mn() {
     local MP_BIN="mplayer" MP_NAMEPAD="-" MP_BINOPT="-quiet"
     _mplayer_launcher "$@"
 }
+mcomp() {
+    local MP_BINOPT='-profile comp'
+    _mplayer_launcher "$@"
+}
+mcompmore() {
+    local MP_BINOPT='-profile compmore'
+    _mplayer_launcher "$@"
+}
 
-alias mp="mplayer2"
+
+if ! is_cmd mp ; then
+    alias mp="mplayer2"
+fi
+
+if ! is_cmd mc ; then
+    alias mc="mcomp"
+fi
+
+if ! is_cmd mcm ; then
+    alias mcm="mcompmore"
+fi
