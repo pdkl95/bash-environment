@@ -36,6 +36,7 @@ export AUTOJUMP_DATA_DIR="${XDG_DATA_HOME}/autojump"
 
 _autojump_add() {
     export AUTOJUMP_KEEP_ALL_ENTRIES=1
+    local i
     for i in "$@"; do
         autojump -a "${i}"
     done

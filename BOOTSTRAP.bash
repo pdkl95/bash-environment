@@ -38,6 +38,7 @@ is_cmd() {
 }
 
 first_available_cmd() {
+    local cmd
     for cmd in "$@" ; do
         if $(is_cmd "${cmd}") ; then
             echo "${cmd}"
@@ -120,6 +121,7 @@ _run_prompt_commands() {
     if ! [[ -v PROMPT_COMMAND_FUNCTIONS ]] ; then
         PROMPT_COMMAND_FUNCTIONS=$(compgen -A function _prompt_command__)
     fi
+    local func
     for func in ${PROMPT_COMMAND_FUNCTIONS} ; do
         ${func}
     done

@@ -66,6 +66,7 @@ _prompt_command__history_lastcmd() {
             cd|CD) ex="'${ex}' OLDPWD='${OLDPWD}'" ;;
         esac
 
+        local var
         for var in SSH_CONNECTION ; do
             if [[ -v $var ]] ; then
                 ex="${ex} ${var}=${!var}"
