@@ -2,3 +2,8 @@
 source "${bashEV_BOOTSTRAP:-${HOME}/.bash/BOOTSTRAP.bash}"
 bashEV_autostart $(basename ${BASH_SOURCE[0]})
 if [[ -f "env_autoload.bash" ]] ; then source "env_autoload.bash" ; fi
+# pro cd function
+p() {
+  projDir=$(pro search $1)
+  cd ${projDir}
+}

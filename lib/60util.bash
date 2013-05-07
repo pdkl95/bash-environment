@@ -1,8 +1,19 @@
 #!/bin/bash
 
-bashEV_include "util/mplayer"
-#bashEV_include "util/autooppen"
-bashEV_include "util/homegit"
+man() {
+    local i
+    for i ; do
+        xtitle man -a $(basename $1|tr -d .[:digit:])
+        command man -a "$i"
+    done
+}
+
+pdf() {
+    local i
+    for i in "$@" ; do
+        zathura "$i" &disown
+    done
+}
 
 cs() {
     cd "$1"

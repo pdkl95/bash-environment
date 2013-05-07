@@ -86,10 +86,9 @@ bashEV[HOME]="${bashEV_HOME:-${HOME}}"
 bashEV[VAR]="${bashEV[HOME]}/var"
 
 bashEV[VERBOSE]="${bashEV_VERBOSE:-2}"
-bashEV[COMPLOCAL]="${bashEV[ETC]}/completion"
 
-bashEV[envDIR]="${bashEV[LIB]}/env.d"
-bashEV[envDEFAULT]="general"
+#bashEV[envDIR]="${bashEV[LIB]}/env.d"
+#bashEV[envDEFAULT]="general"
 
 PROMPT_COMMAND=""
 
@@ -130,7 +129,16 @@ _run_prompt_commands() {
 PROMPT_COMMAND="_run_prompt_commands"
 
 _bashEV_safe_load() {
-    [ -f "$1" ] && source "$1"
+    if [[ -f "$1" ]] ; then
+        source "$1"
+    else
+        if [[ -e "$1" ]] ; then
+            local msg="not a directory"
+        else
+            local msg="directory does not exist"
+        fi
+        echo "_bashEV_save_load: cannot load \"${1}\" - ${msg}" 1>&2
+    fi
 }
 
 _bashEV_find_lib() {
@@ -147,33 +155,35 @@ bashEV_load() {
     _bashEV_safe_load "$(_bashEV_find_lib "$1")"
 }
 
-# like load in all way, but is a mark for caching
-bashEV_include() {
-    bashEV_load "$@"
-}
+bashEV_load_dir() {
+    local dir="$1"
+    if ! [[ -d "${dir}" ]] ; then
+        reldir="${bashEV[ROOT]}/${dir}"
 
-bashEV_load_minimal() {
-    bashEV_load "_base"
-}
+        if ! [[ -d "${reldir}" ]] ; then
+            echo "bashEV_load_dir: error - not a directory: \"${dir}\""
+            echo "bashEV_load_dir: (also tried: \"${reldir}\")"
+            return 1
+        fi
 
-bashEV_load_standard() {
-    bashEV_load "ui"
-    bashEV_load "editor"
-    bashEV_load "app"
-    bashEV_load "aliases"
-    bashEV_load "util"
-    bashEV_load "completion"
-    bashEV_load "autojump"
-}
+        dir="${reldir}"
+    fi
 
-bashEV_boot_as_script() {
-    bashEV_load_minimal
-    bashEV_load
+    while IFS= read file ; do
+        source "${file}"
+    done < <(
+        find "${dir}" \
+            -maxdepth 1 \
+            -type f \
+            -name '[0-9][0-9]*.bash'
+    )
+
+    return 0
 }
 
 bashEV_boot_as_bashrc() {
-    bashEV_load_minimal
-    bashEV_load_standard
+    bashEV_load_dir "lib/_base"
+    bashEV_load_dir "lib"
 }
 
 bashEV_boot_as_profile() {
@@ -201,7 +211,6 @@ bashEV_autostart() {
 
     #echo "AUTOSTART: $name"
     case "$name" in
-        bashev)        bashEV_boot_as_script  ;;
         .bashrc)       bashEV_boot_as_bashrc  ;;
         .bash_profile) bashEV_boot_as_profile ;;
         *)             bashEV_boot_as_command "$name" ;;

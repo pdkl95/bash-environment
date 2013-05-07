@@ -5,6 +5,10 @@
 ###  PROMPT  ###
 ################
 
+# kill XON/XOFF (^s/^q) flow control
+#stty -ixon
+
+
 current_ruby_version() {
     local OPT="$1"
     local V=$(rbenv version-name)

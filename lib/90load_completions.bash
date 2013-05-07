@@ -20,7 +20,11 @@ load_compdir() {
 compalias() {
     local f="$1"
     shift
-    [ "$(type -t "$f")" = function ] && complete -F "$f" "$@"
+    if [[ "$(type -t "$f")" == 'function' ]] ; then
+        complete -F "$f" "$@"
+    else
+        echo "compalias: completions for \"${f}\" not found"
+    fi
 }
 
 # load standard system-provided completions
@@ -29,14 +33,14 @@ compalias() {
 BCSYS_DB="/usr/share/bash-completion"
 BCSYS_ON="/etc/bash_completion.d"
 
-[ -z "$BASH_COMPLETION" ] && BASH_COMPLETION="${BCSYS_ON}/base"
+[[ -z "$BASH_COMPLETION" ]] && BASH_COMPLETION="${BCSYS_ON}/base"
 
 bashEV_load  "${BCSYS_DB}/.pre"
 load_compdir "${BCSYS_ON}"
 bashEV_load  "${BCSYS_DB}/.post"
 
 # finally, load our custom libs
-load_compdir "${bashEV[COMPLOCAL]}"
+load_compdir "${bashEV[LIB]}/completion"
 
 # and connect to any of the simple aliases, etc
 compalias _git -o default -o nospace g

@@ -1,0 +1,1 @@
+../../../opt/minecraft/libexec/bashcomplete-mc.bash

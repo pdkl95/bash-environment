@@ -10,25 +10,9 @@ cps() {
     ps -u root U `whoami` --forest -o pid,stat,tty,user,command |ccze -m ansi
 }
 
-my_ps() {
-    ps --deselect --ppid 2 "$@" -o pid,user,%cpu,%mem,nlwp,stat,bsdstart,vsz,rss,cmd --sort=bsdstart
-}
-
-pstree-list() {
-    my_ps f "$@"
-}
-
-my_ps_tree_wide() {
-    pstree-list-wide ww "$@"
-}
-
-# pseudo 'pstree' from ps; has more info
-alias pp="my_ps_tree"
-alias ppw="my_ps_tree ww"
-
 # also, fixup the actual "pstree" (requires wide output, but
 # can be very easy to read
-is_cmd pstree && alias pstree="pstree -Gp"
+
 
 
 stat1() {

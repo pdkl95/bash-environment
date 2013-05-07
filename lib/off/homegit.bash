@@ -25,12 +25,12 @@ _homegit_active() {
     [[ "${PWD}" == "${HOME}" ]]
 }
 
-if [[ "$(type -t git)" == file ]] ; then
-    git() {
-        if _homegit_active ; then
-            homegit "$@"
-        else
-            "$(type -P git)" "$@"
-        fi
-    }
-fi
+# if [[ "$(type -t git)" == file ]] ; then
+#     git() {
+#         if _homegit_active ; then
+#             homegit "$@"
+#         else
+#             "$(type -P git)" "$@"
+#         fi
+#     }
+# fi

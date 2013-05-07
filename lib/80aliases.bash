@@ -81,7 +81,8 @@ if is_cmd tree ; then
 else
     alias tree="command ls -FR"
 fi
-alias pstree='pstree -U'
+
+is_cmd pstree && alias pstree='pstree -U -G -p'
 
 alias iftop='xtitle Network Activity on eth1; sudo iftop -i eth1 -P'
 alias  htop='xtitle Processes on $HOST ; sudo htop'
@@ -113,6 +114,7 @@ alias gr="igrep"
 
 [[ "$UNAME" != "Linux" ]] && is_cmd gsed && alias sed='gsed'
 
+#alias git="git-achievements"
 alias g="git"
 alias gg="git status"
 alias gitlog="git --no-pager log --oneline --graph -n 18 --decorate"

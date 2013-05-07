@@ -14,6 +14,32 @@ ${PATH}"
 
 export TERM INPUTRC PATH
 
+# so we dont' have to run 'eval "$(rbenv init -)" each time'
+declare rbenv_src="$(
+rbenv () {
+    command rbenv "$@"
+}
+declare -f rbenv
+)"
+case $(type -t rbenv) in
+    file)
+        eval "${rbenv_src}"
+        ;;
+    function)
+        if [[ "${rbenv_src}" == "$(declare -f rbenv)" ]] ; then
+            :  # no need to redefine the funciton
+        else
+            derror ".bashrc ERROR: rbenv() changed to an unknown function:" 1>&2
+            declare -f rbenv 1>&2
+        fi
+        ;;
+    *)
+        derror ".bashrc ERROR: cannot wrap rbenv which hass " 1>&2
+        derror "               already been defined as:" 1>&2
+        type rbenv 1>&2 1>&2
+        ;;
+esac
+unset rbenv_src
 
 # guess color mode from the terminal name
 # if it's not set already
