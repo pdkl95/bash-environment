@@ -82,6 +82,31 @@ m() {
     esac
 }
 
+maspect()   {
+    local orig_aspect="$1" ; shift
+    local aspect="${orig_aspect#*-}"
+    if [[ "${aspect}" =~ ^[0-9]+[:][0-9]+$ ]] ; then
+        _mplayer_launcher "-aspect ${aspect}" "$@"
+    else
+        derror "Not an aspect ratio: \"${aspect}\" (\"${orig_aspect}\")"
+    fi
+}
+
+_maspect() {
+  COMPREPLY=()
+
+  if [ "$COMP_CWORD" -eq 1 ]; then
+      local word="${COMP_WORDS[COMP_CWORD]}"
+      COMPREPLY=( $(compgen -W "1-16:9 2-16:10 3-4:3" -- "$word") )
+  else
+      _mplayer "$@"
+  fi
+}
+
+alias ma="maspect"
+complete -F _maspect maspect ma
+
+
 mmode() {
     local newmode="$1"
     if [[ -z "${MPLAYER_M_MODE}" ]] ; then

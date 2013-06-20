@@ -1,7 +1,6 @@
 # -*- mode: ruby -*-
 
-source 'http://geminabox.thoughtnoise.net'
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 
 # base rails install

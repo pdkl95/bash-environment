@@ -152,38 +152,55 @@ _bashEV_find_lib() {
 }
 
 bashEV_load() {
-    _bashEV_safe_load "$(_bashEV_find_lib "$1")"
+    local path="$(_bashEV_find_lib "$1")"
+    #echo "bashEV_load:      loading param: ${1}"
+    #echo "bashEV_load:             as dir: \"${path}\""
+    bashEV_safe_load "${path}"
 }
 
 bashEV_load_dir() {
     local dir="$1"
+    local any_ext="${2:-false}"
+
     if ! [[ -d "${dir}" ]] ; then
-        reldir="${bashEV[ROOT]}/${dir}"
+        #echo "bashEV_load_dir: error - not a directory: \"${dir}\""
+        return 1
+    fi
+    #echo "bashEV_load_dir:  loading dir:  \"${path#${bashEV[LIB]}/}\""
 
-        if ! [[ -d "${reldir}" ]] ; then
-            echo "bashEV_load_dir: error - not a directory: \"${dir}\""
-            echo "bashEV_load_dir: (also tried: \"${reldir}\")"
-            return 1
-        fi
-
-        dir="${reldir}"
+    if $any_ext ; then
+        local ext=""
+    else
+        local ext=".bash"
     fi
 
+    local name_re="[0-9][0-9]*${ext}"
+
     while IFS= read file ; do
+        #echo "bashEV_lood_dir:     - loading: \"${file#${bashEV[LIB]}/}\""
         source "${file}"
-    done < <(
-        find "${dir}" \
-            -maxdepth 1 \
-            -type f \
-            -name '[0-9][0-9]*.bash'
-    )
+    done < <(find "${dir}" -maxdepth 1 -type f -name "${name_re}" | sort)
 
     return 0
 }
 
+bashEV_include() {
+    local relpath="$1"
+    local path="${bashEV[LIB]}/${relpath}"
+    if [[ -d "${path}" ]] ; then
+        #echo "direct loading directory: ${path}"
+        bashEV_load_dir "${path}"
+    else
+        if ! [[ "${path}" =~ .*\.bash$ ]] ; then
+            path="${path}.bash"
+        fi
+        bashEV_load "${path}"
+    fi
+}
+
 bashEV_boot_as_bashrc() {
-    bashEV_load_dir "lib/_base"
-    bashEV_load_dir "lib"
+    bashEV_include "_base"
+    bashEV_include "standard"
 }
 
 bashEV_boot_as_profile() {
@@ -195,7 +212,7 @@ bashEV_boot_as_profile() {
 bashEV_boot_as_command() {
     local cmd="$1"
     #echo "BOOT_CMD: $cmd"
-    bashEV_load "editor"
+    bashEV_include "10editor"
     echo "CMD> $cmd "${bashEV[bootARGS]}""
     $cmd ${bashEV[bootARGS]}
 }
