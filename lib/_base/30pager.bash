@@ -14,7 +14,7 @@ if is_cmd less ; then
         LESSOPEN="|lesspipe %s"
     fi
     export LESSCOLOR=yes
-    if is_cmd colorize ; then
+    if [[ "$TERM" =~ 256color ]] ; then
         export LESSCOLORIZER=colorize
         export LESS_TERMCAP_mb=$'\E[0;48;5;17;38;5;161m'
         export LESS_TERMCAP_md=$'\E[0;48;5;17;38;5;117m'

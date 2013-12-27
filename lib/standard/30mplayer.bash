@@ -85,6 +85,8 @@ m() {
 maspect()   {
     local orig_aspect="$1" ; shift
     local aspect="${orig_aspect#*-}"
+    aspect="$(echo "${aspect}" | tr '/' ':')"
+
     if [[ "${aspect}" =~ ^[0-9]+[:][0-9]+$ ]] ; then
         _mplayer_launcher "-aspect ${aspect}" "$@"
     else
@@ -92,19 +94,46 @@ maspect()   {
     fi
 }
 
-_maspect() {
-  COMPREPLY=()
+_shift_completion() {
+    local func="$1" cmd="$2"
+    local -i arg_offset=${3}
+    shift 3
 
+    local -i offset=$(( 1 + $arg_offset ))
+    local -i nargs=$(( $# - offset ))
+    local OLDCMD="${COMP_WORDS[@]:0:${offset}}"
+
+    COMP_WORDS=("$cmd" ${COMP_WORDS[@]:$offset})
+    COMP_CWORD=$(($COMP_CWORD-$arg_offset))
+
+    local origlen=${#COMP_LINE}
+    COMP_LINE="${COMP_LINE/${OLDCMD}/${cmd}}"
+    local newlen=${#COMP_LINE}
+
+    local delta=$(( origlen-newlen ))
+    COMP_POINT=$(( COMP_POINT - delta ))
+
+    $func
+}
+
+_maspect() {
   if [ "$COMP_CWORD" -eq 1 ]; then
       local word="${COMP_WORDS[COMP_CWORD]}"
-      COMPREPLY=( $(compgen -W "1-16:9 2-16:10 3-4:3" -- "$word") )
+      COMPREPLY=( $(compgen -W "1-16/9 2-16/10 3-4/3" -- "$word") )
   else
-      _mplayer "$@"
+      _shift_completion _mplayer mplayer 1 "$@"
   fi
 }
 
 alias ma="maspect"
-complete -F _maspect maspect ma
+alias m9="maspect 16:9"
+alias m1="maspect 16:10"
+alias m3="maspect 4:3"
+
+complete -F _maspect m{aspect,a}
+
+#complete -F _mplayer m{1,3,9}
+#complete -F _mplayer m{,comp,compmore}
 
 
 mmode() {

@@ -221,6 +221,25 @@ could_become_mkv() {
     find . -type f -not -name *.wmv -not -name *.mkv
 }
 
+java_env() {
+    local -x JAVA_HOME="$(/usr/bin/java-config -g JAVA_HOME)"
+    local -x JDK_HOME="$(/usr/bin/java-config -g JDK_HOME)"
+    local -x JAVAC="$(/usr/bin/java-config -g JAVAC)"
+    local -x PATH="$(/usr/bin/java-config -g PATH):${PATH}"
+
+    local -x LDPATH="$(/usr/bin/java-config -g LDPATH)"
+    if [[ -n "${LD_LIBRARY_PATH}" ]] ; then
+        local -x LD_LIBRARY_PATH="${LDPATH}:${LD_LIBRARY_PATH}"
+    else
+        local -x LD_LIBRARY_PATH="${LDPATH}"
+    fi
+
+    declare -p PATH LD_LIBRARY_PATH
+    echo
+    echo
+    dshowexec "$@"
+}
+
 # Local Variables:
 # mode: sh
 # sh-basic-offset: 4

@@ -100,22 +100,22 @@ if [[ "${TERM}" =~ color ]] ; then
     # ok, not a color, but it does use ANSI codes
 
     if   [[ "$TERM" =~ rxvt-unicode.* ]] ; then
-        xtitle() {
+        _xtitle() {
              local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
              printf '\33]2;%s\007' "${title}"
         }
     elif [[ "$TERM" =~ (xterm|rxvt|rxvt-unicode|gnome)-(256)?color ]] ; then
-        xtitle() {
+        _xtitle() {
             local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
             echo -ne "\033]0;${title}\007"
         }
     elif [[ "$TERM" =~ screen.* ]] ; then
-        xtitle() {
+        _xtitle() {
             local title="${xtitlePFX}$(echo "$*" | strip_ansi)"
             echo -ne "\e]2;${title}\007"
         }
     else
-        xtitle() {
+        _xtitle() {
             echo -n ''
         }
     fi
@@ -131,7 +131,7 @@ else
     color_name_to_ansi()    { echo -n ''; }
     pcolor()                { echo -n "$@"; }
     strip_ansi()            { echo -n "$@"; }
-    xtitle()                { echo -n ''; }
+    _xtitle()                { echo -n ''; }
 fi
 
 ###############################################
@@ -200,6 +200,45 @@ else
     C()     { shift ; echo -ne "$*" ; }
 fi
 
+
+#########################
+# set the xterm's title #
+#########################
+
+xtitle() {
+    local -a title=() args=()
+    local after_mark=false cmd=
+    
+    while (( $# > 0 )) ; do
+        if $after_mark ; then
+            args+=( "$1" )
+        else
+            if [[ "$1" == '--' ]] ; then
+                after_mark=true
+                shift
+                cmd="$1"
+            else
+                title+=( "$1" )
+            fi
+        fi
+        shift
+    done
+
+    if $after_mark && [[ -n "${cmd}" ]] ; then
+        _xtitle "${title[*]}" && "${cmd}" "${args[@]}"
+    else
+        _xtitle "${title[*]}"
+    fi
+}
+
+xtitle_cmd_on_host() {
+    local showcmd= cmd="$1" ; shift
+    case "${cmd}" in
+        sudo) showcmd="$1" ;;
+        *)    showcmd="${cmd}" ;;
+    esac
+    xtitle "${showcmd}: $(hostname -f)" -- "${cmd}" "$@"
+}
 
 
 # Local Variables:

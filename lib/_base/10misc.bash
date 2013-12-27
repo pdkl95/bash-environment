@@ -14,13 +14,24 @@ ${PATH}"
 
 export TERM INPUTRC PATH
 
-# so we dont' have to run 'eval "$(rbenv init -)" each time'
 declare rbenv_src="$(
-rbenv () {
-    command rbenv "$@"
+rbenv() {
+  local command
+  command="$1"
+  if [ "$#" -gt 0 ]; then
+    shift
+  fi
+
+  case "$command" in
+  rehash|shell)
+    eval "`rbenv "sh-$command" "$@"`";;
+  *)
+    command rbenv "$command" "$@";;
+  esac
 }
 declare -f rbenv
-)"
+)
+"
 case $(type -t rbenv) in
     file)
         eval "${rbenv_src}"
@@ -36,7 +47,7 @@ case $(type -t rbenv) in
     *)
         derror ".bashrc ERROR: cannot wrap rbenv which hass " 1>&2
         derror "               already been defined as:" 1>&2
-        type rbenv 1>&2 1>&2
+        type rbenv 1>&2
         ;;
 esac
 unset rbenv_src
@@ -51,7 +62,7 @@ fi
 NOCOLOR_PIPE=1
 
 # 256 color support for grep!
-GREP_COLORS="rv:mt=38;5;197;1:sl=48;5;234:cx=38;5;247:fn=38;5;039:ln=38;5;208:bn=38;5;227:se=48;5;017;38;5;57"
+GREP_COLORS="rv:mt=38;5;197;1:sl=48;5;234:cx=38;5;247:fn=48:5:240:38;5;46:ln=38;5;208:bn=38;5;227:se=48;5;17;38;5;33"
 
 # etc
 TIMEFORMAT=$'\nreal %3R\tuser %3U\tsys %3S\tpcpu %P\n'
@@ -64,6 +75,8 @@ FIGNORE='.o:~'
 # entirely separate from the distory anyway (rbenv/bundler), so this
 # has little utility anyway.
 export RUBYOPT=""
+
+export RBENV_SHELL=bash
 
 # ruby gc tuning
 # export RUBY_HEAP_MIN_SLOTS=1000000

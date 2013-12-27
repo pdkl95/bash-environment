@@ -17,7 +17,8 @@ first_available_editor() {
 }
 
 export EDITOR="$(first_available_editor emacs_tty emacs zile nano)"
-export VISUAL="$(first_available_editor emacs_frame_wait me gedit "${EDITOR}")"
+#export VISUAL="$(first_available_editor emacs_frame_wait me gedit "${EDITOR}")"
+export VISUAL="${EDITOR}"
 
 unset first_available_editor
 

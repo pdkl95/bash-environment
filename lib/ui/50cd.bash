@@ -26,9 +26,9 @@ if [[ "$(type -t cd)" == "builtin" ]] ; then
         fi
     }
     #dinfo "overriding 'cd'"
-else
-    dwarn "\"cd\" is not a shell builtin?"
-    dwarn "$(type cd)"
+#else
+    #dwarn "\"cd\" is not a shell builtin?"
+    #dwarn "$(type cd)"
 fi
 
 # Local Variables:
