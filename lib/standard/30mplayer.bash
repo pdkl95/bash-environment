@@ -49,7 +49,8 @@ _mplayer_launcher() {
 #######################################################################
 # exported wrappers
 
-mplay()     { _mplayer_launcher ''                  "$@" ; }
+#mplay()     { _mplayer_launcher ''                  "$@" ; }
+m()         { _mplayer_launcher ''                  "$@" ; }
 mverbose()  { _mplayer_launcher '-v'                "$@" ; }
 mcomp()     { _mplayer_launcher '-profile comp'     "$@" ; }
 mcompmore() { _mplayer_launcher '-profile compmore' "$@" ; }
@@ -59,28 +60,28 @@ if ! is_cmd mp ; then
     alias mp="mplayer2"
 fi
 
-declare -a MPLAYER_M_MODES=( play player2 comp compmore verbose 3d )
-declare MPLAYER_M_MODE=play
+#declare -a MPLAYER_M_MODES=( play player2 comp compmore verbose 3d )
+#declare MPLAYER_M_MODE=play
 
-m() {
-    case ${MPLAYER_M_MODE} in
-        play | player2 | comp | compmore | verbose | 3d)
-            local cmd="m${MPLAYER_M_MODE}"
-            $cmd "$@"
-            ;;
-        *)
-            if [[ -n "${MPLAYER_M_MODE}" ]] ; then
-                dwarn "not a valid mode: MPLAYER_M_MODE=\"${MPLAYER_M_MODE}\""
-                dwarn "falling back to the basic \"play\" mode"
-            else
-                MPLAYER_M_MODE=play
-                dwarn "Setting the mode to the default:"
-                dwarn "    $(declare -p MPLAYER_M_MODE)"
-            fi
-            mplay "$@"
-            ;;
-    esac
-}
+# m() {
+#     case ${MPLAYER_M_MODE} in
+#         play | player2 | comp | compmore | verbose | 3d)
+#             local cmd="m${MPLAYER_M_MODE}"
+#             $cmd "$@"
+#             ;;
+#         *)
+#             if [[ -n "${MPLAYER_M_MODE}" ]] ; then
+#                 dwarn "not a valid mode: MPLAYER_M_MODE=\"${MPLAYER_M_MODE}\""
+#                 dwarn "falling back to the basic \"play\" mode"
+#             else
+#                 MPLAYER_M_MODE=play
+#                 dwarn "Setting the mode to the default:"
+#                 dwarn "    $(declare -p MPLAYER_M_MODE)"
+#             fi
+#             mplay "$@"
+#             ;;
+#     esac
+# }
 
 maspect()   {
     local orig_aspect="$1" ; shift
@@ -136,35 +137,35 @@ complete -F _maspect m{aspect,a}
 #complete -F _mplayer m{,comp,compmore}
 
 
-mmode() {
-    local newmode="$1"
-    if [[ -z "${MPLAYER_M_MODE}" ]] ; then
-        if (( $# < 1 )) || [[ -z "$1" ]] ; then
-            local oldPS3="${PS3}"
-            local PS3="mplayer profile for the \"m\" launcher: "
-            select mode in "${MPLAYER_M_MODES[@]}" ; do
-                if [[ -z "${REPLY}" ]] ; then
-                    MPLAYER_M_MODE="${REPLY}"
-                fi
-                break;
-            done
-            PS3="${oldPS3}"
-        fi
-    else
-        echo "orig MPLAYER_M_MODE='${MPLAYER_M_MODE}'"
-    fi
+# mmode() {
+#     local newmode="$1"
+#     if [[ -z "${MPLAYER_M_MODE}" ]] ; then
+#         if (( $# < 1 )) || [[ -z "$1" ]] ; then
+#             local oldPS3="${PS3}"
+#             local PS3="mplayer profile for the \"m\" launcher: "
+#             select mode in "${MPLAYER_M_MODES[@]}" ; do
+#                 if [[ -z "${REPLY}" ]] ; then
+#                     MPLAYER_M_MODE="${REPLY}"
+#                 fi
+#                 break;
+#             done
+#             PS3="${oldPS3}"
+#         fi
+#     else
+#         echo "orig MPLAYER_M_MODE='${MPLAYER_M_MODE}'"
+#     fi
 
-    case ${MPLAYER_M_MODE} in
-        play | player2 | comp | compmore | verbose | 3d)
-            MPLAYER_M_MODE="${m}"
-            ;;
-        *)  MPLAYER_M_MODE="play"
-            if [[ -n "${m}" ]] ; then
-                dwarn "unknown mode \"${m}\""
-                dwarn "resetting back to basic \"${MPLAYER_M_MODE}\" mode"
-            fi
-            ;;
-    esac
-    dinfo "MPLAYER_M_MODE=\"${MPLAYER_M_MODE}\""
-}
-complete -W "${MPLAYER_M_MODES[*]}" mmode
+#     case ${MPLAYER_M_MODE} in
+#         play | player2 | comp | compmore | verbose | 3d)
+#             MPLAYER_M_MODE="${m}"
+#             ;;
+#         *)  MPLAYER_M_MODE="play"
+#             if [[ -n "${m}" ]] ; then
+#                 dwarn "unknown mode \"${m}\""
+#                 dwarn "resetting back to basic \"${MPLAYER_M_MODE}\" mode"
+#             fi
+#             ;;
+#     esac
+#     dinfo "MPLAYER_M_MODE=\"${MPLAYER_M_MODE}\""
+# }
+# complete -W "${MPLAYER_M_MODES[*]}" mmode

@@ -7,50 +7,55 @@
 PATH="\
 ${HOME}/bin:\
 ${HOME}/bin/elf:\
-${HOME}/.rbenv/shims:\
 ${HOME}/.cw/bin:\
 ${HOME}/opt/bin:\
 ${PATH}"
 
 export TERM INPUTRC PATH
 
-declare rbenv_src="$(
-rbenv() {
-  local command
-  command="$1"
-  if [ "$#" -gt 0 ]; then
-    shift
-  fi
+. /usr/local/share/chruby/chruby.sh
+#chruby ruby-2.0.0-p353
+chruby ruby-2.1.0
 
-  case "$command" in
-  rehash|shell)
-    eval "`rbenv "sh-$command" "$@"`";;
-  *)
-    command rbenv "$command" "$@";;
-  esac
-}
-declare -f rbenv
-)
-"
-case $(type -t rbenv) in
-    file)
-        eval "${rbenv_src}"
-        ;;
-    function)
-        if [[ "${rbenv_src}" == "$(declare -f rbenv)" ]] ; then
-            :  # no need to redefine the funciton
-        else
-            derror ".bashrc ERROR: rbenv() changed to an unknown function:" 1>&2
-            declare -f rbenv 1>&2
-        fi
-        ;;
-    *)
-        derror ".bashrc ERROR: cannot wrap rbenv which hass " 1>&2
-        derror "               already been defined as:" 1>&2
-        type rbenv 1>&2
-        ;;
-esac
-unset rbenv_src
+#${HOME}/.rbenv/shims:\
+
+# declare rbenv_src="$(
+# rbenv() {
+#   local command
+#   command="$1"
+#   if [ "$#" -gt 0 ]; then
+#     shift
+#   fi
+
+#   case "$command" in
+#   rehash|shell)
+#     eval "`rbenv "sh-$command" "$@"`";;
+#   *)
+#     command rbenv "$command" "$@";;
+#   esac
+# }
+# declare -f rbenv
+# )
+# "
+# case $(type -t rbenv) in
+#     file)
+#         eval "${rbenv_src}"
+#         ;;
+#     function)
+#         if [[ "${rbenv_src}" == "$(declare -f rbenv)" ]] ; then
+#             :  # no need to redefine the funciton
+#         else
+#             derror ".bashrc ERROR: rbenv() changed to an unknown function:" 1>&2
+#             declare -f rbenv 1>&2
+#         fi
+#         ;;
+#     *)
+#         derror ".bashrc ERROR: cannot wrap rbenv which hass " 1>&2
+#         derror "               already been defined as:" 1>&2
+#         type rbenv 1>&2
+#         ;;
+# esac
+# unset rbenv_src
 
 # guess color mode from the terminal name
 # if it's not set already
@@ -68,15 +73,50 @@ GREP_COLORS="rv:mt=38;5;197;1:sl=48;5;234:cx=38;5;247:fn=48:5:240:38;5;46:ln=38;
 TIMEFORMAT=$'\nreal %3R\tuser %3U\tsys %3S\tpcpu %P\n'
 FIGNORE='.o:~'
 
+VBOX_APP_HOME="/opt/VirtualBox"
+
+_add_to_path_var() {
+    local varname="$1" ; shift
+    local oldIFS="${IFS}"
+    local do_add value
+
+    for x in "$@" ; do
+        do_add=true
+        value="${!varname}"
+        IFS=":"
+        for i in ${value} ; do
+            if [[ "${i}" == "${x}" ]] ; then
+                do_add=false
+            fi
+        done
+        IFS="${oldIFS}"
+
+        if ${do_add} ; then
+            if [[ -n "${cur}" ]] ; then
+                value="${x}"
+            else
+                value="${x}:${value}"
+            fi
+            eval "${varname}='${value}'"
+        fi
+    done
+}
+
+# set the default value if necessary
+
+: ${PKG_CONFIG_PATH:=/usr/lib64/pkgconfig:/usr/share/pkgconfig}
+_add_to_path_var PKG_CONFIG_PATH "/usr/local/lib/pkgconfig"
+export PKG_CONFIG_PATH
+
 #export NOCOLOR_PIPE GREP_COLORS TIMEFORMAT FIGNORE
 
 # *** HACK ***
 # Workaround for how Gentoo deals with ruygems. We manage it
 # entirely separate from the distory anyway (rbenv/bundler), so this
 # has little utility anyway.
-export RUBYOPT=""
+#export RUBYOPT=""
 
-export RBENV_SHELL=bash
+#export RBENV_SHELL=bash
 
 # ruby gc tuning
 # export RUBY_HEAP_MIN_SLOTS=1000000
