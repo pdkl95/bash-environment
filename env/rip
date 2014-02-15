@@ -19,8 +19,6 @@ export PATH RUBYLIB RIPDIR
 
 eval $(rip-config)
 
-PROMPT_PREFIX="rip"
-
 unloadenv_rip() {
     RUBYLIB="${_ORIGENV_RIP_RUBYLIB}"
     MANPATH="${_ORIGENV_RIP_MANPATH}"
@@ -28,12 +26,10 @@ unloadenv_rip() {
     export PATH MANPATH RUBYLIB
 
     unset _ORIGENV_RIP_RUBYLIB _ORIGENV_RIP_MANPATH _ORIGENV_RIP_PATH
-    unset RIPDIR RIPROOT PROMPT_PREFIX
+    unset RIPDIR RIPROOT
 
     unset RIPHELPERS RIPVERBOSE
     unset -f rip rip-helpers rip-pop rip-push rip-use
-
-    unset -f unloadenv_rip
 }
 
 

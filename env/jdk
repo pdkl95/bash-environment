@@ -5,9 +5,6 @@ _ORIGENV_JDK_LDPATH="${LDPATH}"
 _ORIGENV_JDK_MANPATH="${MANPATH}"
 _ORIGENV_JDK_PATH="${PATH}"
 
-PROMPT_PREFIX="jdk"
-
-
 CURRENT_JAVA_VM="$(java-config --show-active-vm)"
 if [[ -z "${CURRENT_JAVA_VM}" ]] ; then
     echo "ERROR: No current java VM has been set!" 1>&2
@@ -67,6 +64,4 @@ unloadenv_jdk() {
     unset _ORIGENV_JDK_LDPATH
     unset _ORIGENV_JDK_MANPATH
     unset _ORIGENV_JDK_PATH
-
-    unset -f unloadenv_jdk
 }
