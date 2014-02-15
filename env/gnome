@@ -1,0 +1,74 @@
+#!/bin/bash
+
+_GNOMEROOT="${HOME}/build/gnome/local"
+
+_ORIGENV_GNOME_PATH="$PATH"
+PATH="${_GNOMEROOT}/bin:$PATH"
+
+if [[ -v LD_LIBRARY_PATH ]] ; then
+    _ORIGENV_GNOME_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
+    LD_LIBRARY_PATH="${_GNOMEROOT}/lib64:${LD_LIBRARY_PATH}"
+else
+    LD_LIBRARY_PATH="${_GNOMEROOT}/lib64"
+fi
+
+if [[ -v MANPATH ]] ; then
+    _ORIGENV_GNOME_MANPATH="${MANPATH}"
+    MANPATH="${_GNOMEROOT}/lib64/man:${MANPATH}"
+else
+    MANPATH="${_GNOMEROOT}/lib64/man"
+fi
+
+if [[ -v INFOPATH ]] ; then
+    _ORIGENV_GNOME_INFOPATH="${INFOPATH}"
+    INFOPATH="${_GNOMEROOT}/lib64/info:${INFOPATH}"
+else
+    INFOPATH="${_GNOMEROOT}/lib64/info"
+fi
+
+if [[ -v PKG_CONFIG_PATH ]] ; then
+    _ORIGENV_GNOME_PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
+    PKG_CONFIG_PATH="${_GNOMEROOT}/lib64/pkgconfig:${PKG_CONFIG_PATH}"
+else
+    PKG_CONFIG_PATH="${_GNOMEROOT}/lib64/pkgconfig"
+fi
+
+export PATH LD_LIBRARY_PATH MANPATH INFOPATH PKG_CONFIG_PATH
+
+
+unloadenv_gnome() {
+    if [[ -v _ORIGENV_GNOME_PATH ]] ; then
+        PATH="${_ORIGENV_GNOME_PATH}"
+        unset _ORIGENV_GNOME_PATH
+    fi
+
+    if [[ -v _ORIGENV_GNOME_LD_LIBRARY_PATH ]] ; then
+        LD_LIBRARY_PATH="${_ORIGENV_GNOME_LD_LIBRARY_PATH}"
+        unset _ORIGENV_GNOME_LD_LIBRARY_PATH
+    fi
+
+    if [[ -v _ORIGENV_GNOME_MANPATH ]] ; then
+        MANPATH="${_ORIGENV_GNOME_MANPATH}"
+        unset _ORIGENV_GNOME_MANPATH
+    fi
+
+    if [[ -v _ORIGENV_GNOME_INFOPATH ]] ; then
+        INFOPATH="${_ORIGENV_GNOME_INFOPATH}"
+        unset _ORIGENV_GNOME_INFOPATH
+    fi
+
+    if [[ -v _ORIGENV_GNOME_PKG_CONFIG_PATH ]] ; then
+        PKG_CONFIG_PATH="${_ORIGENV_GNOME_PKG_CONFIG_PATH}"
+        unset _ORIGENV_GNOME_PKG_CONFIG_PATH
+    fi
+
+    unset _GNOMEROOT
+}
+
+
+# Local Variables:
+# mode: sh
+# sh-basic-offset: 4
+# sh-shell: bash
+# coding: unix
+# End:
