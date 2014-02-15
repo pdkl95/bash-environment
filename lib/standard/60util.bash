@@ -20,16 +20,6 @@ cs() {
     l
 }
 
-loadenv() {
-    source "${bashEV[ROOT]}/env/${1}"
-}
-
-_loadenv() {
-    COMPREPLY=($(compgen -W "$(ls ${bashEV[ROOT]}/env)" -- "${COMP_WORDS[COMP_CWORD]}"))
-    return 0
-}
-complete -F _loadenv loadenv
-
 # all man pages!
 current_ruby_Version() {
     rbenv version | cut -d\  -f 1

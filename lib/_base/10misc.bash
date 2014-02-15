@@ -13,6 +13,32 @@ ${PATH}"
 
 export TERM INPUTRC PATH
 
+_is_varname() {
+    [[ "$1" =~ ^[_[:alpha:]][_[:alnum:]]*$ ]]
+}
+
+_get() {
+    local name="$1"
+    #echo "_get '${name}'" 1>&2
+    if [[ -v "${name}" ]] ; then
+        echo "${!name}"
+    else
+        return 1
+    fi
+}
+
+_set() {
+    local name="$1" val="$2"
+    #echo "_set '${name}' '${val}'" 1>&2
+    if _is_varname "${name}" ; then
+        eval "${name}=\${val}"
+    else
+        echo "NOT A VALID VARIABLE NAME: '${name}'"
+    fi
+}
+
+
+
 . /usr/local/share/chruby/chruby.sh
 #chruby ruby-2.0.0-p353
 chruby ruby-2.1.0
