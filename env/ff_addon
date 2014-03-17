@@ -11,10 +11,63 @@ PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 export CUDDLEFISH_ROOT PYTHONPATH PATH
 
+FF_DEV_PROFILE_DIR="/home/endymion/.mozilla/firefox/uqog3esn.dev"
+FF_DEV_PROFILE="$(basename "${FF_DEV_PROFILE_DIR}")"
+
+if [[ "$(type -t run)" == "function" ]] ; then
+    _LOADENV_FF_ADDON_OLD_RUN="$(declare -f run)"
+elif type -t run ; then
+    echo "WARNING: overriding \"run\""
+    type run
+fi
+
+run() {
+    local projdir="$PWD"
+    local pkgjson="${PWD}/package.json"
+    local testurl_file="${projdir}/.test_url"
+
+    if ! [[ -f "${pkgjson}" ]] ; then
+        echo "ff_addon: not in an addon project? missing package.json"
+        return 1
+    fi
+
+    local -a opt=()
+    opt+=( --profiledir="${FF_DEV_PROFILE_DIR}" )
+
+    local -a binary_args=()
+
+    if [[ -f "${testurl_file}" ]] ; then
+        local testurl="$(cat "${testurl_file}")"
+        echo "*** USING TEST RUL: \"${testurl}\""
+        binary_args+=( -url "${testurl}" )
+    fi
+
+    binary_args+=( "-jsconsole" )
+
+    if (( ${#binary_args[*]} > 0 )) ; then
+        opt+=(  --binary-args "${binary_args[*]}" )
+    fi
+declare -p binary_args opt
+    echo cfx run "${opt[@]}" "$@"
+    cfx run "${opt[@]}" "$@"
+
+    # local -a cmd=( $( --no-run 2>&1 | tail -n 1) )
+    # echo "${cmd[@]}"
+    # "${cmd[@]}"
+}
+
 unloadenv_ff_addon() {
     PYTHONPATH="${_ORIGENV_FF_ADDON_PYTHONPATH}"
     PATH="${_ORIGENV_FF_ADDON_PATH}"
     export PATH PYTHONPATH
+
+    unset -f run
+    if [[ -v _LOADENV_FF_ADDON_OLD_RUN ]] ; then
+        eval "${_LOADENV_FF_ADDON_OLD_RUN}"
+        unset _LOADENV_FF_ADDON_OLD_RUN
+    fi
+
+    unset FF_DEV_PROFILE_DIR FF_DEV_PROFILE
 
     unset CUDDLEFISH_ROOT VIRTUAL_ENV
     unset _ORIGENV_FF_ADDON_PATH _ORIGENV_FF_ADDON_PYTHONPATH
