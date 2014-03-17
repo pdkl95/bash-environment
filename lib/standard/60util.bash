@@ -17,7 +17,7 @@ pdf() {
 
 cs() {
     cd "$1"
-    l
+    command ls --human-readable --color=auto -l -t --reverse
 }
 
 # all man pages!
@@ -184,9 +184,9 @@ lsenv() {
     done | /bin/cat -Tsv
 }
 
-ff() {
-    find . -type f "$@"
-}
+#ff() {
+#    find . -type f "$@"
+#}
 
 # Repeat n times command.
 # repeat() {

@@ -48,6 +48,25 @@ first_available_cmd() {
     return 1
 }
 
+_split_at() {
+    local IFS="$1" x
+    for x in "$2" ; do
+        echo "${x}"
+    done
+}
+
+for_each_split_by() {
+    local sep="$1" ; shift
+    local str
+    for str in "$@" ; do
+        _split_at "${sep}" "${str}"
+    done
+}
+
+pathlike_split() {
+    for_each_split_by ":" "$@"
+}
+
 # store most bashEV local vars in a hash, so
 # we aren't polluting the global namespace with
 # a huge amount of junk
@@ -176,6 +195,7 @@ bashEV_load_dir() {
 
     local name_re="[0-9][0-9]*${ext}"
 
+    local file
     while IFS= read file ; do
         #echo "bashEV_lood_dir:     - loading: \"${file#${bashEV[LIB]}/}\""
         source "${file}"

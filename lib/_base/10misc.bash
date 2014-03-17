@@ -106,6 +106,7 @@ _add_to_path_var() {
     local oldIFS="${IFS}"
     local do_add value
 
+    local x
     for x in "$@" ; do
         do_add=true
         value="${!varname}"
